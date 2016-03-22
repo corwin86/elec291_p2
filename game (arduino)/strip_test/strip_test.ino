@@ -4,7 +4,10 @@
 
 /*strips*/
 //also look into using NeoMatrix libraries??
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(5, PIN, NEO_GRB + NEO_KHZ800);
+
+/*brightness*/
+int brightness = 50;
 
 /*colours*/
 uint32_t red = strip.Color(255, 0, 0);
@@ -32,6 +35,6 @@ void loop() {
   strip.setPixelColor(0, magenta); //sets colour of first pixel
   strip.show(); //'pushes' colour data to the strip
 
-  //strip.setBrightness(brightness); -> from 0 to 255
+  strip.setBrightness(brightness); //from 0 to 255
 
 }
