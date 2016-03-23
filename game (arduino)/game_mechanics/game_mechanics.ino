@@ -97,6 +97,7 @@ int playConnectFour() {
     do {
       //!!! -- take input --
       //!!! use serial for debug
+      while(!Serial.available()); //wait for serial data
       col = Serial.parseInt();
       
       // clamp inputs to valid range
