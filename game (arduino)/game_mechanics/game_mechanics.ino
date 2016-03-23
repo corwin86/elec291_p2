@@ -89,15 +89,20 @@ int playConnectFour() {
     }
   }
   
+  //!!! debugging print -> testing board construction and accessing
+  printBoard(x_dim, y_dim, board);
+  while(1); //!!! debugging
+  
+  //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
   while(!gameOver_connect4(x_dim, y_dim, board)) {
-    //!!! game logic
+    //!!! game logic not done
     
     int col;
     do {
       //!!! -- take input --
       //!!! use serial for debug
-      while(!Serial.available()); //wait for serial data
+      while(!Serial.available()); //wait for serial data before parsing
       col = Serial.parseInt();
       
       // clamp inputs to valid range
@@ -106,8 +111,9 @@ int playConnectFour() {
     
     cur_player = cur_player == P1 ? P2 : P1; //change turns
   }
+  //-- end gameplay --
 
-  printBoard(x_dim, y_dim, board);
+  printBoard(x_dim, y_dim, board); //for testing purposes
   
   //!!! perhaps delay this call for user to confirm end game
   connect4Cascade(x_dim, y_dim, board); //GUI feature indicates game end, ***CLEARS BOARD***
