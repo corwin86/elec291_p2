@@ -89,8 +89,21 @@ int playConnectFour() {
     }
   }
   
+  int cur_player = P1; //cur_player is one of {P1, P2}
   while(!gameOver_connect4(x_dim, y_dim, board)) {
     //!!! game logic
+    
+    int col;
+    do {
+      //!!! -- take input --
+      //!!! use serial for debug
+      col = Serial.parseInt();
+      
+      // clamp inputs to valid range
+      col = col < 0 ? 0 : col >= x_dim ? x_dim - 1 : col;
+    } while (!connect4DropToken(x_dim, y_dim, board, col, cur_player));
+    
+    cur_player = cur_player == P1 ? P2 : P1; //change turns
   }
 
   printBoard(x_dim, y_dim, board);
@@ -99,6 +112,24 @@ int playConnectFour() {
   freeBoard(x_dim, board);
   
   return 1; //game completed successfully
+}
+
+/*
+ *  Place a player token on board in column x !!!untested
+ */
+int connect4DropToken(int x_dim, int y_dim, int **board, int col, int token) {
+  int y = -1;
+  while(board[col][y + 1] == EMPTY_CELL) {
+    y++;
+  }
+  
+  if(y == -1) { //no empty cells in column col
+    return 0;
+  }
+  
+  board[col][y] = token; //place token
+  
+  return 1; //successfully dropped token
 }
 
 int gameOver_connect4(int x_dim, int y_dim, int **board) {
