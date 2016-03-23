@@ -1,12 +1,15 @@
 #include <Adafruit_NeoPixel.h>
 
 #define PIN 6
+#define BRIGHTNESS 25
 
 /*strips*/
 //also look into using NeoMatrix libraries??
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(5, PIN, NEO_GRB + NEO_KHZ800);
 
-int brightness = 25;
+//initialize all board positions to 0
+uint32_t boardState[8][8] = {};
+uint32_t player1, player2;
 
 /*colours*/
 uint32_t red = strip.Color(255, 0, 0);
@@ -23,14 +26,16 @@ uint32_t off = strip.Color(0, 0, 0);
 void setup() {
   strip.begin();
   strip.show(); //initialize all pixels to 'off'
+  strip.setBrightness(BRIGHTNESS);
 }
 
 void loop() {
   initCheckers();
 }
 
-void matWrite(x, y, colour) {
-  strip.setPixelColor(8y + x, colour);
+void matWrite(uint8_t x, uint8_t y, uint32_t colour) {
+  strip.setPixelColor(8 * y + x, colour);
+  boardState[x][y] = colour;
 }
 
 void initCheckers() {
@@ -51,5 +56,9 @@ void initCheckers() {
   matWrite(3, 6, blue);
   matWrite(5, 6, blue);
   matWrite(7, 6, blue);
+}
+
+void isValidMove(){
+  return;
 }
 
