@@ -85,7 +85,7 @@ int playConnectFour() {
   int x, y;
   for (y = 0; y < y_dim; y++) {
     for (x = 0; x < x_dim; x++) {
-      board[x][y] = x_dim * x + y; //set for debugging !!! EMPTY_CELL;
+      board[y][x] = x_dim * x + y; //set for debugging !!! EMPTY_CELL;
     }
   }
   
@@ -107,9 +107,12 @@ int playConnectFour() {
   }
 
   printBoard(x_dim, y_dim, board);
-
+  
+  //!!! perhaps delay this call for user to confirm end game
+  connect4Cascade(x_dim, y_dim, board); //GUI feature indicates game end, ***CLEARS BOARD***
+  
   // free malloc'd memory
-  freeBoard(x_dim, board);
+  freeBoard(y_dim, board);
   
   return 1; //game completed successfully
 }
@@ -119,7 +122,7 @@ int playConnectFour() {
  */
 int connect4DropToken(int x_dim, int y_dim, int **board, int col, int token) {
   int y = -1;
-  while(board[col][y + 1] == EMPTY_CELL) {
+  while(board[y + 1][col] == EMPTY_CELL) {
     y++;
   }
   
@@ -127,13 +130,24 @@ int connect4DropToken(int x_dim, int y_dim, int **board, int col, int token) {
     return 0;
   }
   
-  board[col][y] = token; //place token
+  board[y][col] = token; //place token
   
   return 1; //successfully dropped token
 }
 
+/*
+ *  Return true if a player has won, or a draw is reached (board is full)
+ */
 int gameOver_connect4(int x_dim, int y_dim, int **board) {
   return winningPlayer_connect4(x_dim, y_dim, board) > 0 || boardFull(x_dim, y_dim, board);
+}
+
+/*
+ *  Graphical sequence replicating pulling bottom out of connect 4 board
+ *  Modifies board: replaces all user tokens with EMPTY_CELL
+ */
+void connect4Cascade(int x_dim, int y_dim, int **board) {
+  //!!!increment tokens down, falling out of bottom of board
 }
 
 /*
@@ -168,10 +182,10 @@ int ** createBoard(int x_dim, int y_dim) {
 /*
  *  Free an x_dim by (irrelevant) board's allocated memory
  */
-void freeBoard(int x_dim, int **board) {
-  int x, y;
-  for (x = 0; x < x_dim; x++) {
-    free(board[x]);
+void freeBoard(int y_dim, int **board) {
+  int y;
+  for (y = 0; y < y_dim; y++) {
+    free(board[y]);
   }
   free(board);
 }
@@ -185,7 +199,7 @@ void printBoard(int x_dim, int y_dim, int **board) {
   int x, y;
   for (y = 0; y < y_dim; y++) {
     for (x = 0; x < x_dim; x++) {
-      Serial.print(board[x][y]); Serial.print("\t");
+      Serial.print(board[y][x]); Serial.print("\t");
     }
     Serial.println();
   }
