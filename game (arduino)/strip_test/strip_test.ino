@@ -4,7 +4,8 @@
 
 /*strips*/
 //also look into using NeoMatrix libraries??
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(5, PIN, NEO_GRB + NEO_KHZ800);
+int n = 7;
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(n, PIN, NEO_GRB + NEO_KHZ800);
 
 /*brightness*/
 int brightness = 25;
@@ -17,12 +18,14 @@ uint32_t magenta = strip.Color(255, 0, 255);
 uint32_t cyan = strip.Color(0, 255, 255);
 uint32_t yellow = strip.Color(255, 255, 0);
 uint32_t white = strip.Color(255, 255, 255);
+uint32_t off = strip.Color(0, 0, 0);
 
 //uint16_t n = strip.numPixels(); -> determines number of pixels in strip
 
 void setup() {
   strip.begin();
   strip.show(); //initialize all pixels to 'off'
+  strip.setBrightness(25);
 
 }
 
@@ -33,14 +36,35 @@ void loop() {
   //strip.setPixelColor(n, red, green, blue); or,
   //strip.setPixelColor(n, color);
 
-  strip.setPixelColor(0, red); //sets colour of first pixel
-  strip.setPixelColor(1, yellow); //sets colour of first pixel
-  strip.setPixelColor(2, green); //sets colour of first pixel
-  strip.setPixelColor(3, cyan); //sets colour of first pixel
-  strip.setPixelColor(4, magenta); //sets colour of first pixel
+  int i;
+  for(i = 0; i < n; i++) {
+    strip.setPixelColor(i, off);
+  }
+  strip.show();
+  delay(500);
 
-  strip.show(); //'pushes' colour data to the strip
-
-  strip.setBrightness(brightness); //from 0 to 255
-
+  for(i = 0; i < n; i++) {
+    uint32_t color;
+    switch (i % 4) {
+      case 0 : {
+        color = cyan;
+        break;
+      }
+      case 1 : { 
+        color = yellow;
+        break;
+      }
+      case 2 : {
+        color = red;
+        break;
+      }
+      default : {
+        color = blue;
+      }
+    }
+    strip.setPixelColor(i, color);
+  }
+  
+  strip.show();
+  delay(500);
 }
