@@ -5,14 +5,20 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.content.Intent;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
+
 
 public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickListener {
 
     Button buttonSinglePlayer, buttonMultiPlayer;
-
 
 
     @Override
@@ -22,14 +28,7 @@ public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickL
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Initialization
@@ -38,6 +37,7 @@ public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickL
 
         buttonMultiPlayer = (Button) findViewById(R.id.buttonMultiPlayer);
         buttonMultiPlayer.setOnClickListener(this);
+
     }
 
     @Override
@@ -54,7 +54,8 @@ public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickL
     }
 
     public void onPlayerClick(Button pressedButton){
-        startActivity(new Intent("com.example.elec291.connect4.DisplayColorsActivity"));
+        startActivity(new Intent(ChoosePlayerMode.this, ChooseChipColor.class));
+        //startActivity(new Intent("com.example.elec291.connect4.DisplayColorsActivity"));
 
     }
 }

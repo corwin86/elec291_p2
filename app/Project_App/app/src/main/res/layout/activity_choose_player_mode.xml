@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.example.elec291.connectfour.ChoosePlayerMode">
+    tools:context="com.example.elec291.connectfour.ChoosePlayerMode"
+    android:background="#e7d9c5">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

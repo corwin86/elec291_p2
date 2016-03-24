@@ -6,6 +6,7 @@ import android.graphics.PorterDuff;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Activity;
 import android.util.DisplayMetrics;
+import android.view.Window;
 import android.widget.Button;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -14,7 +15,7 @@ import android.view.View;
 import android.widget.Toast;
 import android.view.View.OnClickListener;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity{
 
     Button playButton;
 
@@ -31,7 +32,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Initialization
         playButton = (Button) findViewById(R.id.playButton);
-        playButton.setOnClickListener(this);
+        playButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                //startActivity(new Intent(MainActivity.this, Pop.class));
+                startActivity(new Intent(MainActivity.this, ChoosePlayerMode.class));
+            }
+        });
+//        playButton.setOnClickListener(new View.OnClickListener(){
+//
+//
+//
+//            @Override
+//            public void onClick(View v){
+//                startActivity(new Intent(MainActivity.this, Pop.class));
+//            }
+//
+//        });
         //playButton.setBackgroundColor(Color.parseColor("#FFF1D5D5"));
         //playButton.setColorFilter( 0xffff0000, Mode.MULTIPLY )    }
 
@@ -41,15 +59,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    @Override
-    public void onClick(View v) {
-        switch ((v.getId())){
-            case R.id.playButton:
-                playButtonClick();
-                break;
 
-        }
-
-    }
+//    @Override
+//    public void onClick(View v) {
+//        switch ((v.getId())){
+//            case R.id.playButton:
+//                playButtonClick();
+//                break;
+//
+//        }
+//
+//    }
 }
  

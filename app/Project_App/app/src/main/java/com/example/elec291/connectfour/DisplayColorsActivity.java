@@ -25,6 +25,7 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_colors);
+
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
@@ -33,8 +34,8 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
 
         getWindow().setLayout((int) (width * 0.8), (int) (height * 0.8));
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
         //initialization
         buttonRed = (Button) findViewById(R.id.buttonRed);
@@ -51,15 +52,6 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
         buttonYellow.setOnClickListener(this);
         buttonCyan.setOnClickListener(this);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void colorButtonClick(Button pressedButton){
