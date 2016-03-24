@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ConnectFour</string>
+    <string name="title_activity_display_colors">DisplayColorsActivity</string>
+    <string name="title_activity_choose_player_mode">ChoosePlayerMode</string>
+</resources>
