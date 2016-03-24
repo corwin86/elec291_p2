@@ -1,28 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.elec291.connectfour.DisplayColorsActivity"
-    tools:showIn="@layout/activity_display_colors">
-    <!--android:backgroundTint="#ffffff"-->
-    <!--android:background="#ffffff">-->
+    android:layout_width="match_parent" android:layout_height="match_parent">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_alignRight="@+id/buttonCyan"
-        android:layout_alignEnd="@+id/buttonCyan"
-        android:layout_below="@+id/textView2"
-        android:layout_alignLeft="@+id/buttonRed"
-        android:layout_alignStart="@+id/buttonRed" />
+
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,15 +14,6 @@
         android:layout_marginTop="25dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/colorText2"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:layout_above="@+id/buttonCyan"
-        android:layout_toLeftOf="@+id/textView2"
-        android:layout_toStartOf="@+id/textView2" />
 
 
     <Button
@@ -125,6 +97,7 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         android:text="Next"
         android:id="@+id/buttonNext"
         android:clickable="false"
@@ -132,5 +105,72 @@
         android:layout_below="@+id/buttonGreen"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="23dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="invisible"
+        android:text="Player 1"
+        android:id="@+id/textView3"
+        android:layout_above="@+id/buttonCyan"
+        android:layout_alignLeft="@+id/buttonRed"
+        android:layout_alignStart="@+id/buttonRed" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="invisible"
+        android:text="Player 1"
+        android:id="@+id/textView4"
+        android:layout_above="@+id/buttonCyan"
+        android:layout_toRightOf="@+id/buttonNext"
+        android:layout_toEndOf="@+id/buttonNext" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="invisible"
+        android:text="Player 1"
+        android:id="@+id/textView5"
+        android:layout_above="@+id/buttonMagenta"
+        android:layout_alignLeft="@+id/buttonBlue"
+        android:layout_alignStart="@+id/buttonBlue" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="invisible"
+        android:text="Player 1"
+        android:id="@+id/textView6"
+        android:layout_above="@+id/buttonMagenta"
+        android:layout_toRightOf="@+id/buttonNext"
+        android:layout_toEndOf="@+id/buttonNext" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="invisible"
+        android:text="Player 1"
+        android:id="@+id/textView7"
+        android:layout_above="@+id/buttonGreen"
+        android:layout_alignLeft="@+id/buttonYellow"
+        android:layout_alignStart="@+id/buttonYellow" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="invisible"
+        android:text="Player 1"
+        android:id="@+id/textView8"
+        android:layout_above="@+id/buttonGreen"
+        android:layout_toRightOf="@+id/buttonNext"
+        android:layout_toEndOf="@+id/buttonNext" />
+
 
 </RelativeLayout>
