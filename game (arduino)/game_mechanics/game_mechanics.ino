@@ -85,13 +85,9 @@ int playConnectFour() {
   int x, y;
   for (y = 0; y < y_dim; y++) {
     for (x = 0; x < x_dim; x++) {
-      board[y][x] = x_dim * x + y; //set for debugging !!! EMPTY_CELL;
+      board[y][x] = EMPTY_CELL;
     }
   }
-  
-  //!!! debugging print -> testing board construction and accessing
-  printBoard(x_dim, y_dim, board);
-  while(1); //!!! debugging
   
   //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
@@ -104,16 +100,17 @@ int playConnectFour() {
       //!!! use serial for debug
       while(!Serial.available()); //wait for serial data before parsing
       col = Serial.parseInt();
+      Serial.println(col);
       
       // clamp inputs to valid range
       col = col < 0 ? 0 : col >= x_dim ? x_dim - 1 : col;
     } while (!connect4DropToken(x_dim, y_dim, board, col, cur_player));
     
+    printBoard(x_dim, y_dim, board);
+    
     cur_player = cur_player == P1 ? P2 : P1; //change turns
   }
   //-- end gameplay --
-
-  printBoard(x_dim, y_dim, board); //for testing purposes
   
   //!!! perhaps delay this call for user to confirm end game
   connect4Cascade(x_dim, y_dim, board); //GUI feature indicates game end, ***CLEARS BOARD***
@@ -210,6 +207,7 @@ void printBoard(int x_dim, int y_dim, int **board) {
     }
     Serial.println();
   }
+  Serial.println();
 }
 
 /*
