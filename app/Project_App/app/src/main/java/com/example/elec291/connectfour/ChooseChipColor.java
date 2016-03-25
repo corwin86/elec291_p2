@@ -121,7 +121,7 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
             switch ((v.getId())){
                 case R.id.buttonNext:
                     finish();
-                    startActivity(new Intent("com.example.elec291.connect4.ConnectViaWiFi"));
+                    //startActivity(new Intent("com.example.elec291.connect4"));
                     break;
             }
         }
@@ -196,7 +196,6 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
     }
 
     private void NextClickToConnectScreen(){
-        startActivity(new Intent("com.example.elec291.connect4.ConnectViaWiFi"));
     }
 
 //    private void secondColorButtonClick(Button pressedButton){
