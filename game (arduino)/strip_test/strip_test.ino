@@ -4,11 +4,11 @@
 
 /*strips*/
 //also look into using NeoMatrix libraries??
-int n = 7;
+int n = 64;
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(n, PIN, NEO_GRB + NEO_KHZ800);
 
 /*brightness*/
-int brightness = 25;
+int brightness = 25; //!!! DO NOT GO OVER 25 WHEN USING ARDUINO POWER ONLY !!!
 
 /*colours*/
 uint32_t red = strip.Color(255, 0, 0);
@@ -29,6 +29,7 @@ void setup() {
 
 }
 
+int c = 0;
 //connect 4 strategy: https://www.quora.com/What-is-the-winning-strategy-for-the-first-player-in-Connect-Four-games
 void loop() {
   //to set the colour of a pixel, either set RGB, or pre-defined colour
@@ -45,7 +46,7 @@ void loop() {
 
   for(i = 0; i < n; i++) {
     uint32_t color;
-    switch (i % 4) {
+    switch (i % (4 - c)) {
       case 0 : {
         color = cyan;
         break;
@@ -67,4 +68,5 @@ void loop() {
   
   strip.show();
   delay(500);
+  c = c == 2 ? 0 : c + 1;
 }
