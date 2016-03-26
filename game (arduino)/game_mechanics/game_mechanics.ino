@@ -14,6 +14,7 @@ uint32_t blue = strip.Color(0, 0, 255);
 uint32_t magenta = strip.Color(255, 0, 255);
 uint32_t cyan = strip.Color(0, 255, 255);
 uint32_t yellow = strip.Color(255, 255, 0);
+uint32_t black = strip.Color(255, 255, 255);
 
 // ==== Constants ====
 
