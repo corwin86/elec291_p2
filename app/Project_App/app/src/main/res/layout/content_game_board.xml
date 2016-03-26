@@ -9,9 +9,8 @@
         android:columnCount="2"
         android:orientation="horizontal"
         android:id="@+id/gridLayout"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="53dp">
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true">
 
         <Button android:text="1"
             android:layout_width="130dp"
@@ -45,9 +44,8 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Player 1: Make a Move"
         android:id="@+id/textView11"
-        android:layout_above="@+id/gridLayout"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="31dp" />
+        android:layout_below="@+id/button3"
+        android:layout_centerHorizontal="true" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
