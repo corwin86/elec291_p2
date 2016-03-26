@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 /**
@@ -18,7 +20,8 @@ import java.util.ArrayList;
  */
 public class ChooseChipColor extends AppCompatActivity implements View.OnClickListener{
     Button buttonRed, buttonBlue, buttonGreen, buttonMagenta, buttonYellow, buttonCyan, buttonNext;
-    TextView colorText2, textView3, textView4, textView5, textView6, textView7, textView8;
+    TextView colorText2, textView3, textView4, textView5, textView6, textView7, textView8, textView12,
+    textView13, textView14, textView15, textView16, textView17;
     ArrayList<Button> allColorbuttons = new ArrayList<Button>();
     int clicks = 0;
 
@@ -169,33 +172,45 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
         switch (pressedButton.getId()) {
             case R.id.buttonMagenta:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
-                textView6.setVisibility(View.VISIBLE);
-                ((TextView) findViewById(R.id.textView6)).setText("Second Player");
+                textView15 = (TextView) findViewById(R.id.textView15);
+                textView15.setVisibility(View.VISIBLE);
+               // ((TextView) findViewById(R.id.textView6)).setText("Second Player");
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
             case R.id.buttonYellow:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
-                ((TextView) findViewById(R.id.textView7)).setText("Second Player");
+                textView16 = (TextView) findViewById(R.id.textView16);
+                //((TextView) findViewById(R.id.textView7)).setText("Second Player");
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
             case R.id.buttonRed:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
-                ((TextView) findViewById(R.id.textView3)).setText("Second Player");
+                textView12 = (TextView) findViewById(R.id.textView12);
+                textView12.setVisibility(View.VISIBLE);
+               // ((TextView) findViewById(R.id.textView3)).setText("Second Player");
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
             case R.id.buttonCyan:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
-                ((TextView) findViewById(R.id.textView4)).setText("Second Player");
+                textView13 = (TextView) findViewById(R.id.textView13);
+                textView13.setVisibility(View.VISIBLE);
+                //((TextView) findViewById(R.id.textView4)).setText("Second Player");
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
             case R.id.buttonGreen:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
-                ((TextView) findViewById(R.id.textView8)).setText("Second Player");
+                //pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
+                textView17 = (TextView) findViewById(R.id.textView17);
+                textView17.setVisibility(View.VISIBLE);
+                //((TextView) findViewById(R.id.textView8)).setText("Second Player");
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
             case R.id.buttonBlue:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
-                ((TextView) findViewById(R.id.textView5)).setText("Second Player");
+                textView14 = (TextView) findViewById(R.id.textView14);
+                textView14.setVisibility(View.VISIBLE);
+                //pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
+                //((TextView) findViewById(R.id.textView5)).setText("Second Player");
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
         }
