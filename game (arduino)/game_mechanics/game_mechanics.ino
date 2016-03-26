@@ -4,10 +4,11 @@
 
 #define USE_LEDS 1
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
 /*colours*/
 uint32_t red = strip.Color(255, 0, 0);
+uint32_t off = strip.Color(0, 0, 0);
 uint32_t green = strip.Color(0, 255, 0);
 uint32_t blue = strip.Color(0, 0, 255);
 uint32_t magenta = strip.Color(255, 0, 255);
@@ -104,14 +105,31 @@ int playConnectFour() {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-      board[y][x] = EMPTY_CELL;
+      board[y][x] = P1;
     }
   }
   
-  printCell(1, 1, red);
-  printCell(4, 5, blue);
-  printCell(2, 3, green);
-  while(1);
+  while(1) {
+  for (y = 0; y < Y_DIM; y++) {
+    for (x = 0; x < X_DIM; x++) {
+      board[y][x] = P2;
+    }
+  }
+  printBoard(board);
+  delay(250);
+  for (y = 0; y < Y_DIM; y++) {
+    for (x = 0; x < X_DIM; x++) {
+      board[y][x] = EMPTY_CELL;
+    }
+  }
+  printBoard(board);
+  delay(250);
+  }
+  
+//  printCell(1, 1, red);
+//  printCell(4, 5, blue);
+//  printCell(2, 3, green);
+//  while(1);
   
   //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
@@ -229,6 +247,8 @@ void printBoard(int **board) {
     for (x = 0; x < X_DIM; x++) {
       #if !USE_LEDS
         Serial.print(board[y][x]); Serial.print("\t");
+      #else
+        printCell(x, y, board[y][x] == P1 ? red : board[y][x] == P2 ? blue : off);
       #endif
     }
     #if !USE_LEDS
