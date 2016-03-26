@@ -1,3 +1,17 @@
+#include <Adafruit_NeoPixel.h>
+
+#define PIN 6
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
+
+/*colours*/
+uint32_t red = strip.Color(255, 0, 0);
+uint32_t green = strip.Color(0, 255, 0);
+uint32_t blue = strip.Color(0, 0, 255);
+uint32_t magenta = strip.Color(255, 0, 255);
+uint32_t cyan = strip.Color(0, 255, 255);
+uint32_t yellow = strip.Color(255, 255, 0);
+
 // ==== Constants ====
 
 /* ---- hardware dependent ---- */
@@ -25,7 +39,11 @@ const int FN_SUCCESS = 1,
 
 void setup() {
   Serial.begin(9600);
-
+  
+  //added by ben
+  strip.begin();
+  strip.show();
+  
   startupLEDSequence();
 }
 
@@ -118,7 +136,7 @@ int playConnectFour() {
   // free malloc'd memory
   freeBoard(y_dim, board);
   
-  return 1; //game completed successfully
+  return FN_SUCCESS; //game completed successfully
 }
 
 /*
@@ -208,6 +226,15 @@ void printBoard(int x_dim, int y_dim, int **board) {
     Serial.println();
   }
   Serial.println();
+}
+
+/*
+ * given a row,column and color light up specified led
+ */
+void printCell(int x, int y, uint32_t color){
+  int led = (x+1)*(y+1);
+  strip.setPixelColor(led, color); //sets colour of first pixel
+  strip.show(); //'pushes' colour data to the strip 
 }
 
 /*
