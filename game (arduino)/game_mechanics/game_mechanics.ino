@@ -2,7 +2,7 @@
 
 #define PIN 6
 
-#define USE_LEDS 1
+#define USE_SERIAL 1
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -109,28 +109,6 @@ int playConnectFour() {
       board[y][x] = P1;
     }
   }
-  
-  while(1) {
-  for (y = 0; y < Y_DIM; y++) {
-    for (x = 0; x < X_DIM; x++) {
-      board[y][x] = P2;
-    }
-  }
-  printBoard(board);
-  delay(250);
-  for (y = 0; y < Y_DIM; y++) {
-    for (x = 0; x < X_DIM; x++) {
-      board[y][x] = EMPTY_CELL;
-    }
-  }
-  printBoard(board);
-  delay(250);
-  }
-  
-//  printCell(1, 1, red);
-//  printCell(4, 5, blue);
-//  printCell(2, 3, green);
-//  while(1);
   
   //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
@@ -246,17 +224,17 @@ void printBoard(int **board) {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-      #if !USE_LEDS
+      #if USE_SERIAL
         Serial.print(board[y][x]); Serial.print("\t");
       #else
         printCell(x, y, board[y][x] == P1 ? red : board[y][x] == P2 ? blue : off);
       #endif
     }
-    #if !USE_LEDS
+    #if USE_SERIAL
       Serial.println();
     #endif
   }
-  #if !USE_LEDS
+  #if USE_SERIAL
     Serial.println();
   #endif
 }
@@ -373,7 +351,7 @@ void startupLEDSequence() {
   }  
 
   for(int j = 0; j<64; j++){
-    strip.setPixelColor(j,255,255,255);
+    strip.setPixelColor(j,off);
     strip.show();
   }
 
@@ -384,6 +362,7 @@ void startupLEDSequence() {
 
   printCell(2,2,blue);
   printCell(2,3,blue);
+  printCell(4,3,blue);
   
   printCell(3,3,blue);
   printCell(5,4,blue);
@@ -391,7 +370,12 @@ void startupLEDSequence() {
   printCell(4,6,blue);
   printCell(3,6,blue);
   printCell(2,6,blue);
-  delay(5000);
+  delay(2500); //!!! display until game start
+  
+  for(int j = 0; j<64; j++){
+    strip.setPixelColor(j,off);
+    strip.show();
+  }
 }
 
 int calculateLedPosition(int x, int y){
