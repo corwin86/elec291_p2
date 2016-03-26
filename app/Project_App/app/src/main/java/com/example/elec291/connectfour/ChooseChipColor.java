@@ -124,7 +124,8 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
             switch ((v.getId())){
                 case R.id.buttonNext:
                     finish();
-                    //startActivity(new Intent("com.example.elec291.connect4"));
+                    //startActivity(new Intent("com.example.elec291.connect4.ConnectViaWifi"));
+                    startActivity(new Intent(ChooseChipColor.this, ConnectViaWifi.class));
                     break;
             }
         }
@@ -166,6 +167,7 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
         }
         //Change the text to tell user to choose a different color
         ((TextView) findViewById(R.id.textView2)).setText("Second Color");
+        //((TextView) findViewById(R.id.textView2)).setText("Choose Chip Color for CPU");
     }
 
     private void onClickTwo(Button pressedButton) {
@@ -215,22 +217,4 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
                 break;
         }
     }
-
-    private void NextClickToConnectScreen(){
-    }
-
-//    private void secondColorButtonClick(Button pressedButton){
-//        allColorbuttons.add(buttonBlue);
-//        allColorbuttons.add(buttonCyan);
-//        allColorbuttons.add(buttonGreen);
-//        allColorbuttons.add(buttonMagenta);
-//        allColorbuttons.add(buttonRed);
-//        allColorbuttons.add(buttonYellow);
-//
-//        for(int i = 0; i < allColorbuttons.size(); i++){
-//            if(allColorbuttons.get(i) != pressedButton){
-//                allColorbuttons.get(i).setOnClickListener(this);
-//            }
-//        }
-//    }
 }
