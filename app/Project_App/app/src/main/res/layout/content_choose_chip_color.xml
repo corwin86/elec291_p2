@@ -232,7 +232,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:visibility="invisible"
-        android:text="Small Text"
+        android:text="Player 2"
         android:id="@+id/textView17"
         android:layout_above="@+id/buttonGreen"
         android:layout_alignLeft="@+id/buttonGreen"
