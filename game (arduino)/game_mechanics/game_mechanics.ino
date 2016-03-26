@@ -33,9 +33,10 @@ const int CONNECT_FOUR = 0;
 const int P1 = 1,          //
           P2 = 2,          // tokens used on board
           EMPTY_CELL = 0;  //
+      int turns = 0;
 const int X_DIM = 8,
           Y_DIM = 8; 
-const int TOKEN_DROP_SPEED_C4 = 100;
+const int TOKEN_DROP_SPEED_C4 = 35;
 /* -- end game parameters -- */
 
 /* ---- error states ---- */
@@ -115,6 +116,7 @@ int playConnectFour() {
   }
   
   //---- gameplay ----
+  turns = 0;
   int cur_player = P1; //cur_player is one of {P1, P2}
   while(!gameOver_connect4(board)) {
     //!!! game logic not done
@@ -136,6 +138,7 @@ int playConnectFour() {
     printBoard(board);
     
     cur_player = cur_player == P1 ? P2 : P1; //change turns
+    turns++;
   }
   //-- end gameplay --
   
@@ -153,7 +156,7 @@ int playConnectFour() {
  */
 int dropToken_connect4(int **board, int col, int token) {
   int y = -1;
-  while(board[y + 1][col] == EMPTY_CELL) {
+  while(board[y + 1][col] == EMPTY_CELL && y + 1 < Y_DIM) {
     y++;
   }
   
@@ -162,18 +165,18 @@ int dropToken_connect4(int **board, int col, int token) {
   }
   
   // animate token drop
-  int i = 0;
+  int i = -1;
   while(i++ < y - 1) {
     delay(TOKEN_DROP_SPEED_C4);
     printCell(col, i - 1, off);
-    printCell(col, i, red);
+    printCell(col, i, token == P1 ? red : blue);
     #if DEBUG
     Serial.print(i);Serial.print(" ");Serial.print(col);Serial.print(" ");Serial.println(y);
     #endif
   }
   board[y][col] = token; //place token
   #if DEBUG
-  Serial.print("B: "); Serial.println(board[y][col]);
+  Serial.print("B: "); Serial.print(board[y][col]);Serial.print(" col: "); Serial.print(col);Serial.print(" y: "); Serial.println(y);
   #endif
   
   return 1; //successfully dropped token
@@ -183,7 +186,7 @@ int dropToken_connect4(int **board, int col, int token) {
  *  Return true if a player has won, or a draw is reached (board is full)
  */
 int gameOver_connect4(int **board) {
-  return winningPlayer_connect4(board) > 0 || boardFull(board);
+  return winningPlayer_connect4(board) > 0 || boardFull();
 }
 
 /*
@@ -205,9 +208,8 @@ int winningPlayer_connect4(int **board) {
 /*
  *  Returns 0 if board contains 1+ empty cells
  */
-int boardFull(int **board) {
-  //!!! traverse board, if has empty cell return false
-  return 0;
+int boardFull() {
+  return turns < X_DIM * Y_DIM;
 }
 
 /*
