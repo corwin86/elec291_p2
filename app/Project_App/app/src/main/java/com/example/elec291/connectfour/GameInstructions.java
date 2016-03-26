@@ -9,7 +9,7 @@ import android.widget.Button;
 /**
  * Created by rohini on 24/03/16.
  */
-public class GameInstructions extends Activity{
+public class GameInstructions extends Activity implements View.OnClickListener{
     Button button2;
     final Activity gameActivity = this;
 
