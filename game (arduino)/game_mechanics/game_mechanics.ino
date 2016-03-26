@@ -110,23 +110,6 @@ int playConnectFour() {
     }
   }
   
-  while(1) {
-  for (y = 0; y < Y_DIM; y++) {
-    for (x = 0; x < X_DIM; x++) {
-      board[y][x] = P2;
-    }
-  }
-  printBoard(board);
-  delay(250);
-  for (y = 0; y < Y_DIM; y++) {
-    for (x = 0; x < X_DIM; x++) {
-      board[y][x] = EMPTY_CELL;
-    }
-  }
-  printBoard(board);
-  delay(250);
-  }
-  
 //  printCell(1, 1, red);
 //  printCell(4, 5, blue);
 //  printCell(2, 3, green);
@@ -377,21 +360,26 @@ void startupLEDSequence() {
     strip.show();
   }
 
-  printCell(1,2,blue);
-  printCell(1,3,blue);
-  printCell(1,4,blue);
-  printCell(1,5,blue); 
+  printFive(blue);
+  delay(2000);
+  printFive(0);
+}
 
-  printCell(2,2,blue);
-  printCell(3,2,blue);
+void printFive(uint32_t c) {
+  printCell(1,2,c);
+  printCell(1,3,c);
+  printCell(1,4,c);
+  printCell(1,5,c); 
+
+  printCell(2,2,c);
+  printCell(3,2,c);
   
-  printCell(3,3,blue);
-  printCell(4,5,blue);
-  printCell(5,5,blue);
-  printCell(6,4,blue);
-  printCell(6,3,blue);
-  printCell(6,2,blue);
-  delay(5000);
+  printCell(3,3,c);
+  printCell(4,5,c);
+  printCell(5,5,c);
+  printCell(6,4,c);
+  printCell(6,3,c);
+  printCell(6,2,c);
 }
 
 int calculateLedPosition(int x, int y){
