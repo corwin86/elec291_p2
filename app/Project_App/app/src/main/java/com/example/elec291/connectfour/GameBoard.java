@@ -7,7 +7,7 @@ import android.view.View;
 /**
  * Created by rohini on 25/03/16.
  */
-public class GameBoard extends AppCompatActivity implements View.OnClickListener {
+public class GameBoard extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
