@@ -16,7 +16,8 @@ uint32_t yellow = strip.Color(255, 255, 0);
 
 /* ---- hardware dependent ---- */
 const int MAX_BOARD_X = 8,
-          MAX_BOARD_Y = 8;
+          MAX_BOARD_Y = 8,
+          LED_BRIGHTNESS = 25;
 /* -- end hardware dependent -- */
 
 /* ---- game ids ---- */
@@ -42,6 +43,7 @@ void setup() {
   
   //added by ben
   strip.begin();
+  strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
   
   startupLEDSequence();
@@ -92,8 +94,8 @@ int runGame(int gameId) {
 
 int playConnectFour() {
   // ==== Connect Four Parameters ====
-  const int x_dim = 7,
-            y_dim = 6;
+  const int x_dim = 8,
+            y_dim = 8;
   // == End Connect Four Parameters ==
 
   // Create board
@@ -106,6 +108,11 @@ int playConnectFour() {
       board[y][x] = EMPTY_CELL;
     }
   }
+  
+  printCell(x_dim, 1, 1, red);
+  printCell(x_dim, 4, 5, blue);
+  printCell(x_dim, 2, 3, green);
+  while(1);
   
   //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
@@ -231,8 +238,8 @@ void printBoard(int x_dim, int y_dim, int **board) {
 /*
  * given a row,column and color light up specified led
  */
-void printCell(int x, int y, uint32_t color){
-  int led = (x+1)*(y+1);
+void printCell(int x_dim, int x, int y, uint32_t color){
+  int led = x_dim * y + x;
   strip.setPixelColor(led, color); //sets colour of first pixel
   strip.show(); //'pushes' colour data to the strip 
 }
