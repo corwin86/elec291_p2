@@ -3,6 +3,7 @@
 #define PIN 6
 
 #define USE_SERIAL 1
+#define DEBUG 1
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -34,6 +35,7 @@ const int P1 = 1,          //
           EMPTY_CELL = 0;  //
 const int X_DIM = 8,
           Y_DIM = 8; 
+const int TOKEN_DROP_SPEED_C4 = 100;
 /* -- end game parameters -- */
 
 /* ---- error states ---- */
@@ -52,7 +54,9 @@ void setup() {
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
   
+  #if !DEBUG
   startupLEDSequence();
+  #endif
 }
 
 void loop() {
@@ -106,7 +110,7 @@ int playConnectFour() {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-      board[y][x] = P1;
+      board[y][x] = EMPTY_CELL;
     }
   }
   
@@ -117,8 +121,10 @@ int playConnectFour() {
     
     int col;
     do {
+      printBoard(board);
       //!!! -- take input --
       //!!! use serial for debug
+      Serial.println("input col");
       while(!Serial.available()); //wait for serial data before parsing
       col = Serial.parseInt();
       Serial.println(col);
@@ -155,7 +161,20 @@ int dropToken_connect4(int **board, int col, int token) {
     return 0;
   }
   
+  // animate token drop
+  int i = 0;
+  while(i++ < y - 1) {
+    delay(TOKEN_DROP_SPEED_C4);
+    printCell(col, i - 1, off);
+    printCell(col, i, red);
+    #if DEBUG
+    Serial.print(i);Serial.print(" ");Serial.print(col);Serial.print(" ");Serial.println(y);
+    #endif
+  }
   board[y][col] = token; //place token
+  #if DEBUG
+  Serial.print("B: "); Serial.println(board[y][col]);
+  #endif
   
   return 1; //successfully dropped token
 }
@@ -226,9 +245,8 @@ void printBoard(int **board) {
     for (x = 0; x < X_DIM; x++) {
       #if USE_SERIAL
         Serial.print(board[y][x]); Serial.print("\t");
-      #else
-        printCell(x, y, board[y][x] == P1 ? red : board[y][x] == P2 ? blue : off);
       #endif
+        printCell(x, y, board[y][x] == P1 ? red : board[y][x] == P2 ? blue : off);
     }
     #if USE_SERIAL
       Serial.println();
