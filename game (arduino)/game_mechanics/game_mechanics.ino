@@ -2,6 +2,8 @@
 
 #define PIN 6
 
+#define USE_LEDS 1
+
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
 
 /*colours*/
@@ -28,6 +30,8 @@ const int CONNECT_FOUR = 0;
 const int P1 = 1,          //
           P2 = 2,          // tokens used on board
           EMPTY_CELL = 0;  //
+const int X_DIM = 8,
+          Y_DIM = 8; 
 /* -- end game parameters -- */
 
 /* ---- error states ---- */
@@ -93,30 +97,25 @@ int runGame(int gameId) {
 }
 
 int playConnectFour() {
-  // ==== Connect Four Parameters ====
-  const int x_dim = 8,
-            y_dim = 8;
-  // == End Connect Four Parameters ==
-
   // Create board
-  int **board = createBoard(x_dim, y_dim);
+  int **board = createBoard();
 
   // initialize board as empty (no tokens until users start dropping)
   int x, y;
-  for (y = 0; y < y_dim; y++) {
-    for (x = 0; x < x_dim; x++) {
+  for (y = 0; y < Y_DIM; y++) {
+    for (x = 0; x < X_DIM; x++) {
       board[y][x] = EMPTY_CELL;
     }
   }
   
-  printCell(x_dim, 1, 1, red);
-  printCell(x_dim, 4, 5, blue);
-  printCell(x_dim, 2, 3, green);
+  printCell(1, 1, red);
+  printCell(4, 5, blue);
+  printCell(2, 3, green);
   while(1);
   
   //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
-  while(!gameOver_connect4(x_dim, y_dim, board)) {
+  while(!gameOver_connect4(board)) {
     //!!! game logic not done
     
     int col;
@@ -128,20 +127,20 @@ int playConnectFour() {
       Serial.println(col);
       
       // clamp inputs to valid range
-      col = col < 0 ? 0 : col >= x_dim ? x_dim - 1 : col;
-    } while (!connect4DropToken(x_dim, y_dim, board, col, cur_player));
+      col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+    } while (!dropToken_connect4(board, col, cur_player));
     
-    printBoard(x_dim, y_dim, board);
+    printBoard(board);
     
     cur_player = cur_player == P1 ? P2 : P1; //change turns
   }
   //-- end gameplay --
   
   //!!! perhaps delay this call for user to confirm end game
-  connect4Cascade(x_dim, y_dim, board); //GUI feature indicates game end, ***CLEARS BOARD***
+  connect4Cascade(board); //GUI feature indicates game end, ***CLEARS BOARD***
   
   // free malloc'd memory
-  freeBoard(y_dim, board);
+  freeBoard(board);
   
   return FN_SUCCESS; //game completed successfully
 }
@@ -149,7 +148,7 @@ int playConnectFour() {
 /*
  *  Place a player token on board in column x !!!untested
  */
-int connect4DropToken(int x_dim, int y_dim, int **board, int col, int token) {
+int dropToken_connect4(int **board, int col, int token) {
   int y = -1;
   while(board[y + 1][col] == EMPTY_CELL) {
     y++;
@@ -167,22 +166,22 @@ int connect4DropToken(int x_dim, int y_dim, int **board, int col, int token) {
 /*
  *  Return true if a player has won, or a draw is reached (board is full)
  */
-int gameOver_connect4(int x_dim, int y_dim, int **board) {
-  return winningPlayer_connect4(x_dim, y_dim, board) > 0 || boardFull(x_dim, y_dim, board);
+int gameOver_connect4(int **board) {
+  return winningPlayer_connect4(board) > 0 || boardFull(board);
 }
 
 /*
  *  Graphical sequence replicating pulling bottom out of connect 4 board
  *  Modifies board: replaces all user tokens with EMPTY_CELL
  */
-void connect4Cascade(int x_dim, int y_dim, int **board) {
+void connect4Cascade(int **board) {
   //!!!increment tokens down, falling out of bottom of board
 }
 
 /*
  *  Return player ID of winning player, 0 if none
  */ 
-int winningPlayer_connect4(int x_dim, int y_dim, int **board) {
+int winningPlayer_connect4(int **board) {
   //!!! traverse board looking for 4 in a row
   return 0;
 }
@@ -190,7 +189,7 @@ int winningPlayer_connect4(int x_dim, int y_dim, int **board) {
 /*
  *  Returns 0 if board contains 1+ empty cells
  */
-int boardFull(int x_dim, int y_dim, int **board) {
+int boardFull(int **board) {
   //!!! traverse board, if has empty cell return false
   return 0;
 }
@@ -198,11 +197,11 @@ int boardFull(int x_dim, int y_dim, int **board) {
 /*
  *  Allocate a x_dim by y_dim board to be used in a game
  */
-int ** createBoard(int x_dim, int y_dim) {
-  int **board = (int **)malloc(y_dim * sizeof(int *));
+int ** createBoard() {
+  int **board = (int **)malloc(Y_DIM * sizeof(int *));
   int x, y; // loop indeces
-  for (y = 0; y < y_dim; y++) {
-    board[y] = (int *)malloc(x_dim * sizeof(int));
+  for (y = 0; y < Y_DIM; y++) {
+    board[y] = (int *)malloc(X_DIM * sizeof(int));
   }
 
   return board;
@@ -211,9 +210,9 @@ int ** createBoard(int x_dim, int y_dim) {
 /*
  *  Free an x_dim by (irrelevant) board's allocated memory
  */
-void freeBoard(int y_dim, int **board) {
+void freeBoard(int **board) {
   int y;
-  for (y = 0; y < y_dim; y++) {
+  for (y = 0; y < Y_DIM; y++) {
     free(board[y]);
   }
   free(board);
@@ -222,24 +221,30 @@ void freeBoard(int y_dim, int **board) {
 /*
  *  Output current state of a board
  */
-void printBoard(int x_dim, int y_dim, int **board) {
+void printBoard(int **board) {
   //!!! to be changed to print to LEDs
   //    uses serial for dev
   int x, y;
-  for (y = 0; y < y_dim; y++) {
-    for (x = 0; x < x_dim; x++) {
-      Serial.print(board[y][x]); Serial.print("\t");
+  for (y = 0; y < Y_DIM; y++) {
+    for (x = 0; x < X_DIM; x++) {
+      #if !USE_LEDS
+        Serial.print(board[y][x]); Serial.print("\t");
+      #endif
     }
-    Serial.println();
+    #if !USE_LEDS
+      Serial.println();
+    #endif
   }
-  Serial.println();
+  #if !USE_LEDS
+    Serial.println();
+  #endif
 }
 
 /*
  * given a row,column and color light up specified led
  */
-void printCell(int x_dim, int x, int y, uint32_t color){
-  int led = x_dim * y + x;
+void printCell(int x, int y, uint32_t color){
+  int led = X_DIM * y + x;
   strip.setPixelColor(led, color); //sets colour of first pixel
   strip.show(); //'pushes' colour data to the strip 
 }
