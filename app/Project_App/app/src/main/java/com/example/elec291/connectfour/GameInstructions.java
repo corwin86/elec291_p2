@@ -3,6 +3,7 @@ package com.example.elec291.connectfour;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 
@@ -18,13 +19,20 @@ public class GameInstructions extends Activity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_game_instructions);
 
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        getWindow().setLayout((int) (width * 0.8), (int) (height * 0.8));
+
         button2 = (Button) findViewById(R.id.button2);
-        //button2.setOnClickListener(this);
+        button2.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v){
      gameActivity.finishActivity(0);
-
     }
 }
