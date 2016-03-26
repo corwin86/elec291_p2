@@ -11,6 +11,7 @@ uint32_t blue = strip.Color(0, 0, 255);
 uint32_t magenta = strip.Color(255, 0, 255);
 uint32_t cyan = strip.Color(0, 255, 255);
 uint32_t yellow = strip.Color(255, 255, 0);
+uint32_t black = strip.Color(255,255,255);
 
 // ==== Constants ====
 
@@ -255,96 +256,121 @@ void startupLEDSequence() {
   uint32_t square3 = green;
   uint32_t square4 = blue;
 
-  uint32_t[] colors = red, magenta, green, blue;
+  //uint32_t[] colors = red, magenta, green, blue;
   
-  //print square 1
   while(i = 0){
-    
-  printCell(3,3,square1);
-  printCell(4,3,square1);
-  printCell(3,4,square1);
-  printCell(4,4,square1);
-
-  //print square 2
-  printCell(2,2,square2);
-  printCell(2,3,square2);
-  printCell(2,4,square2);
-  printCell(2,5,square2);
+    //printsquare2
+    printCell(3,3,square1);
+    printCell(4,3,square1);
+    printCell(3,4,square1);
+    printCell(4,4,square1);
   
-  printCell(3,2,square2);
-  printCell(4,2,square2);
-  printCell(3,5,square2);
-  printCell(4,5,square2);
-
-  printCell(5,2,square2);
-  printCell(5,3,square2);
-  printCell(5,4,square2);
-  printCell(5,5,square2); 
-
-  //print square 3
-  printCell(1,1,square3);  
-  printCell(1,2,square3);
-  printCell(1,3,square3);
-  printCell(1,4,square3);
-  printCell(1,5,square3);
-  printCell(1,6,square3);
-
-  printCell(2,1,square3);  
-  printCell(3,1,square3);
-  printCell(4,1,square3);
-  printCell(5,1,square3);  
-  printCell(2,6,square3);  
-  printCell(3,6,square3);
-  printCell(4,6,square3);
-  printCell(5,6,square3); 
-
-  printCell(6,1,square3);  
-  printCell(6,2,square3);
-  printCell(6,3,square3);
-  printCell(6,4,square3);
-  printCell(6,5,square3);
-  printCell(6,6,square3);
-
-  //print square 4
-  printCell(0,0,square4);
-  printCell(0,1,square4);  
-  printCell(0,2,square4);
-  printCell(0,3,square4);
-  printCell(0,4,square4);
-  printCell(0,5,square4);
-  printCell(0,6,square4);
-  printCell(0,7,square4);
-
-  printCell(1,0,square4);
-  printCell(2,0,square4);
-  printCell(3,0,square4);
-  printCell(4,0,square4);
-  printCell(5,0,square4);
-  printCell(6,0,square4);
-  printCell(1,7,square4);
-  printCell(2,7,square4);
-  printCell(3,7,square4);
-  printCell(4,7,square4);
-  printCell(5,7,square4);
-  printCell(6,7,square4);
-
-  printCell(7,0,square4);
-  printCell(7,1,square4);  
-  printCell(7,2,square4);
-  printCell(7,3,square4);
-  printCell(7,4,square4);
-  printCell(7,5,square4);
-  printCell(7,6,square4);
-  printCell(7,7,square4);
+    //print square 2
+    printCell(2,2,square2);
+    printCell(2,3,square2);
+    printCell(2,4,square2);
+    printCell(2,5,square2);
+    
+    printCell(3,2,square2);
+    printCell(4,2,square2);
+    printCell(3,5,square2);
+    printCell(4,5,square2);
+  
+    printCell(5,2,square2);
+    printCell(5,3,square2);
+    printCell(5,4,square2);
+    printCell(5,5,square2); 
+  
+    //print square 3
+    printCell(1,1,square3);  
+    printCell(1,2,square3);
+    printCell(1,3,square3);
+    printCell(1,4,square3);
+    printCell(1,5,square3);
+    printCell(1,6,square3);
+  
+    printCell(2,1,square3);  
+    printCell(3,1,square3);
+    printCell(4,1,square3);
+    printCell(5,1,square3);  
+    printCell(2,6,square3);  
+    printCell(3,6,square3);
+    printCell(4,6,square3);
+    printCell(5,6,square3); 
+  
+    printCell(6,1,square3);  
+    printCell(6,2,square3);
+    printCell(6,3,square3);
+    printCell(6,4,square3);
+    printCell(6,5,square3);
+    printCell(6,6,square3);
+  
+    //print square 4
+    printCell(0,0,square4);
+    printCell(0,1,square4);  
+    printCell(0,2,square4);
+    printCell(0,3,square4);
+    printCell(0,4,square4);
+    printCell(0,5,square4);
+    printCell(0,6,square4);
+    printCell(0,7,square4);
+  
+    printCell(1,0,square4);
+    printCell(2,0,square4);
+    printCell(3,0,square4);
+    printCell(4,0,square4);
+    printCell(5,0,square4);
+    printCell(6,0,square4);
+    printCell(1,7,square4);
+    printCell(2,7,square4);
+    printCell(3,7,square4);
+    printCell(4,7,square4);
+    printCell(5,7,square4);
+    printCell(6,7,square4);
+  
+    printCell(7,0,square4);
+    printCell(7,1,square4);  
+    printCell(7,2,square4);
+    printCell(7,3,square4);
+    printCell(7,4,square4);
+    printCell(7,5,square4);
+    printCell(7,6,square4);
+    printCell(7,7,square4);
 
   //switch colors
-  square1=square4;
-  square2=square1;
-  square3=square2;
-  square4=square3;
+    square1=square4;
+    square2=square1;
+    square3=square2;
+    square4=square3;
   
-  delay(200);
+    delay(200);
+
+    if(/*someone clicks start game*/){
+      i = 1;
+    }
   }  
+
+  for(int j = 0; j<64; j++){
+    strip.setPixelColor(j,0);
+    strip.show();
+  }
+
+  printCell(1,2,black);
+  printCell(1,3,black);
+  printCell(1,4,black);
+  printCell(1,5,black); 
+
+  printCell(2,2,black);
+  printCell(3,2,black);
+  
+  printCell(3,3,black);
+  printCell(3,4,black);
+  printCell(4,5,black);
+  printCell(5,5,black);
+  printCell(6,4,black);
+  printCell(6,3,black);
+  printCell(6,2,black);
+  delay(2000);
 }
 
 int calculateLedPosition(int x, int y){
