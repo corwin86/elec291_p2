@@ -2,6 +2,7 @@ package com.example.elec291.connectfour;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.widget.Button;
@@ -124,6 +125,7 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
             switch ((v.getId())){
                 case R.id.buttonNext:
                     finish();
+                    SystemClock.sleep(500);
                     startActivity(new Intent(DisplayColorsActivity.this, ConnectViaWifi.class));
                     //startActivity(new Intent("com.example.elec291.connect4"));
                     break;
