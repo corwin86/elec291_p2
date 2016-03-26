@@ -2,8 +2,7 @@
 
 #define PIN 6
 
-#define USE_SERIAL 1
-#define DEBUG 1
+#define USE_LEDS 1
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -33,10 +32,8 @@ const int CONNECT_FOUR = 0;
 const int P1 = 1,          //
           P2 = 2,          // tokens used on board
           EMPTY_CELL = 0;  //
-      int turns = 0;
 const int X_DIM = 8,
           Y_DIM = 8; 
-const int TOKEN_DROP_SPEED_C4 = 35;
 /* -- end game parameters -- */
 
 /* ---- error states ---- */
@@ -55,9 +52,7 @@ void setup() {
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
   
-  #if !DEBUG
   startupLEDSequence();
-  #endif
 }
 
 void loop() {
@@ -111,22 +106,41 @@ int playConnectFour() {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-      board[y][x] = EMPTY_CELL;
+      board[y][x] = P1;
     }
   }
   
+  while(1) {
+  for (y = 0; y < Y_DIM; y++) {
+    for (x = 0; x < X_DIM; x++) {
+      board[y][x] = P2;
+    }
+  }
+  printBoard(board);
+  delay(250);
+  for (y = 0; y < Y_DIM; y++) {
+    for (x = 0; x < X_DIM; x++) {
+      board[y][x] = EMPTY_CELL;
+    }
+  }
+  printBoard(board);
+  delay(250);
+  }
+  
+//  printCell(1, 1, red);
+//  printCell(4, 5, blue);
+//  printCell(2, 3, green);
+//  while(1);
+  
   //---- gameplay ----
-  turns = 0;
   int cur_player = P1; //cur_player is one of {P1, P2}
   while(!gameOver_connect4(board)) {
     //!!! game logic not done
     
     int col;
     do {
-      printBoard(board);
       //!!! -- take input --
       //!!! use serial for debug
-      Serial.println("input col");
       while(!Serial.available()); //wait for serial data before parsing
       col = Serial.parseInt();
       Serial.println(col);
@@ -138,7 +152,6 @@ int playConnectFour() {
     printBoard(board);
     
     cur_player = cur_player == P1 ? P2 : P1; //change turns
-    turns++;
   }
   //-- end gameplay --
   
@@ -156,7 +169,7 @@ int playConnectFour() {
  */
 int dropToken_connect4(int **board, int col, int token) {
   int y = -1;
-  while(board[y + 1][col] == EMPTY_CELL && y + 1 < Y_DIM) {
+  while(board[y + 1][col] == EMPTY_CELL) {
     y++;
   }
   
@@ -164,20 +177,7 @@ int dropToken_connect4(int **board, int col, int token) {
     return 0;
   }
   
-  // animate token drop
-  int i = -1;
-  while(i++ < y - 1) {
-    delay(TOKEN_DROP_SPEED_C4);
-    printCell(col, i - 1, off);
-    printCell(col, i, token == P1 ? red : blue);
-    #if DEBUG
-    Serial.print(i);Serial.print(" ");Serial.print(col);Serial.print(" ");Serial.println(y);
-    #endif
-  }
   board[y][col] = token; //place token
-  #if DEBUG
-  Serial.print("B: "); Serial.print(board[y][col]);Serial.print(" col: "); Serial.print(col);Serial.print(" y: "); Serial.println(y);
-  #endif
   
   return 1; //successfully dropped token
 }
@@ -186,7 +186,7 @@ int dropToken_connect4(int **board, int col, int token) {
  *  Return true if a player has won, or a draw is reached (board is full)
  */
 int gameOver_connect4(int **board) {
-  return winningPlayer_connect4(board) > 0 || boardFull();
+  return winningPlayer_connect4(board) > 0 || boardFull(board);
 }
 
 /*
@@ -208,8 +208,9 @@ int winningPlayer_connect4(int **board) {
 /*
  *  Returns 0 if board contains 1+ empty cells
  */
-int boardFull() {
-  return turns < X_DIM * Y_DIM;
+int boardFull(int **board) {
+  //!!! traverse board, if has empty cell return false
+  return 0;
 }
 
 /*
@@ -245,16 +246,17 @@ void printBoard(int **board) {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-      #if USE_SERIAL
+      #if !USE_LEDS
         Serial.print(board[y][x]); Serial.print("\t");
-      #endif
+      #else
         printCell(x, y, board[y][x] == P1 ? red : board[y][x] == P2 ? blue : off);
+      #endif
     }
-    #if USE_SERIAL
+    #if !USE_LEDS
       Serial.println();
     #endif
   }
-  #if USE_SERIAL
+  #if !USE_LEDS
     Serial.println();
   #endif
 }
@@ -274,10 +276,10 @@ void printCell(int x, int y, uint32_t color){
 void startupLEDSequence() {
   int i = 0;
   
-  uint32_t square1 = red;
-  uint32_t square2 = magenta;
+  uint32_t square1 = blue;
+  uint32_t square2 = cyan;
   uint32_t square3 = green;
-  uint32_t square4 = blue;
+  uint32_t square4 = yellow;
 
   //uint32_t[] colors = red, magenta, green, blue;
   
@@ -371,7 +373,7 @@ void startupLEDSequence() {
   }  
 
   for(int j = 0; j<64; j++){
-    strip.setPixelColor(j,off);
+    strip.setPixelColor(j,255,255,255);
     strip.show();
   }
 
@@ -382,7 +384,6 @@ void startupLEDSequence() {
 
   printCell(2,2,blue);
   printCell(2,3,blue);
-  printCell(4,3,blue);
   
   printCell(3,3,blue);
   printCell(5,4,blue);
@@ -390,11 +391,16 @@ void startupLEDSequence() {
   printCell(4,6,blue);
   printCell(3,6,blue);
   printCell(2,6,blue);
-  delay(2500); //!!! display until game start
-  
-  for(int j = 0; j<64; j++){
-    strip.setPixelColor(j,off);
-    strip.show();
+  delay(5000);
+}
+
+/*
+ * returns the first light in a row with other lights of the same color
+ * x long.
+ */
+void detectLinesXLong(int player, int X){
+  for(int i = 0; i < 64; i++){
+    
   }
 }
 
