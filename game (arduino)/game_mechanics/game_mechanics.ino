@@ -192,6 +192,7 @@ int gameOver_connect4(int **board) {
 /*
     Graphical sequence replicating pulling bottom out of connect 4 board
     Modifies board: replaces all user tokens with EMPTY_CELL
+    !!!untested!!!
 */
 void connect4Cascade(int **board) {
   int x, y, count;
@@ -221,7 +222,7 @@ int winningPlayer_connect4(int **board) {
 }
 
 /*
-    Returns 0 if board contains 1+ empty cells
+    Returns 0 if board contains >1 empty cells
 */
 int boardFull(int **board) {
   int x, y;
