@@ -3,6 +3,7 @@ package com.example.elec291.connectfour;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -10,7 +11,7 @@ import android.widget.Button;
 /**
  * Created by rohini on 26/03/16.
  */
-public class ChooseNumberOfPlayers extends Activity implements View.OnClickListener{
+public class ChooseNumberOfPlayers extends AppCompatActivity implements View.OnClickListener{
 
     Button buttonSinglePlayer, buttonMultiPlayer;
 
