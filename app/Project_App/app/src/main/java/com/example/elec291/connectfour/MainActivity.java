@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.Toast;
 import android.view.View.OnClickListener;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends Activity{
 
     Button playButton;
 
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity{
 
         //Load XML File
         setContentView(R.layout.activity_main);
-
+        //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         //Initialization
         playButton = (Button) findViewById(R.id.playButton);
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 //startActivity(new Intent(MainActivity.this, Pop.class));
-                startActivity(new Intent(MainActivity.this, ChoosePlayerMode.class));
+                startActivity(new Intent(MainActivity.this, ChooseNumberOfPlayers.class));
             }
         });
 //        playButton.setOnClickListener(new View.OnClickListener(){
@@ -55,7 +55,8 @@ public class MainActivity extends AppCompatActivity{
 
     }
     private void playButtonClick(){
-        startActivity(new Intent("com.example.elec291.connect4.ChoosePlayerMode"));
+        //startActivity(new Intent("com.example.elec291.connect4.ChooseNumberOfPlayers"));
+        startActivity(new Intent(MainActivity.this, ChooseNumberOfPlayers.class));
     }
 
 

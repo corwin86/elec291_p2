@@ -33,21 +33,6 @@
             <!--</intent-filter>-->
         </activity>
 
-        <activity
-            android:name=".ChoosePlayerMode"
-            android:label="@string/title_activity_choose_player_mode"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.elec291.connectfour.MainActivity" />
-            <intent-filter>
-                <action android:name="com.example.elec291.connect4.ChoosePlayerMode" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".Pop"
             android:theme="@style/AppTheme.customtheme"
 
@@ -72,6 +57,10 @@
             android:theme="@style/AppTheme">
 
         </activity>
+
+        <activity android:name=".ChooseNumberOfPlayers"
+            android:theme="@style/AppTheme.NoActionBar"
+        />
 
 
     </application>
