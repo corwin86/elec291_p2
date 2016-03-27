@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="#f1c2c2">
+    android:background="#bdeae1">
 
     <TextView
         android:layout_width="wrap_content"
@@ -13,12 +13,24 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="29dp" />
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
+    <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Button"
-        android:id="@+id/button2"
-        android:layout_centerVertical="true"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/editText"
+        android:layout_marginTop="44dp"
+        android:text="Press the button corresponding to the column you want to drop your chip in. If your move is invalid, try again."
+        android:layout_below="@+id/textView10"
         android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DONE"
+        android:id="@+id/buttonDone"
+        android:layout_below="@+id/editText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="37dp" />
+
 </RelativeLayout>

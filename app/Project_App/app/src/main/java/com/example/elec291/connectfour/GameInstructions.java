@@ -11,8 +11,7 @@ import android.widget.Button;
  * Created by rohini on 24/03/16.
  */
 public class GameInstructions extends Activity implements View.OnClickListener{
-    Button button2;
-    final Activity gameActivity = this;
+    Button buttonDone;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,12 +26,18 @@ public class GameInstructions extends Activity implements View.OnClickListener{
 
         getWindow().setLayout((int) (width * 0.8), (int) (height * 0.8));
 
-        button2 = (Button) findViewById(R.id.button2);
-        button2.setOnClickListener(this);
+        buttonDone = (Button) findViewById(R.id.buttonDone);
+        buttonDone.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v){
-     gameActivity.finishActivity(0);
+        switch((v.getId())){
+            case R.id.buttonDone:
+                finish();
+        }
     }
 }
+
+
+
