@@ -420,10 +420,131 @@ void startupLEDSequence() {
    returns the first light in a row with other lights of the same color
    x long.
 */
-void detectLinesXLong(int player, int X) {
-  for (int i = 0; i < 64; i++) {
+int* detectLinesXLong(int player, int X) {
+  int i = 0;
+  int j = 0;
+  int k = 0;
+  int foundLine = 0;
 
+  for (i = 0; i < 64; i++) {
+    if (strip.getPixelColor(i) == player) {   //if the color is the same color as the player, check directions
+      for (j = 0; i < 8; j++) {
+        //search all 8 directions x long,
+        //if not same color or off, try next direction
+
+        if (j = 0) {
+          //try up
+          //for x= 3 if i > (x-1)*8 - 1
+          if (i > (X - 1) * 8 - 1) {
+            for (k = 0; k < X; k++) {
+              if (strip.setPixelColor(i - (k + 1) * 8, player) != strip.setPixelColor(i, player)) {
+                break;
+              }
+              //return the direction and pixel
+              foundLine = 1;
+            }
+          }
+        }
+
+        if (j = 1) {
+          //try down
+          if (i < 64 - 8 * (X - 1)) {
+            for (k = 0; k < X; k++) {
+              if (strip.setPixelColor(i + (k + 1) * 8, player) != strip.setPixelColor(i, player)) {
+                break;
+              }
+              //return the direction and pixel
+              foundLine = 1;
+            }
+          }
+        }
+
+        if (j = 2) {
+          //try left
+          if ( i % 8 > (X - 1)) { //Equation could be wrong
+            for (k = 0; k < X; k++) {
+              if (strip.setPixelColor(i + (k + 1), player) != strip.setPixelColor(i, player)) {
+                break;
+              }
+              //return the direction and pixel
+              foundLine = 1;
+            }
+          }
+        }
+
+        if (j = 3) {
+          //try right
+          if ( i % 8 < 8 - (X - 1)) { //Equation could be wrong
+            for (k = 0; k > X; k++) {
+              if (strip.setPixelColor(i - (k + 1), player) != strip.setPixelColor(i, player)) {
+                break;
+              }
+              i++; // since we are moving forward, we can skip lights if they are same color
+              foundLine = 1;
+            }
+          }
+        }
+
+        if (j = 4) {
+          //try up left
+          if ( i % 8 > (X - 1) && i > (X - 1) * 8 - 1) {
+            //...
+            for (k = 0; k > X; k++) {
+              if (strip.setPixelColor(i - (k + 1) * 9, player) != strip.setPixelColor(i, player)) {
+                break;
+              }
+              //return the direction and pixel
+              foundLine = 1;
+            }
+          }
+        }
+
+        if (j = 5) {
+          //try up right
+          if (i % 8 < 8 - (X - 1) && i > (X - 1) * 8 - 1) {
+            //...
+            for (k == 0; k > X; k++) {
+              if (strip.setPixelColor(i - (k + 1) * 7, player) != strip.setPixelColor(i, player)) {
+                break;
+              }
+              foundLine = 1;
+            }
+          }
+        }
+        if (j = 6) {
+          //try down left
+          if ( i % 8 > (X - 1) && i < 64 - 8 * (X - 1)) {
+            //...
+            for (k = 0; k > X; k++) {
+              if (strip.setPixelColor(i + (k + 1) * 7, player) != strip.setPixelColor(i, player))
+                break;
+              foundLine = 1;
+            }
+          }
+
+        }
+
+        if (j = 7) {
+          //try down right
+          if ( i % 8 < 8 - (X - 1) && i < 64 - 8 * (X - 1)) {
+            //...
+            for (k = 0; k > X; k++) {
+              if (strip.setPixelColor(i + (k + 1) * 9, player) != strip.setPixelColor(i, player)) {
+                break;
+              }
+              foundLine = 1;
+            }
+          }
+        }
+
+        if (foundLine == 1) break;
+      }
+    }
+    if (foundLine == 1) break;
   }
+  if (foundLine == 0) return int arr[] = -1, -1;
+  int coordinateAndDirection[] = i, j;
+  return &coordinateAndDirection;
 }
 
 int calculateLedPosition(int x, int y) {
