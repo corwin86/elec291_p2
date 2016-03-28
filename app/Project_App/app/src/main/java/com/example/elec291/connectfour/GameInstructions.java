@@ -17,7 +17,7 @@ public class GameInstructions extends AppCompatActivity implements View.OnClickL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_game_instructions);
-        //setTitle("How to Play");
+        setTitle("How to Play");
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -25,7 +25,7 @@ public class GameInstructions extends AppCompatActivity implements View.OnClickL
         int width = dm.widthPixels;
         int height = dm.heightPixels;
 
-        getWindow().setLayout((int) (width * 0.8), (int) (height * 0.6));
+        getWindow().setLayout((int) (width * 0.8), (int) (height * 0.5));
 
         buttonDone = (Button) findViewById(R.id.buttonDone);
         buttonDone.setOnClickListener(this);

@@ -32,6 +32,10 @@ public class MainActivity extends AppCompatActivity{
         //Load XML File
         setContentView(R.layout.activity_main);
 
+        //Change title of action bar
+        setTitle("  ");
+
+
 
         //Initialization
         playButton = (Button) findViewById(R.id.playButton);
