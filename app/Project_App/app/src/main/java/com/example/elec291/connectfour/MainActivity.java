@@ -3,6 +3,7 @@ package com.example.elec291.connectfour;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Activity;
 import android.util.DisplayMetrics;
@@ -18,6 +19,8 @@ import android.view.View.OnClickListener;
 public class MainActivity extends AppCompatActivity{
 
     Button playButton;
+    static Drawable player1Color;
+    static Drawable player2Color;
 
 
     @Override
