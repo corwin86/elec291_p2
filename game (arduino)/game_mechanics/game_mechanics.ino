@@ -44,17 +44,24 @@ const int FN_SUCCESS = 1,
           ERR_INVALID_GAMEID = -2;
 /* -- end error states -- */
 
+/* ---- directions ---- */
+const int UP = 1,
+          LEFT = 2,
+          UP_LEFT = 3,
+          DOWN_LEFT = 4;
+/* -- end directions -- */
+
 // == End Constants ==
 
 
-// == Global Variables ==
+// ==== Global Variables ====
 
 /* ---- player info ---- */
 int p1_colour,
     p2_colour;
 /* -- end player info -- */
 
-// == Global Variables ==
+// == End Global Variables ==
 
 void setup() {
   Serial.begin(9600);
@@ -449,11 +456,12 @@ void startupLEDSequence() {
    returns the first sequence of lights found of length x
    in an array.
 */
-//int* detectLinesXLong(int player, int X) {
+//int* detectLineXLong(int player, int X, int **board) {
 //  int i = 0;
 //  int j = 0;
 //  int k = 0;
 //  int foundLine = 0;
+//  int coordinateAndDirection[2]; //!!make 3 so it returns direction as well?
 //
 //  for (i = 0; i < 64; i++) {
 //    if (strip.getPixelColor(i) == player) {   //if the color is the same color as the player, check directions
@@ -571,14 +579,15 @@ void startupLEDSequence() {
 //    }
 //    if (foundLine == 1) break;
 //  }
-//  if (foundLine == 0) return int arr[] = -1, -1;
-//  int coordinateAndDirection[] = i, j;
-//  return &coordinateAndDirection;
+//  if (foundLine == 0) coordinateAndDirection = {-1,-1};
+//  else coordinateAndDirection = {i, j};
+//  return coordinateAndDirection;
 //}
 
 /*
-   Returns the coordinates of the first light in a sequence
-   of a players tokens of length len
+   Detects if there is a vertical sequence of one player's tokens of length len.
+   If one is found, it returns the coordinates of the first token, as well as the direction
+   of the sequence, in the form:
 
    -> returnArray[] = {x, y, dir}
 
@@ -587,16 +596,16 @@ void startupLEDSequence() {
 int* detectVertLine(int player, int len, int** board) {
   int x, y, count;
   int coordAndDir[3];
-  
-  for (x = 0; x <= X_DIM - len; x++) {                          //iterate through all columns of length len
-    for (y = 0; y <= Y_DIM - len; y++) {                        //iterate through all rows of length len
-      for (count = 0; count < len; count++){                    //count that you have a sequence of length len
-        if (board[y + count][x] != player)                 
+
+  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all columns of length len
+    for (x = 0; x < X_DIM; x++) {                              //iterate through all rows of length len
+      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
+        if (board[y + count][x] != player)
           break;     //you're not on the right track, try a different sequence
       }
-      if (count == len){
+      if (count == len) {
         //we found a sequence of length len, so we return coords/direction
-        coordAndDir[0] = x; coordAndDir[1] = y - len; coordAndDir[2] = 10; //!!!add direction constants????
+        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = UP;
         return coordAndDir;
       }
     }
@@ -604,20 +613,87 @@ int* detectVertLine(int player, int len, int** board) {
   return NULL;
 }
 
-int* detectDiagLine(int player, int len, int** board) {
-  
+/*
+   Detects if there is a horizontal sequence of one player's tokens of length len.
+   If one is found, it returns the coordinates of the first token, as well as the direction
+   of the sequence, in the form:
+
+   -> returnArray[] = {x, y, dir}
+
+   If no such sequence is found, returns NULL
+*/
+int* detectHorizLine(int player, int len, int** board) {
+  int x, y, count;
+  int coordAndDir[3];
+
+  for (x = 0; x <= X_DIM - len; x++) {                          //iterate through all columns of length len
+    for (y = 0; y < Y_DIM; y++) {                              //iterate through all rows of length len
+      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
+        if (board[y][x + count] != player)
+          break;     //you're not on the right track, try a different sequence
+      }
+      if (count == len) {
+        //we found a sequence of length len, so we return coords/direction
+        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = LEFT;
+        return coordAndDir;
+      }
+    }
+  }
+  return NULL;
 }
 
-int* detectHorizLine(int player, int len, int** board){
-  
+/*
+   Detects if there is a diagonal sequence of one player's tokens of length len.
+   If one is found, it returns the coordinates of the first token, as well as the direction
+   of the sequence, in the form:
+
+   -> returnArray[] = {x, y, dir}
+
+   If no such sequence is found, returns NULL
+*/
+int* detectDiagLine(int player, int len, int** board) {
+  int x, y, count;
+  int coordAndDir[3];
+
+  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all columns of length len
+    for (x = 0; x <= X_DIM - len; x++) {                              //iterate through all rows of length len
+      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
+        if (board[y + count][x + count] != player)
+          break;     //you're not on the right track, try a different sequence
+      }
+      if (count == len) {
+        //we found a sequence of length len, so we return coords/direction
+        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = UP_LEFT;
+        return coordAndDir;
+      }
+    }
+  }
+  for (y = len - 1; y < Y_DIM; y++) {                          //iterate through all columns of length len
+    for (x = 0; x <= X_DIM - len; x++) {                              //iterate through all rows of length len
+      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
+        if (board[y - count][x + count] != player)
+          break;     //you're not on the right track, try a different sequence
+      }
+      if (count == len) {
+        //we found a sequence of length len, so we return coords/direction
+        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = DOWN_LEFT;
+        return coordAndDir;
+      }
+    }
+  }
+  return NULL;
 }
 
 /*
    Returns the colour of the player
 */
 uint32_t getPlayerColour(int player) {
-  //!!!!!to be implemented, player colour saved somewhere internally
-  return 0;
+  if (player == P1)
+    return p1_colour;
+  else if (player == P2)
+    return p2_colour;
+  else
+    return off;
 }
 
 int calculateLedPosition(int x, int y) {
