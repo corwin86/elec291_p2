@@ -8,13 +8,15 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
 /*colours*/
 uint32_t red = strip.Color(255, 0, 0);
-uint32_t off = strip.Color(0, 0, 0);
 uint32_t green = strip.Color(0, 255, 0);
 uint32_t blue = strip.Color(0, 0, 255);
 uint32_t magenta = strip.Color(255, 0, 255);
 uint32_t cyan = strip.Color(0, 255, 255);
 uint32_t yellow = strip.Color(255, 255, 0);
-uint32_t black = strip.Color(255, 255, 255);
+
+uint32_t webworkGreen = strip.Color(118, 255, 122);
+uint32_t white = strip.Color(255, 255, 255);
+uint32_t off = strip.Color(0, 0, 0);
 
 // ==== Constants ====
 
@@ -43,6 +45,16 @@ const int FN_SUCCESS = 1,
 /* -- end error states -- */
 
 // == End Constants ==
+
+
+// == Global Variables ==
+
+/* ---- player info ---- */
+int p1_colour,
+    p2_colour;
+/* -- end player info -- */
+
+// == Global Variables ==
 
 void setup() {
   Serial.begin(9600);
@@ -215,10 +227,27 @@ void connect4Cascade(int **board) {
 
 /*
     Return player ID of winning player, 0 if none
+
+    Modifies board: if winning player found, changes winning
+      tiles to webwork green
+
+    !!!!!!NOTE: MUST SPECIFY WIN DATA!!!!!!!
 */
 int winningPlayer_connect4(int **board) {
-  //!!! traverse board looking for 4 in a row
-  return 0;
+  //array to pass to helper functions to determine the coordinates of all winning tiles
+  int winData[8];
+  int i;
+  //!!!!!use helper functions to determine if there was a win or not
+
+  if (winData == NULL)
+    return 0;
+
+  else {
+    //    for (i = 0; winningTiles[i] != EMPTY_CELL; i++) {
+    //      printCell(winningTiles[i], webworkGreen);
+    //    }
+    return P1;
+  }
 }
 
 /*
@@ -417,134 +446,170 @@ void startupLEDSequence() {
 }
 
 /*
-   returns the first light in a row with other lights of the same color
-   x long.
+   returns the first sequence of lights found of length x
+   in an array.
 */
-int* detectLinesXLong(int player, int X) {
-  int i = 0;
-  int j = 0;
-  int k = 0;
-  int foundLine = 0;
+//int* detectLinesXLong(int player, int X) {
+//  int i = 0;
+//  int j = 0;
+//  int k = 0;
+//  int foundLine = 0;
+//
+//  for (i = 0; i < 64; i++) {
+//    if (strip.getPixelColor(i) == player) {   //if the color is the same color as the player, check directions
+//      for (j = 0; i < 8; j++) {
+//        //search all 8 directions x long,
+//        //if not same color or off, try next direction
+//
+//        if (j = 0) {
+//          //try up
+//          //for x= 3 if i > (x-1)*8 - 1
+//          if (i > (X - 1) * 8 - 1) {
+//            for (k = 0; k < X; k++) {
+//              if (strip.setPixelColor(i - (k + 1) * 8, player) != strip.setPixelColor(i, player)) {
+//                break;
+//              }
+//              //return the direction and pixel
+//              foundLine = 1;
+//            }
+//          }
+//        }
+//
+//        if (j = 1) {
+//          //try down
+//          if (i < 64 - 8 * (X - 1)) {
+//            for (k = 0; k < X; k++) {
+//              if (strip.setPixelColor(i + (k + 1) * 8, player) != strip.setPixelColor(i, player)) {
+//                break;
+//              }
+//              //return the direction and pixel
+//              foundLine = 1;
+//            }
+//          }
+//        }
+//
+//        if (j = 2) {
+//          //try left
+//          if ( i % 8 > (X - 1)) { //Equation could be wrong
+//            for (k = 0; k < X; k++) {
+//              if (strip.setPixelColor(i + (k + 1), player) != strip.setPixelColor(i, player)) {
+//                break;
+//              }
+//              //return the direction and pixel
+//              foundLine = 1;
+//            }
+//          }
+//        }
+//
+//        if (j = 3) {
+//          //try right
+//          if ( i % 8 < 8 - (X - 1)) { //Equation could be wrong
+//            for (k = 0; k > X; k++) {
+//              if (strip.setPixelColor(i - (k + 1), player) != strip.setPixelColor(i, player)) {
+//                break;
+//              }
+//              i++; // since we are moving forward, we can skip lights if they are same color
+//              foundLine = 1;
+//            }
+//          }
+//        }
+//
+//        if (j = 4) {
+//          //try up left
+//          if ( i % 8 > (X - 1) && i > (X - 1) * 8 - 1) {
+//            //...
+//            for (k = 0; k > X; k++) {
+//              if (strip.setPixelColor(i - (k + 1) * 9, player) != strip.setPixelColor(i, player)) {
+//                break;
+//              }
+//              //return the direction and pixel
+//              foundLine = 1;
+//            }
+//          }
+//        }
+//
+//        if (j = 5) {
+//          //try up right
+//          if (i % 8 < 8 - (X - 1) && i > (X - 1) * 8 - 1) {
+//            //...
+//            for (k == 0; k > X; k++) {
+//              if (strip.setPixelColor(i - (k + 1) * 7, player) != strip.setPixelColor(i, player)) {
+//                break;
+//              }
+//              foundLine = 1;
+//            }
+//          }
+//        }
+//        if (j = 6) {
+//          //try down left
+//          if ( i % 8 > (X - 1) && i < 64 - 8 * (X - 1)) {
+//            //...
+//            for (k = 0; k > X; k++) {
+//              if (strip.setPixelColor(i + (k + 1) * 7, player) != strip.setPixelColor(i, player))
+//                break;
+//              foundLine = 1;
+//            }
+//          }
+//
+//        }
+//
+//        if (j = 7) {
+//          //try down right
+//          if ( i % 8 < 8 - (X - 1) && i < 64 - 8 * (X - 1)) {
+//            //...
+//            for (k = 0; k > X; k++) {
+//              if (strip.setPixelColor(i + (k + 1) * 9, player) != strip.setPixelColor(i, player)) {
+//                break;
+//              }
+//              foundLine = 1;
+//            }
+//          }
+//        }
+//
+//        if (foundLine == 1) break;
+//      }
+//    }
+//    if (foundLine == 1) break;
+//  }
+//  if (foundLine == 0) return int arr[] = -1, -1;
+//  int coordinateAndDirection[] = i, j;
+//  return &coordinateAndDirection;
+//}
 
-  for (i = 0; i < 64; i++) {
-    if (strip.getPixelColor(i) == player) {   //if the color is the same color as the player, check directions
-      for (j = 0; i < 8; j++) {
-        //search all 8 directions x long,
-        //if not same color or off, try next direction
+/*
+   Returns the coordinates of the first light in a sequence
+   of a players tokens of length len
 
-        if (j = 0) {
-          //try up
-          //for x= 3 if i > (x-1)*8 - 1
-          if (i > (X - 1) * 8 - 1) {
-            for (k = 0; k < X; k++) {
-              if (strip.setPixelColor(i - (k + 1) * 8, player) != strip.setPixelColor(i, player)) {
-                break;
-              }
-              //return the direction and pixel
-              foundLine = 1;
-            }
-          }
-        }
+   -> returnArray[] = {x, y, dir}
 
-        if (j = 1) {
-          //try down
-          if (i < 64 - 8 * (X - 1)) {
-            for (k = 0; k < X; k++) {
-              if (strip.setPixelColor(i + (k + 1) * 8, player) != strip.setPixelColor(i, player)) {
-                break;
-              }
-              //return the direction and pixel
-              foundLine = 1;
-            }
-          }
-        }
-
-        if (j = 2) {
-          //try left
-          if ( i % 8 > (X - 1)) { //Equation could be wrong
-            for (k = 0; k < X; k++) {
-              if (strip.setPixelColor(i + (k + 1), player) != strip.setPixelColor(i, player)) {
-                break;
-              }
-              //return the direction and pixel
-              foundLine = 1;
-            }
-          }
-        }
-
-        if (j = 3) {
-          //try right
-          if ( i % 8 < 8 - (X - 1)) { //Equation could be wrong
-            for (k = 0; k > X; k++) {
-              if (strip.setPixelColor(i - (k + 1), player) != strip.setPixelColor(i, player)) {
-                break;
-              }
-              i++; // since we are moving forward, we can skip lights if they are same color
-              foundLine = 1;
-            }
-          }
-        }
-
-        if (j = 4) {
-          //try up left
-          if ( i % 8 > (X - 1) && i > (X - 1) * 8 - 1) {
-            //...
-            for (k = 0; k > X; k++) {
-              if (strip.setPixelColor(i - (k + 1) * 9, player) != strip.setPixelColor(i, player)) {
-                break;
-              }
-              //return the direction and pixel
-              foundLine = 1;
-            }
-          }
-        }
-
-        if (j = 5) {
-          //try up right
-          if (i % 8 < 8 - (X - 1) && i > (X - 1) * 8 - 1) {
-            //...
-            for (k == 0; k > X; k++) {
-              if (strip.setPixelColor(i - (k + 1) * 7, player) != strip.setPixelColor(i, player)) {
-                break;
-              }
-              foundLine = 1;
-            }
-          }
-        }
-        if (j = 6) {
-          //try down left
-          if ( i % 8 > (X - 1) && i < 64 - 8 * (X - 1)) {
-            //...
-            for (k = 0; k > X; k++) {
-              if (strip.setPixelColor(i + (k + 1) * 7, player) != strip.setPixelColor(i, player))
-                break;
-              foundLine = 1;
-            }
-          }
-
-        }
-
-        if (j = 7) {
-          //try down right
-          if ( i % 8 < 8 - (X - 1) && i < 64 - 8 * (X - 1)) {
-            //...
-            for (k = 0; k > X; k++) {
-              if (strip.setPixelColor(i + (k + 1) * 9, player) != strip.setPixelColor(i, player)) {
-                break;
-              }
-              foundLine = 1;
-            }
-          }
-        }
-
-        if (foundLine == 1) break;
+   If no such sequence is found, returns NULL
+*/
+int* detectVertLine(int player, int len, int** board) {
+  int x, y, count;
+  int coordAndDir[3];
+  
+  for (x = 0; x <= X_DIM - len; x++) {                          //iterate through all columns of length len
+    for (y = 0; y <= Y_DIM - len; y++) {                        //iterate through all rows of length len
+      for (count = 0; count < len; count++){                    //count that you have a sequence of length len
+        if (board[y + count][x] != player)                 
+          break;     //you're not on the right track, try a different sequence
+      }
+      if (count == len){
+        //we found a sequence of length len, so we return coords/direction
+        coordAndDir[0] = x; coordAndDir[1] = y - len; coordAndDir[2] = 10; //!!!add direction constants????
+        return coordAndDir;
       }
     }
-    if (foundLine == 1) break;
   }
-  if (foundLine == 0) return int arr[] = -1, -1;
-  int coordinateAndDirection[] = i, j;
-  return &coordinateAndDirection;
+  return NULL;
+}
+
+/*
+   Returns the colour of the player
+*/
+uint32_t getPlayerColour(int player) {
+  //!!!!!to be implemented, player colour saved somewhere internally
+  return 0;
 }
 
 int calculateLedPosition(int x, int y) {
