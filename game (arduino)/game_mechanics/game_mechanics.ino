@@ -604,6 +604,14 @@ int* detectVertLine(int player, int len, int** board) {
   return NULL;
 }
 
+int* detectDiagLine(int player, int len, int** board) {
+  
+}
+
+int* detectHorizLine(int player, int len, int** board){
+  
+}
+
 /*
    Returns the colour of the player
 */
