@@ -431,7 +431,7 @@ void startupLEDSequence() {
   }
 
   for (int j = 0; j < 64; j++) {
-    strip.setPixelColor(j, 255, 255, 255);
+    strip.setPixelColor(j, white);
     strip.show();
   }
 
@@ -461,7 +461,7 @@ void startupLEDSequence() {
 //  int j = 0;
 //  int k = 0;
 //  int foundLine = 0;
-//  int coordinateAndDirection[2]; //!!make 3 so it returns direction as well?
+//  int coordinateAndDirection[2];
 //
 //  for (i = 0; i < 64; i++) {
 //    if (strip.getPixelColor(i) == player) {   //if the color is the same color as the player, check directions
@@ -597,8 +597,8 @@ int* detectVertLine(int player, int len, int** board) {
   int x, y, count;
   int coordAndDir[3];
 
-  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all columns of length len
-    for (x = 0; x < X_DIM; x++) {                              //iterate through all rows of length len
+  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through bottom half of grid
+    for (x = 0; x < X_DIM; x++) {
       for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
         if (board[y + count][x] != player)
           break;     //you're not on the right track, try a different sequence
@@ -626,8 +626,8 @@ int* detectHorizLine(int player, int len, int** board) {
   int x, y, count;
   int coordAndDir[3];
 
-  for (x = 0; x <= X_DIM - len; x++) {                          //iterate through all columns of length len
-    for (y = 0; y < Y_DIM; y++) {                              //iterate through all rows of length len
+  for (x = 0; x <= X_DIM - len; x++) {                          //iterate through left half of grid
+    for (y = 0; y < Y_DIM; y++) {
       for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
         if (board[y][x + count] != player)
           break;     //you're not on the right track, try a different sequence
@@ -655,8 +655,8 @@ int* detectDiagLine(int player, int len, int** board) {
   int x, y, count;
   int coordAndDir[3];
 
-  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all columns of length len
-    for (x = 0; x <= X_DIM - len; x++) {                              //iterate through all rows of length len
+  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all of bottom left corner of grid
+    for (x = 0; x <= X_DIM - len; x++) {
       for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
         if (board[y + count][x + count] != player)
           break;     //you're not on the right track, try a different sequence
@@ -668,8 +668,8 @@ int* detectDiagLine(int player, int len, int** board) {
       }
     }
   }
-  for (y = len - 1; y < Y_DIM; y++) {                          //iterate through all columns of length len
-    for (x = 0; x <= X_DIM - len; x++) {                              //iterate through all rows of length len
+  for (y = len - 1; y < Y_DIM; y++) {                           //iterate through all of top left corner of grid
+    for (x = 0; x <= X_DIM - len; x++) {
       for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
         if (board[y - count][x + count] != player)
           break;     //you're not on the right track, try a different sequence
