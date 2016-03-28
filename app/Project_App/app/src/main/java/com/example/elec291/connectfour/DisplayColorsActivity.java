@@ -35,6 +35,7 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
         //Shrink Size of pop-up down
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
+        setTitle("Choose a chip color");
 
         int width = dm.widthPixels;
         int height = dm.heightPixels;
@@ -171,6 +172,7 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
         //((TextView) findViewById(R.id.textView2)).setText("Second Color");
         ((TextView) findViewById(R.id.textView2)).setText("Choose Chip Color for CPU");
         MainActivity.player1Color = pressedButton.getBackground();
+        setTitle("Choose a Chip Color for the CPU");
 
     }
 

@@ -30,6 +30,7 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_choose_chip_color);
+        setTitle("Choose a Chip Color for Player 1");
 
 
         //Shrink Size of pop-up down
@@ -170,6 +171,7 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
         //Change the text to tell user to choose a different color
         ((TextView) findViewById(R.id.textView2)).setText("Second Color");
         MainActivity.player1Color = pressedButton.getBackground();
+        setTitle("Choose a Chip Color for Player 2");
         //((TextView) findViewById(R.id.textView2)).setText("Choose Chip Color for CPU");
     }
 
