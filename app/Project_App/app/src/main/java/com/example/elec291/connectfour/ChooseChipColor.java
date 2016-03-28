@@ -169,6 +169,7 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
         }
         //Change the text to tell user to choose a different color
         ((TextView) findViewById(R.id.textView2)).setText("Second Color");
+        MainActivity.player1Color = pressedButton.getBackground();
         //((TextView) findViewById(R.id.textView2)).setText("Choose Chip Color for CPU");
     }
 
@@ -218,5 +219,7 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
         }
+        MainActivity.player2Color = pressedButton.getBackground();
+
     }
 }

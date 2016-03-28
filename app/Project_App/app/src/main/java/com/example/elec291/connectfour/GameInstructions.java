@@ -10,13 +10,14 @@ import android.widget.Button;
 /**
  * Created by rohini on 24/03/16.
  */
-public class GameInstructions extends Activity implements View.OnClickListener{
+public class GameInstructions extends AppCompatActivity implements View.OnClickListener{
     Button buttonDone;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_game_instructions);
+        //setTitle("How to Play");
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -24,7 +25,7 @@ public class GameInstructions extends Activity implements View.OnClickListener{
         int width = dm.widthPixels;
         int height = dm.heightPixels;
 
-        getWindow().setLayout((int) (width * 0.8), (int) (height * 0.8));
+        getWindow().setLayout((int) (width * 0.8), (int) (height * 0.6));
 
         buttonDone = (Button) findViewById(R.id.buttonDone);
         buttonDone.setOnClickListener(this);

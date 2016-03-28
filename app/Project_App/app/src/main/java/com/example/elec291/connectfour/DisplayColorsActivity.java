@@ -170,6 +170,8 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
         //Change the text to tell user to choose a different color
         //((TextView) findViewById(R.id.textView2)).setText("Second Color");
         ((TextView) findViewById(R.id.textView2)).setText("Choose Chip Color for CPU");
+        MainActivity.player1Color = pressedButton.getBackground();
+
     }
 
     private void onClickTwo(Button pressedButton) {
@@ -218,5 +220,7 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
         }
+        MainActivity.player2Color = pressedButton.getBackground();
+
     }
 }

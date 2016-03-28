@@ -59,7 +59,7 @@
             ></activity>
 
         <activity android:name=".ConnectViaWifi"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
 
         </activity>
 
