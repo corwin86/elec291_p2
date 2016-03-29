@@ -213,6 +213,8 @@ int dropToken_connect4(int **board, int col, int token) {
     Return true if a player has won, or a draw is reached (board is full)
 */
 int gameOver_connect4(int **board) {
+  Serial.print("WP: ");
+  Serial.println(winningPlayer_connect4(board));
   return winningPlayer_connect4(board) > 0 || boardFull();
 }
 
@@ -369,7 +371,7 @@ void startupLEDSequence() {
 
   //uint32_t[] colors = red, magenta, green, blue;
 
-  for (i = 0; i < 10; i++) { //while(i == 0){
+  for (i = 0; i < 3 * 4; i++) { //while(i == 0){
     //printsquare2
     printCell(3, 3, square1 , 1);
     printCell(4, 3, square1 , 1);
@@ -458,26 +460,29 @@ void startupLEDSequence() {
     delay(250);
   }
 
-  for (int j = 0; j < X_DIM * Y_DIM; j++) {
-    strip.setPixelColor(j, off);
+  for(i = 0; i < 64; i++) {
+    strip.setPixelColor(i + 3, yellow);
+    strip.setPixelColor(i + 2, green);
+    strip.setPixelColor(i + 1, cyan);
+    strip.setPixelColor(i    , blue);
+    delay(10);
     strip.show();
   }
-
-  printCell(2, 1, blue , 1);
-  printCell(3, 1, blue , 1);
-  printCell(4, 1, blue , 1);
-  printCell(5, 1, blue , 1);
-
-  printCell(2, 2, blue , 1);
-  printCell(2, 3, blue , 1);
-  printCell(4, 3, blue , 1);
-
-  printCell(3, 3, blue , 1);
-  printCell(5, 4, blue , 1);
-  printCell(5, 5, blue , 1);
-  printCell(4, 6, blue , 1);
-  printCell(3, 6, blue , 1);
-  printCell(2, 6, blue , 1);
+  
+  for(i = 0; i < 64; i++) {
+    strip.setPixelColor(i + 3, yellow);
+    strip.setPixelColor(i + 2, green);
+    strip.setPixelColor(i + 1, cyan);
+    if((i > 9 && i < 14) || i == 18 || (i > 25 && i < 29) || i == 37 || i == 45 || (i > 49 && i < 53)) {
+      strip.setPixelColor(i, blue);
+    } else {
+      strip.setPixelColor(i, off);
+    }
+    
+    delay(10);
+    strip.show();
+  }
+  
   delay(5000);
 
   for (int j = 0; j < X_DIM * Y_DIM; j++) {
