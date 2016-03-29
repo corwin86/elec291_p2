@@ -8,12 +8,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.Socket;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 /**
@@ -23,7 +27,7 @@ public class ConnectViaWifi extends AppCompatActivity {
 
     Button buttonConnect;
     TextView connectMessage;
-    String str;
+    static String  str;
     String urlToConnection = "http://192.168.43.82/";
     String testURL = "http://www.android.com/";
 
@@ -60,19 +64,43 @@ public class ConnectViaWifi extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //startActivity(new Intent("com.example.elec291.connect4.GameBoard"));
-                try{
-                    String lineRead = WifiConnection.POST(testURL);
-                    connectMessage.setText(lineRead);
+                //try{
+                    //String lineRead = WifiConnection.POST(testURL);
+                    connectMessage.setText(str);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    connectMessage.setText("Did not send message");
-                }
+//               / }
+//                catch (IOException e) {
+//                    e.printStackTrace();
+//                    connectMessage.setText("Did not send message");
+//                }
                 SystemClock.sleep(3000);
                 startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
 
             }
         });
 
+    }
+
+    public void POST(String url) throws IOException {
+        URL connect_url = new URL(url);
+        HttpURLConnection httpConnection = (HttpURLConnection) connect_url.openConnection();
+
+        try {
+            InputStream in = new BufferedInputStream(httpConnection.getInputStream());
+            str = readStream(in);
+            //return str;
+        } finally {
+            httpConnection.disconnect();
+        }
+    }
+
+    public static String readStream(InputStream in) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader r = new BufferedReader(new InputStreamReader(in),1000);
+        for (String line = r.readLine(); line != null; line =r.readLine()){
+            sb.append(line);
+        }
+        in.close();
+        return sb.toString();
     }
 }
