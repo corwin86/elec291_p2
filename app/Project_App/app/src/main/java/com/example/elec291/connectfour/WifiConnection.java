@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,8 +33,12 @@ public class WifiConnection {
 //            httpConnection.setRequestProperty("Accept", "application/json");
 //            httpConnection.setRequestMethod("POST");
 
-            OutputStream out = new BufferedOutputStream(httpConnection.getOutputStream());
-            writeStream(out);
+           //
+           // OutputStream out = new BufferedOutputStream(httpConnection.getOutputStream());
+            OutputStreamWriter outStream = new OutputStreamWriter(httpConnection.getOutputStream());
+            outStream.write("App is connected");
+            outStream.flush();
+            //writeStream(out);
 
             InputStream in = new BufferedInputStream(httpConnection.getInputStream());
             String input = readStream(in);
