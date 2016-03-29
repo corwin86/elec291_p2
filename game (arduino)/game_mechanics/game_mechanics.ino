@@ -2,7 +2,7 @@
 
 #define PIN 6
 
-#define USE_LEDS 1
+#define USE_SERIAL 1
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -58,8 +58,9 @@ const int UP = 1,
 // ==== Global Variables ====
 
 /* ---- player info ---- */
-int p1_colour,
-    p2_colour;
+uint32_t p1_colour = red,
+         p2_colour = blue;
+int turns;
 /* -- end player info -- */
 
 // == End Global Variables ==
@@ -128,36 +129,34 @@ int playConnectFour() {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-      board[y][x] = P1;
+      board[y][x] = EMPTY_CELL;
     }
   }
 
-  while (1) {
-    for (y = 0; y < Y_DIM; y++) {
-      for (x = 0; x < X_DIM; x++) {
-        board[y][x] = P2;
-      }
-    }
-    printBoard(board);
-    delay(250);
-    for (y = 0; y < Y_DIM; y++) {
-      for (x = 0; x < X_DIM; x++) {
-        board[y][x] = EMPTY_CELL;
-      }
-    }
-    printBoard(board);
-    delay(250);
-  }
-
-  //  printCell(1, 1, red);
-  //  printCell(4, 5, blue);
-  //  printCell(2, 3, green);
-  //  while(1);
+//  while (1) {
+//    for (y = 0; y < Y_DIM; y++) {
+//      for (x = 0; x < X_DIM; x++) {
+//        board[y][x] = P2;
+//      }
+//    }
+//    printBoard(board);
+//    delay(250);
+//    for (y = 0; y < Y_DIM; y++) {
+//      for (x = 0; x < X_DIM; x++) {
+//        board[y][x] = EMPTY_CELL;
+//      }
+//    }
+//    printBoard(board);
+//    delay(250);
+//  }
 
   //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
+  turns = 0;
   while (!gameOver_connect4(board)) {
     //!!! game logic not done
+
+    Serial.println("!GO");
 
     int col;
     do {
@@ -174,6 +173,7 @@ int playConnectFour() {
     printBoard(board);
 
     cur_player = cur_player == P1 ? P2 : P1; //change turns
+    turns++;
   }
   //-- end gameplay --
 
@@ -191,7 +191,7 @@ int playConnectFour() {
 */
 int dropToken_connect4(int **board, int col, int token) {
   int y = -1;
-  while (board[y + 1][col] == EMPTY_CELL) {
+  while (board[y + 1][col] == EMPTY_CELL && y + 1 < Y_DIM) {
     y++;
   }
 
@@ -208,7 +208,7 @@ int dropToken_connect4(int **board, int col, int token) {
     Return true if a player has won, or a draw is reached (board is full)
 */
 int gameOver_connect4(int **board) {
-  return winningPlayer_connect4(board) > 0 || boardFull(board);
+  return winningPlayer_connect4(board) > 0 || boardFull();
 }
 
 /*
@@ -244,6 +244,8 @@ void connect4Cascade(int **board) {
     !!!!!!NOTE: MUST SPECIFY WIN DATA!!!!!!!
 */
 int winningPlayer_connect4(int **board) {
+  return 0; //!!! REMOVE
+  
   //array to pass to helper functions to determine the coordinates of all winning tiles
   
   int *vert1 = detectVertLine(P1, 5, board);
@@ -267,17 +269,10 @@ int winningPlayer_connect4(int **board) {
 }
 
 /*
-    Returns 0 if board contains >1 empty cells
+    Returns 0 if board contains 1+ empty cells
 */
-int boardFull(int **board) {
-  int x, y;
-  for (y = 0; y < Y_DIM; y++) {
-    for (x = 0; x < X_DIM; x++) {
-      if (board[y][x] == EMPTY_CELL)
-        return 0;
-    }
-  }
-  return 1;
+int boardFull() {
+  return turns >= X_DIM * Y_DIM;
 }
 
 /*
@@ -313,28 +308,32 @@ void printBoard(int **board) {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-#if !USE_LEDS
-      Serial.print(board[y][x]); Serial.print("\t");
-#else
-      printCell(x, y, board[y][x] == P1 ? red : board[y][x] == P2 ? blue : off);
+#if USE_SERIAL
+      Serial.print(board[y][x]); 
 #endif
+      Serial.print(getPlayerColour(board[y][x]));Serial.print("\t");
+      printCell(x, y, getPlayerColour(board[y][x]), 0);
     }
-#if !USE_LEDS
+#if USE_SERIAL
     Serial.println();
 #endif
   }
-#if !USE_LEDS
+#if USE_SERIAL
   Serial.println();
 #endif
+
+  strip.show();
 }
 
 /*
    given a row,column and color light up specified led
 */
-void printCell(int x, int y, uint32_t color) {
+void printCell(int x, int y, uint32_t color, int show) {
   int led = X_DIM * y + x;
   strip.setPixelColor(led, color); //sets colour of first pixel
-  strip.show(); //'pushes' colour data to the strip
+  if(show) {
+    strip.show(); //'pushes' colour data to the strip
+  }
 }
 
 /*
@@ -352,82 +351,82 @@ void startupLEDSequence() {
 
   for (i = 0; i < 10; i++) { //while(i == 0){
     //printsquare2
-    printCell(3, 3, square1);
-    printCell(4, 3, square1);
-    printCell(3, 4, square1);
-    printCell(4, 4, square1);
+    printCell(3, 3, square1 , 1);
+    printCell(4, 3, square1 , 1);
+    printCell(3, 4, square1 , 1);
+    printCell(4, 4, square1 , 1);
 
     //print square 2
-    printCell(2, 2, square2);
-    printCell(2, 3, square2);
-    printCell(2, 4, square2);
-    printCell(2, 5, square2);
+    printCell(2, 2, square2 , 1);
+    printCell(2, 3, square2 , 1);
+    printCell(2, 4, square2 , 1);
+    printCell(2, 5, square2 , 1);
 
-    printCell(3, 2, square2);
-    printCell(4, 2, square2);
-    printCell(3, 5, square2);
-    printCell(4, 5, square2);
+    printCell(3, 2, square2 , 1);
+    printCell(4, 2, square2 , 1);
+    printCell(3, 5, square2 , 1);
+    printCell(4, 5, square2 , 1);
 
-    printCell(5, 2, square2);
-    printCell(5, 3, square2);
-    printCell(5, 4, square2);
-    printCell(5, 5, square2);
+    printCell(5, 2, square2 , 1);
+    printCell(5, 3, square2 , 1);
+    printCell(5, 4, square2 , 1);
+    printCell(5, 5, square2 , 1);
 
     //print square 3
-    printCell(1, 1, square3);
-    printCell(1, 2, square3);
-    printCell(1, 3, square3);
-    printCell(1, 4, square3);
-    printCell(1, 5, square3);
-    printCell(1, 6, square3);
+    printCell(1, 1, square3 , 1);
+    printCell(1, 2, square3 , 1);
+    printCell(1, 3, square3 , 1);
+    printCell(1, 4, square3 , 1);
+    printCell(1, 5, square3 , 1);
+    printCell(1, 6, square3 , 1);
 
-    printCell(2, 1, square3);
-    printCell(3, 1, square3);
-    printCell(4, 1, square3);
-    printCell(5, 1, square3);
-    printCell(2, 6, square3);
-    printCell(3, 6, square3);
-    printCell(4, 6, square3);
-    printCell(5, 6, square3);
+    printCell(2, 1, square3 , 1);
+    printCell(3, 1, square3 , 1);
+    printCell(4, 1, square3 , 1);
+    printCell(5, 1, square3 , 1);
+    printCell(2, 6, square3 , 1);
+    printCell(3, 6, square3 , 1);
+    printCell(4, 6, square3 , 1);
+    printCell(5, 6, square3 , 1);
 
-    printCell(6, 1, square3);
-    printCell(6, 2, square3);
-    printCell(6, 3, square3);
-    printCell(6, 4, square3);
-    printCell(6, 5, square3);
-    printCell(6, 6, square3);
+    printCell(6, 1, square3 , 1);
+    printCell(6, 2, square3 , 1);
+    printCell(6, 3, square3 , 1);
+    printCell(6, 4, square3 , 1);
+    printCell(6, 5, square3 , 1);
+    printCell(6, 6, square3 , 1);
 
     //print square 4
-    printCell(0, 0, square4);
-    printCell(0, 1, square4);
-    printCell(0, 2, square4);
-    printCell(0, 3, square4);
-    printCell(0, 4, square4);
-    printCell(0, 5, square4);
-    printCell(0, 6, square4);
-    printCell(0, 7, square4);
+    printCell(0, 0, square4 , 1);
+    printCell(0, 1, square4 , 1);
+    printCell(0, 2, square4 , 1);
+    printCell(0, 3, square4 , 1);
+    printCell(0, 4, square4 , 1);
+    printCell(0, 5, square4 , 1);
+    printCell(0, 6, square4 , 1);
+    printCell(0, 7, square4 , 1);
 
-    printCell(1, 0, square4);
-    printCell(2, 0, square4);
-    printCell(3, 0, square4);
-    printCell(4, 0, square4);
-    printCell(5, 0, square4);
-    printCell(6, 0, square4);
-    printCell(1, 7, square4);
-    printCell(2, 7, square4);
-    printCell(3, 7, square4);
-    printCell(4, 7, square4);
-    printCell(5, 7, square4);
-    printCell(6, 7, square4);
-
-    printCell(7, 0, square4);
-    printCell(7, 1, square4);
-    printCell(7, 2, square4);
-    printCell(7, 3, square4);
-    printCell(7, 4, square4);
-    printCell(7, 5, square4);
-    printCell(7, 6, square4);
-    printCell(7, 7, square4);
+    printCell(1, 0, square4 , 1);
+    printCell(2, 0, square4 , 1);
+    printCell(3, 0, square4 , 1);
+    printCell(4, 0, square4 , 1);
+    printCell(5, 0, square4 , 1);
+    printCell(6, 0, square4 , 1);
+    printCell(1, 7, square4 , 1);
+    printCell(2, 7, square4 , 1);
+    printCell(3, 7, square4 , 1);
+    printCell(4, 7, square4 , 1);
+    printCell(5, 7, square4 , 1);
+    printCell(6, 7, square4 , 1);
+ 
+    printCell(7, 0, square4 , 1);
+    printCell(7, 1, square4 , 1);
+    printCell(7, 2, square4 , 1);
+    printCell(7, 3, square4 , 1);
+    printCell(7, 4, square4 , 1);
+    printCell(7, 5, square4 , 1);
+    printCell(7, 6, square4 , 1);
+    printCell(7, 7, square4 , 1);
 
     //switch colors
     uint32_t temp = square1;
@@ -439,26 +438,32 @@ void startupLEDSequence() {
     delay(250);
   }
 
-  for (int j = 0; j < 64; j++) {
-    strip.setPixelColor(j, white);
+  for (int j = 0; j < X_DIM * Y_DIM; j++) {
+    strip.setPixelColor(j, off);
     strip.show();
   }
 
-  printCell(2, 1, blue);
-  printCell(3, 1, blue);
-  printCell(4, 1, blue);
-  printCell(5, 1, blue);
+  printCell(2, 1, blue , 1);
+  printCell(3, 1, blue , 1);
+  printCell(4, 1, blue , 1);
+  printCell(5, 1, blue , 1);
 
-  printCell(2, 2, blue);
-  printCell(2, 3, blue);
+  printCell(2, 2, blue , 1);
+  printCell(2, 3, blue , 1);
+  printCell(4, 3, blue , 1);
 
-  printCell(3, 3, blue);
-  printCell(5, 4, blue);
-  printCell(5, 5, blue);
-  printCell(4, 6, blue);
-  printCell(3, 6, blue);
-  printCell(2, 6, blue);
+  printCell(3, 3, blue , 1);
+  printCell(5, 4, blue , 1);
+  printCell(5, 5, blue , 1);
+  printCell(4, 6, blue , 1);
+  printCell(3, 6, blue , 1);
+  printCell(2, 6, blue , 1);
   delay(5000);
+  
+  for (int j = 0; j < X_DIM * Y_DIM; j++) {
+    strip.setPixelColor(j, off);
+    strip.show();
+  }
 }
 
 /*
