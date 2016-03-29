@@ -18,7 +18,8 @@ import android.widget.RelativeLayout;
 
 public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickListener {
 
-    Button buttonSinglePlayer, buttonMultiPlayer;
+    static Button buttonSinglePlayer, buttonMultiPlayer;
+    static Button selectedPlayerMode;
 
 
     @Override
@@ -47,23 +48,18 @@ public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickL
         switch ((v.getId())){
             case R.id.buttonSinglePlayer:
                 onPlayerClick(buttonSinglePlayer);
+                selectedPlayerMode = buttonSinglePlayer;
                 break;
             case R.id.buttonMultiPlayer:
                 onPlayerClick(buttonMultiPlayer);
+                selectedPlayerMode = buttonMultiPlayer;
                 break;
         }
 
     }
 
     public void onPlayerClick(Button pressedButton){
-        if(pressedButton == buttonSinglePlayer){
-            startActivity(new Intent(ChoosePlayerMode.this, DisplayColorsActivity.class));
-            //startActivity(new Intent(ChoosePlayerMode.this, ConnectViaWifi.class));
-        }
-        else{
-            startActivity(new Intent(ChoosePlayerMode.this, ChooseChipColor.class));
-            //startActivity(new Intent(ChoosePlayerMode.this, ConnectViaWifi.class));
-        }
+       startActivity(new Intent(ChoosePlayerMode.this, ChipColorForEachPlayer.class));
 
         //startActivity(new Intent("com.example.elec291.connect4.DisplayColorsActivity"));
 

@@ -73,6 +73,15 @@
 
         </activity>
 
+        <activity android:name=".ChipColorForEachPlayer"
+            android:theme="@style/AppTheme">
+        </activity>
+
+        <activity android:name=".ChooseColorForChip"
+            android:theme="@style/AppTheme.customtheme">
+
+        </activity>
+
 
     </application>
 

@@ -19,6 +19,8 @@ import android.view.View.OnClickListener;
 public class MainActivity extends AppCompatActivity{
 
     Button playButton;
+
+    //Color that both players end up choosing. To be sent to the arduino so that it can be displayed on the LED board
     static Drawable player1Color;
     static Drawable player2Color;
 
