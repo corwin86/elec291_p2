@@ -8,8 +8,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -17,6 +19,7 @@ import java.net.URLConnection;
  * Created by rohini on 29/03/16.
  */
 public class WifiConnection {
+    static String st;
 
 
     public static String POST(String url) throws IOException {
@@ -29,6 +32,17 @@ public class WifiConnection {
             httpConnection.setRequestMethod("GET");
             httpConnection.setDoOutput(true);
             httpConnection.connect();
+            Socket s = new Socket("192.168.43.82", 80);
+
+            //outgoing stream redirect to socket
+            OutputStream out = s.getOutputStream();
+
+            PrintWriter output = new PrintWriter(out);
+            output.println("Hello Android!");
+            BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
+
+            st = input.readLine();
+            s.close();
             //httpConnection.setDoInput(true);
             //httpConnection.setChunkedStreamingMode(0);
 

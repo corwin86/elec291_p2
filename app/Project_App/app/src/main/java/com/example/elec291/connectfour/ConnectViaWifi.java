@@ -23,7 +23,7 @@ public class ConnectViaWifi extends AppCompatActivity {
 
     Button buttonConnect;
     TextView connectMessage;
-    String st;
+    String str;
     String urlToConnection = "http://192.168.43.82/";
 
     @Override
@@ -32,23 +32,23 @@ public class ConnectViaWifi extends AppCompatActivity {
         setContentView(R.layout.content_connect_to_wifi);
 
 
-        try{
-            Socket s = new Socket("192.168.43.82", 80);
-
-            //outgoing stream redirect to socket
-            OutputStream out = s.getOutputStream();
-
-            PrintWriter output = new PrintWriter(out);
-            output.println("Hello Android!");
-            BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
-
-            st = input.readLine();
-            s.close();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try{
+////            Socket s = new Socket("192.168.43.82", 80);
+////
+////            //outgoing stream redirect to socket
+////            OutputStream out = s.getOutputStream();
+////
+////            PrintWriter output = new PrintWriter(out);
+////            output.println("Hello Android!");
+////            BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
+////
+////            st = input.readLine();
+////            s.close();
+//        } catch (UnknownHostException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
 
         //initialization
@@ -61,8 +61,8 @@ public class ConnectViaWifi extends AppCompatActivity {
                 //startActivity(new Intent("com.example.elec291.connect4.GameBoard"));
 
                     //String lineRead = WifiConnection.POST(urlToConnection);
-                    connectMessage.setText(st);
-                
+                    connectMessage.setText(WifiConnection.st);
+
 //                } catch (IOException e) {
 //                    e.printStackTrace();
 //                    connectMessage.setText("Did not send message");
