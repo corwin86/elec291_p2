@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -23,12 +25,12 @@ import java.net.UnknownHostException;
 /**
  * Created by rohini on 24/03/16.
  */
-public class ConnectViaWifi extends AppCompatActivity {
+public class ConnectViaWifi extends AppCompatActivity implements View.OnClickListener {
 
     Button buttonConnect;
     TextView connectMessage;
     static String  str;
-    String urlToConnection = "192.168.43.82";
+    String urlToConnection = "http://192.168.43.82/";
     String testURL = "http://www.android.com/";
 
     @Override
@@ -59,54 +61,78 @@ public class ConnectViaWifi extends AppCompatActivity {
         //initialization
         connectMessage = (TextView) findViewById(R.id.textView10);
         buttonConnect = (Button) findViewById(R.id.buttonConnect);
-        buttonConnect.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                //startActivity(new Intent("com.example.elec291.connect4.GameBoard"));
-                //try{
-                    //String lineRead = WifiConnection.POST(testURL);
-                try {
-                    POST(testURL);
-                    connectMessage.setText(str);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-//               / }
-//                catch (IOException e) {
+        buttonConnect.setOnClickListener(this);
+//        buttonConnect.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                //startActivity(new Intent("com.example.elec291.connect4.GameBoard"));
+//                //try{
+//                    //String lineRead = WifiConnection.POST(testURL);
+//                try {
+//                    POST(testURL);
+//                    connectMessage.setText(str);
+//                } catch (IOException e) {
 //                    e.printStackTrace();
-//                    connectMessage.setText("Did not send message");
 //                }
-                SystemClock.sleep(3000);
-                startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
-
-            }
-        });
+//
+//
+////               / }
+////                catch (IOException e) {
+////                    e.printStackTrace();
+////                    connectMessage.setText("Did not send message");
+////                }
+//                SystemClock.sleep(3000);
+//                startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
+//
+//            }
+//        });
 
     }
 
-    public void POST(String url) throws IOException {
-        URL connect_url = new URL(url);
-        HttpURLConnection httpConnection = (HttpURLConnection) connect_url.openConnection();
-
+    @Override
+    public void onClick(View v){
+        URL connect_url = null;
         try {
-            InputStream in = new BufferedInputStream(httpConnection.getInputStream());
-            str = readStream(in);
-            //return str;
-        } finally {
-            httpConnection.disconnect();
+            connect_url = new URL(urlToConnection);
+            HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
+            connection.setDoOutput(true);
+            connection.setChunkedStreamingMode(0);
+            OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+            writeStream(out);
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
     }
 
-    public static String readStream(InputStream in) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader r = new BufferedReader(new InputStreamReader(in),1000);
-        for (String line = r.readLine(); line != null; line =r.readLine()){
-            sb.append(line);
-        }
-        in.close();
-        return sb.toString();
+//    public void POST(String url) throws IOException {
+//        URL connect_url = new URL(url);
+//        HttpURLConnection httpConnection = (HttpURLConnection) connect_url.openConnection();
+//
+//        try {
+//            InputStream in = new BufferedInputStream(httpConnection.getInputStream());
+//            str = readStream(in);
+//            //return str;
+//        } finally {
+//            httpConnection.disconnect();
+//        }
+//    }
+//
+//    public static String readStream(InputStream in) throws IOException {
+//        StringBuilder sb = new StringBuilder();
+//        BufferedReader r = new BufferedReader(new InputStreamReader(in),1000);
+//        for (String line = r.readLine(); line != null; line =r.readLine()){
+//            sb.append(line);
+//        }
+//        in.close();
+//        return sb.toString();
+//    }
+
+    public void writeStream(OutputStream out) throws IOException {
+        String written = "Android Connection";
+        out.write(written.getBytes());
+
     }
 }
