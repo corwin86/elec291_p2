@@ -23,3 +23,10 @@ References:
 
 
 	Connect 4:	https://www.quora.com/What-is-the-winning-strategy-for-the-first-player-in-Connect-Four-games
+	
+	JSON arduino library
+	https://github.com/bblanchon/ArduinoJson/wiki
+	
+	JSON arduino documentation
+	https://github.com/bblanchon/ArduinoJson/wiki
+	
