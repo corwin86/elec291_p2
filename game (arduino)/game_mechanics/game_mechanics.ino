@@ -76,7 +76,7 @@ void setup() {
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
-  
+
 #if !DEBUG
   startupLEDSequence();
 #endif
@@ -197,7 +197,7 @@ int dropToken_connect4(int **board, int col, int token) {
   uint32_t colour = getPlayerColour(token);
 
   int i = -2;
-  while(++i < y - 1) {
+  while (++i < y - 1) {
     delay(TOKEN_DROP_SPEED);
     printCell(col, i, off, 0);
     printCell(col, i + 1, colour, 0);
@@ -227,17 +227,17 @@ void connect4Cascade(int **board) {
   Serial.print("Cascade\n");
   int x, y, count;
 
-  for(count = 0; count < Y_DIM; count++) {
-    for(y = Y_DIM - 1; y >= count; y--) {
-      for(x = 0; x < X_DIM; x++) {
-        if(y == 0) {
+  for (count = 0; count < Y_DIM; count++) {
+    for (y = Y_DIM - 1; y >= count; y--) {
+      for (x = 0; x < X_DIM; x++) {
+        if (y == 0) {
           board[y][x] = EMPTY_CELL;
         } else {
           board[y][x] = board[y - 1][x];
         }
       }
     }
-    
+
     printBoard(board);
     delay(TOKEN_DROP_SPEED);
   }
@@ -254,46 +254,63 @@ void connect4Cascade(int **board) {
 int winningPlayer_connect4(int **board) {
   int *winData;
   int *checkWin;
+//  int noWin[4] = { -1, -1, -1, -1};
   int i = 0;
   int flashes = 3 * 2;
 
-  checkWin = detectDiagLine(P1, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
-  checkWin = detectHorizLine(P1, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
-  checkWin = detectVertLine(P1, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
+  winData = detectDiagLine(P1, SEQ_LENGTH, board, checkWin);
+//  winData = checkWin[0] != -1 ? checkWin : noWin;
+  if (winData[0] == -1)
+    //flashWin();
+    return winData[3];
 
-  checkWin = detectDiagLine(P2, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
-  checkWin = detectHorizLine(P2, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
-  checkWin = detectVertLine(P2, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
+  winData = detectHorizLine(P1, SEQ_LENGTH, board, checkWin);
+//  winData = checkWin[0] != -1 ? checkWin : noWin;
+  if (winData[0] == -1)
+    return winData[3];
 
-  if (winData == NULL)
+  winData = detectVertLine(P1, SEQ_LENGTH, board, checkWin);
+//  winData = checkWin[0] != -1 ? checkWin : noWin;
+  if (winData[0] == -1)
+    return winData[3];
+
+  winData = detectDiagLine(P2, SEQ_LENGTH, board, checkWin);
+//  winData = checkWin[0] != -1 ? checkWin : noWin;
+  if (winData[0] == -1)
+    return winData[3];
+
+  winData = detectHorizLine(P2, SEQ_LENGTH, board, checkWin);
+//  winData = checkWin[0] != -1 ? checkWin : noWin;
+  if (winData[0] == -1)
+    return winData[3];
+
+  winData = detectVertLine(P2, SEQ_LENGTH, board, checkWin);
+  if (winData[0] == -1)
+    return winData[3];
+  else
     return 0;
 
-  //flashes 3 times
-  while (flashes-- > 0) {
-    while (i++ < SEQ_LENGTH) {
-      switch (winData[2]) {
-        case UP:
-          printCell(winData[0] + i, winData[1], flashes % 2 ? webworkGreen : off, 0); break;
-        case LEFT:
-          printCell(winData[0], winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
-        case UP_LEFT:
-          printCell(winData[0] + i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
-        case DOWN_LEFT:
-          printCell(winData[0] - i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
-        default:
-          Serial.println("ERROR: check line detecting logic"); break;
-      }
-    }
-    delay(500);
-  }
 
-  return winData[3];
+  //flashes 3 times
+  //  while (flashes-- > 0) {
+  //    while (i++ < SEQ_LENGTH) {
+  //      switch (winData[2]) {
+  //        case UP:
+  //          printCell(winData[0] + i, winData[1], flashes % 2 ? webworkGreen : off, 0); break;
+  //        case LEFT:
+  //          printCell(winData[0], winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
+  //        case UP_LEFT:
+  //          printCell(winData[0] + i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
+  //        case DOWN_LEFT:
+  //          printCell(winData[0] - i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
+  //        default:
+  //          Serial.println("ERROR: check line detecting logic"); break;
+  //      }
+  //    }
+  //    delay(500);
+  //  }
+
+  //return winData[3];
 
 }
 
@@ -492,138 +509,6 @@ void startupLEDSequence() {
 }
 
 /*
-   returns the first sequence of lights found of length x
-   in an array.
-*/
-//int* detectLineXLong(int player, int X, int **board) {
-//  int i = 0;
-//  int j = 0;
-//  int k = 0;
-//  int foundLine = 0;
-//  int coordinateAndDirection[2];
-//
-//  for (i = 0; i < 64; i++) {
-//    if (strip.getPixelColor(i) == player) {   //if the color is the same color as the player, check directions
-//      for (j = 0; i < 8; j++) {
-//        //search all 8 directions x long,
-//        //if not same color or off, try next direction
-//
-//        if (j = 0) {
-//          //try up
-//          //for x= 3 if i > (x-1)*8 - 1
-//          if (i > (X - 1) * 8 - 1) {
-//            for (k = 0; k < X; k++) {
-//              if (strip.setPixelColor(i - (k + 1) * 8, player) != strip.setPixelColor(i, player)) {
-//                break;
-//              }
-//              //return the direction and pixel
-//              foundLine = 1;
-//            }
-//          }
-//        }
-//
-//        if (j = 1) {
-//          //try down
-//          if (i < 64 - 8 * (X - 1)) {
-//            for (k = 0; k < X; k++) {
-//              if (strip.setPixelColor(i + (k + 1) * 8, player) != strip.setPixelColor(i, player)) {
-//                break;
-//              }
-//              //return the direction and pixel
-//              foundLine = 1;
-//            }
-//          }
-//        }
-//
-//        if (j = 2) {
-//          //try left
-//          if ( i % 8 > (X - 1)) { //Equation could be wrong
-//            for (k = 0; k < X; k++) {
-//              if (strip.setPixelColor(i + (k + 1), player) != strip.setPixelColor(i, player)) {
-//                break;
-//              }
-//              //return the direction and pixel
-//              foundLine = 1;
-//            }
-//          }
-//        }
-//
-//        if (j = 3) {
-//          //try right
-//          if ( i % 8 < 8 - (X - 1)) { //Equation could be wrong
-//            for (k = 0; k > X; k++) {
-//              if (strip.setPixelColor(i - (k + 1), player) != strip.setPixelColor(i, player)) {
-//                break;
-//              }
-//              i++; // since we are moving forward, we can skip lights if they are same color
-//              foundLine = 1;
-//            }
-//          }
-//        }
-//
-//        if (j = 4) {
-//          //try up left
-//          if ( i % 8 > (X - 1) && i > (X - 1) * 8 - 1) {
-//            //...
-//            for (k = 0; k > X; k++) {
-//              if (strip.setPixelColor(i - (k + 1) * 9, player) != strip.setPixelColor(i, player)) {
-//                break;
-//              }
-//              //return the direction and pixel
-//              foundLine = 1;
-//            }
-//          }
-//        }
-//
-//        if (j = 5) {
-//          //try up right
-//          if (i % 8 < 8 - (X - 1) && i > (X - 1) * 8 - 1) {
-//            //...
-//            for (k == 0; k > X; k++) {
-//              if (strip.setPixelColor(i - (k + 1) * 7, player) != strip.setPixelColor(i, player)) {
-//                break;
-//              }
-//              foundLine = 1;
-//            }
-//          }
-//        }
-//        if (j = 6) {
-//          //try down left
-//          if ( i % 8 > (X - 1) && i < 64 - 8 * (X - 1)) {
-//            //...
-//            for (k = 0; k > X; k++) {
-//              if (strip.setPixelColor(i + (k + 1) * 7, player) != strip.setPixelColor(i, player))
-//                break;
-//              foundLine = 1;
-//            }
-//          }
-//
-//        }
-//
-//        if (j = 7) {
-//          //try down right
-//          if ( i % 8 < 8 - (X - 1) && i < 64 - 8 * (X - 1)) {
-//            //...
-//            for (k = 0; k > X; k++) {
-//              if (strip.setPixelColor(i + (k + 1) * 9, player) != strip.setPixelColor(i, player)) {
-//                break;
-//              }
-//              foundLine = 1;
-//            }
-//          }
-//        }
-//
-//        if (foundLine == 1) break;
-//      }
-//    }
-//    if (foundLine == 1) break;
-//  }
-//  if (foundLine == 0) coordinateAndDirection = {-1,-1};
-//  else coordinateAndDirection = {i, j};
-//  return coordinateAndDirection;
-//}
-
-/*
    Detects if there is a vertical sequence of one player's tokens of length len.
    If one is found, it returns the coordinates of the first token, as well as the direction
    of the sequence, in the form:
@@ -632,9 +517,8 @@ void startupLEDSequence() {
 
    If no such sequence is found, returns NULL
 */
-int* detectVertLine(int player, int len, int** board) {
+int* detectVertLine(int player, int len, int** board, int *coordAndDir) {
   int x, y, count;
-  int coordAndDir[4];
 
   for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through bottom half of grid
     for (x = 0; x < X_DIM; x++) {
@@ -644,12 +528,13 @@ int* detectVertLine(int player, int len, int** board) {
       }
       if (count == len) {
         //we found a sequence of length len, so we return coords/direction
-        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = UP; coordAndDir[3] = player;
+        coordAndDir[0] = y; coordAndDir[1] = x; coordAndDir[2] = UP; coordAndDir[3] = player;
         return coordAndDir;
       }
     }
   }
-  return NULL;
+  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
+  return coordAndDir;
 }
 
 /*
@@ -661,9 +546,8 @@ int* detectVertLine(int player, int len, int** board) {
 
    If no such sequence is found, returns NULL
 */
-int* detectHorizLine(int player, int len, int** board) {
+int* detectHorizLine(int player, int len, int** board, int *coordAndDir) {
   int x, y, count;
-  int coordAndDir[4];
 
   for (x = 0; x <= X_DIM - len; x++) {                          //iterate through left half of grid
     for (y = 0; y < Y_DIM; y++) {
@@ -673,12 +557,13 @@ int* detectHorizLine(int player, int len, int** board) {
       }
       if (count == len) {
         //we found a sequence of length len, so we return coords/direction
-        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = LEFT; coordAndDir[3] = player;
+        coordAndDir[0] = y; coordAndDir[1] = x; coordAndDir[2] = LEFT; coordAndDir[3] = player;
         return coordAndDir;
       }
     }
   }
-  return NULL;
+  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
+  return coordAndDir;
 }
 
 /*
@@ -686,13 +571,12 @@ int* detectHorizLine(int player, int len, int** board) {
    If one is found, it returns the coordinates of the first token, as well as the direction
    of the sequence, in the form:
 
-   -> returnArray[] = {x, y, dir, player}
+   -> returnArray[] = {y, x, dir, player}
 
    If no such sequence is found, returns NULL
 */
-int* detectDiagLine(int player, int len, int** board) {
+int* detectDiagLine(int player, int len, int** board, int *coordAndDir) {
   int x, y, count;
-  int coordAndDir[4];
 
   for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all of bottom left corner of grid
     for (x = 0; x <= X_DIM - len; x++) {
@@ -702,7 +586,7 @@ int* detectDiagLine(int player, int len, int** board) {
       }
       if (count == len) {
         //we found a sequence of length len, so we return coords/direction
-        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = UP_LEFT; coordAndDir[3] = player;
+        coordAndDir[0] = y; coordAndDir[1] = x; coordAndDir[2] = UP_LEFT; coordAndDir[3] = player;
         return coordAndDir;
       }
     }
@@ -715,12 +599,13 @@ int* detectDiagLine(int player, int len, int** board) {
       }
       if (count == len) {
         //we found a sequence of length len, so we return coords/direction
-        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = DOWN_LEFT; coordAndDir[3] = player;
+        coordAndDir[0] = y; coordAndDir[1] = x; coordAndDir[2] = DOWN_LEFT; coordAndDir[3] = player;
         return coordAndDir;
       }
     }
   }
-  return NULL;
+  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
+  return coordAndDir;
 }
 
 /*
