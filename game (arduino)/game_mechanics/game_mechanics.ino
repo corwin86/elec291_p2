@@ -2,7 +2,7 @@
 
 #define PIN 6
 
-#define USE_SERIAL 1
+#define DEBUG 0
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -37,6 +37,7 @@ const int P1 = 1,          //
 const int X_DIM = 8,
           Y_DIM = 8,
           SEQ_LENGTH = 5;
+const int TOKEN_DROP_SPEED = 35; // millis delay for token dropping
 /* -- end game parameters -- */
 
 /* ---- error states ---- */
@@ -75,7 +76,10 @@ void setup() {
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
+  
+#if !DEBUG
   startupLEDSequence();
+#endif
 }
 
 void loop() {
@@ -132,23 +136,7 @@ int playConnectFour() {
       board[y][x] = EMPTY_CELL;
     }
   }
-
-  //  while (1) {
-  //    for (y = 0; y < Y_DIM; y++) {
-  //      for (x = 0; x < X_DIM; x++) {
-  //        board[y][x] = P2;
-  //      }
-  //    }
-  //    printBoard(board);
-  //    delay(250);
-  //    for (y = 0; y < Y_DIM; y++) {
-  //      for (x = 0; x < X_DIM; x++) {
-  //        board[y][x] = EMPTY_CELL;
-  //      }
-  //    }
-  //    printBoard(board);
-  //    delay(250);
-  //  }
+  printBoard(board);
 
   //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
@@ -199,6 +187,23 @@ int dropToken_connect4(int **board, int col, int token) {
     return 0;
   }
 
+  Serial.print(col);
+  Serial.print(" ");
+  Serial.print(token);
+  Serial.print(" ");
+  Serial.print(y);
+  Serial.println(" ");
+
+  uint32_t colour = getPlayerColour(token);
+
+  int i = -2;
+  while(++i < y - 1) {
+    delay(TOKEN_DROP_SPEED);
+    printCell(col, i, off, 0);
+    printCell(col, i + 1, colour, 0);
+    strip.show();
+  }
+
   board[y][col] = token; //place token
 
   return 1; //successfully dropped token
@@ -217,21 +222,22 @@ int gameOver_connect4(int **board) {
     !!!untested!!!
 */
 void connect4Cascade(int **board) {
+  Serial.print("Cascade\n");
   int x, y, count;
 
-  for (count = 0; count < Y_DIM; count++) {
-    //replace all cells with the value above them
-    for (y = 0; y < 6 - count; y++) {
-      for (x = 0; x < X_DIM; x++) {
-        board[y][x] = board[y + 1][x];
+  for(count = 0; count < Y_DIM; count++) {
+    for(y = Y_DIM - 1; y >= count; y--) {
+      for(x = 0; x < X_DIM; x++) {
+        if(y == 0) {
+          board[y][x] = EMPTY_CELL;
+        } else {
+          board[y][x] = board[y - 1][x];
+        }
       }
     }
-    //replaces top row with EMPTY_CELL
-    for (x = 0; x < X_DIM; y++) {
-      board[7 - count][x] = EMPTY_CELL;
-    }
+    
     printBoard(board);
-    delay(100);
+    delay(TOKEN_DROP_SPEED);
   }
 }
 
@@ -329,19 +335,12 @@ void printBoard(int **board) {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-#if USE_SERIAL
-      Serial.print(board[y][x]);
-#endif
-      Serial.print(getPlayerColour(board[y][x])); Serial.print("\t");
+      Serial.print(board[y][x]); Serial.print("\t");
       printCell(x, y, getPlayerColour(board[y][x]), 0);
     }
-#if USE_SERIAL
     Serial.println();
-#endif
   }
-#if USE_SERIAL
   Serial.println();
-#endif
 
   strip.show();
 }
