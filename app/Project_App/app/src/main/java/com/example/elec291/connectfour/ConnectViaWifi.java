@@ -6,12 +6,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.IOException;
+
 /**
  * Created by rohini on 24/03/16.
  */
 public class ConnectViaWifi extends AppCompatActivity {
 
     Button buttonConnect;
+    String urlToConnection = "http://192.168.43.82/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -25,6 +28,11 @@ public class ConnectViaWifi extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //startActivity(new Intent("com.example.elec291.connect4.GameBoard"));
+                try {
+                    WifiConnection.POST(urlToConnection);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
 
             }

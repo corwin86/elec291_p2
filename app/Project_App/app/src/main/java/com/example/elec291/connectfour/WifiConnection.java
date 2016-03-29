@@ -18,14 +18,19 @@ import java.net.URLConnection;
 public class WifiConnection {
 
 
-    public void POST(String url) throws IOException {
+    public static void POST(String url) throws IOException {
         URL connect_url = new URL(url);
         HttpURLConnection httpConnection = (HttpURLConnection)  connect_url.openConnection();
         try {
 
             //Posting Contect
             httpConnection.setDoOutput(true);
+            httpConnection.setDoInput(true);
             httpConnection.setChunkedStreamingMode(0);
+
+//            httpConnection.setRequestProperty("Content-Type", "application/json");
+//            httpConnection.setRequestProperty("Accept", "application/json");
+//            httpConnection.setRequestMethod("POST");
 
             OutputStream out = new BufferedOutputStream(httpConnection.getOutputStream());
             writeStream(out);
