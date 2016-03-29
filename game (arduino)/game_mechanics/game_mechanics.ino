@@ -76,7 +76,7 @@ void setup() {
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
-  
+
 #if !DEBUG
   startupLEDSequence();
 #endif
@@ -197,7 +197,7 @@ int dropToken_connect4(int **board, int col, int token) {
   uint32_t colour = getPlayerColour(token);
 
   int i = -2;
-  while(++i < y - 1) {
+  while (++i < y - 1) {
     delay(TOKEN_DROP_SPEED);
     printCell(col, i, off, 0);
     printCell(col, i + 1, colour, 0);
@@ -225,17 +225,17 @@ void connect4Cascade(int **board) {
   Serial.print("Cascade\n");
   int x, y, count;
 
-  for(count = 0; count < Y_DIM; count++) {
-    for(y = Y_DIM - 1; y >= count; y--) {
-      for(x = 0; x < X_DIM; x++) {
-        if(y == 0) {
+  for (count = 0; count < Y_DIM; count++) {
+    for (y = Y_DIM - 1; y >= count; y--) {
+      for (x = 0; x < X_DIM; x++) {
+        if (y == 0) {
           board[y][x] = EMPTY_CELL;
         } else {
           board[y][x] = board[y - 1][x];
         }
       }
     }
-    
+
     printBoard(board);
     delay(TOKEN_DROP_SPEED);
   }
@@ -256,42 +256,62 @@ int winningPlayer_connect4(int **board) {
   int flashes = 3 * 2;
 
   checkWin = detectDiagLine(P1, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
+  winData = checkWin[0] != -1 ? checkWin : NULL;
+  if (winData != NULL)
+  //flashWin();
+    return winData[3];
+
   checkWin = detectHorizLine(P1, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
+  winData = checkWin[0] != -1 ? checkWin : NULL;
+  if (winData != NULL)
+    return winData[3];
+
   checkWin = detectVertLine(P1, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
+  winData = checkWin[0] != -1 ? checkWin : NULL;
+  if (winData != NULL)
+    return winData[3];
 
   checkWin = detectDiagLine(P2, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
+  winData = checkWin[0] != -1 ? checkWin : NULL;
+  if (winData != NULL)
+    return winData[3];
+
   checkWin = detectHorizLine(P2, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
+  winData = checkWin[0] != -1 ? checkWin : NULL;
+  if (winData != NULL)
+    return winData[3];
+
   checkWin = detectVertLine(P2, SEQ_LENGTH, board);
-  winData = checkWin != NULL ? checkWin : NULL;
+  winData = checkWin[0] != -1 ? checkWin : NULL;
+  if (winData != NULL)
+    return winData[3];
+
 
   if (winData == NULL)
     return 0;
+  else
+    return winData[3];
 
   //flashes 3 times
-  while (flashes-- > 0) {
-    while (i++ < SEQ_LENGTH) {
-      switch (winData[2]) {
-        case UP:
-          printCell(winData[0] + i, winData[1], flashes % 2 ? webworkGreen : off, 0); break;
-        case LEFT:
-          printCell(winData[0], winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
-        case UP_LEFT:
-          printCell(winData[0] + i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
-        case DOWN_LEFT:
-          printCell(winData[0] - i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
-        default:
-          Serial.println("ERROR: check line detecting logic"); break;
-      }
-    }
-    delay(500);
-  }
+  //  while (flashes-- > 0) {
+  //    while (i++ < SEQ_LENGTH) {
+  //      switch (winData[2]) {
+  //        case UP:
+  //          printCell(winData[0] + i, winData[1], flashes % 2 ? webworkGreen : off, 0); break;
+  //        case LEFT:
+  //          printCell(winData[0], winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
+  //        case UP_LEFT:
+  //          printCell(winData[0] + i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
+  //        case DOWN_LEFT:
+  //          printCell(winData[0] - i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
+  //        default:
+  //          Serial.println("ERROR: check line detecting logic"); break;
+  //      }
+  //    }
+  //    delay(500);
+  //  }
 
-  return winData[3];
+  //return winData[3];
 
 }
 
@@ -644,7 +664,8 @@ int* detectVertLine(int player, int len, int** board) {
       }
     }
   }
-  return NULL;
+  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
+  return coordAndDir;
 }
 
 /*
