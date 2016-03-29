@@ -21,4 +21,15 @@
         android:layout_below="@+id/textView9"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="140dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Connecting..."
+        android:id="@+id/textView10"
+        android:layout_below="@+id/buttonConnect"
+        android:layout_alignLeft="@+id/buttonConnect"
+        android:layout_alignStart="@+id/buttonConnect"
+        android:layout_marginTop="76dp" />
 </RelativeLayout>
