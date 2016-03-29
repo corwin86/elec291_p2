@@ -23,47 +23,58 @@ public class WifiConnection {
 
 
     public static String POST(String url) throws IOException {
+        URL connect_url = new URL(url);
+        HttpURLConnection httpConnection = (HttpURLConnection) connect_url.openConnection();
 
         try {
-            URL connect_url = new URL(url);
-            HttpURLConnection httpConnection = (HttpURLConnection)  connect_url.openConnection();
-
-            //Posting Contect
-            httpConnection.setRequestMethod("GET");
-            httpConnection.setDoOutput(true);
-            httpConnection.connect();
-            Socket s = new Socket("192.168.43.82", 80);
-
-            //outgoing stream redirect to socket
-            OutputStream out = s.getOutputStream();
-
-            PrintWriter output = new PrintWriter(out);
-            output.println("Hello Android!");
-            BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
-
-            st = input.readLine();
-            s.close();
-            //httpConnection.setDoInput(true);
-            //httpConnection.setChunkedStreamingMode(0);
-
-//            httpConnection.setRequestProperty("Content-Type", "application/json");
-//            httpConnection.setRequestProperty("Accept", "application/json");
-//            httpConnection.setRequestMethod("POST");
-
-           //
-           // OutputStream out = new BufferedOutputStream(httpConnection.getOutputStream());
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
-            String line;
-
-            while((line = reader.readLine())!= null){
-                System.out.println(line);
-            }
-
-            reader.close();
+            InputStream in = new BufferedInputStream(httpConnection.getInputStream());
+            st = readStream(in);
+            return st;
+        } finally {
             httpConnection.disconnect();
+        }
+    }
 
-            return line;
+
+
+
+//        //Posting Contect
+//        httpConnection.setRequestMethod("GET");
+//        httpConnection.setDoOutput(true);
+//        httpConnection.connect();
+//        Socket s = new Socket("192.168.43.82", 80);
+//
+//        //outgoing stream redirect to socket
+//        OutputStream out = s.getOutputStream();
+//
+//        PrintWriter output = new PrintWriter(out);
+//        output.println("Hello Android!");
+//        BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
+//
+//        st = input.readLine();
+//        s.close();
+//        //httpConnection.setDoInput(true);
+//        //httpConnection.setChunkedStreamingMode(0);
+//
+////            httpConnection.setRequestProperty("Content-Type", "application/json");
+////            httpConnection.setRequestProperty("Accept", "application/json");
+////            httpConnection.setRequestMethod("POST");
+//
+//        //
+//        // OutputStream out = new BufferedOutputStream(httpConnection.getOutputStream());
+//
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
+//        String line;
+//
+//        while ((line = reader.readLine()) != null) {
+//            System.out.println(line);
+//        }
+//
+//        reader.close();
+//        httpConnection.disconnect();
+//
+//        return line;
+
 
 //            OutputStreamWriter outStream = new OutputStreamWriter(httpConnection.getOutputStream());
 //            outStream.write("App is connected");
@@ -72,11 +83,11 @@ public class WifiConnection {
 //
 //            InputStream in = new BufferedInputStream(httpConnection.getInputStream());
 //            String input = readStream(in);
-        }
-            finally {
-               // httpConnection.disconnect();
-            }
-        }
+//        }
+//            finally {
+//               // httpConnection.disconnect();
+//            }
+//        }
 
 
 

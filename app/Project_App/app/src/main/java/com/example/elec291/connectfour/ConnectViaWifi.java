@@ -25,6 +25,7 @@ public class ConnectViaWifi extends AppCompatActivity {
     TextView connectMessage;
     String str;
     String urlToConnection = "http://192.168.43.82/";
+    String testURL = "http://www.android.com/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -60,8 +61,7 @@ public class ConnectViaWifi extends AppCompatActivity {
             public void onClick(View v) {
                 //startActivity(new Intent("com.example.elec291.connect4.GameBoard"));
                 try{
-
-                    String lineRead = WifiConnection.POST(urlToConnection);
+                    String lineRead = WifiConnection.POST(testURL);
                     connectMessage.setText(lineRead);
 
                 } catch (IOException e) {
