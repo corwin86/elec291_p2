@@ -2,7 +2,7 @@
 
 #define PIN 6
 
-#define DEBUG 0
+#define DEBUG 1
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -14,9 +14,12 @@ uint32_t magenta = strip.Color(255, 0, 255);
 uint32_t cyan = strip.Color(0, 255, 255);
 uint32_t yellow = strip.Color(255, 255, 0);
 
+uint32_t gold = strip.Color(255, 215, 0);
 uint32_t webworkGreen = strip.Color(118, 255, 122);
 uint32_t white = strip.Color(255, 255, 255);
 uint32_t off = strip.Color(0, 0, 0);
+
+uint32_t victoryBlink;
 
 // ==== Constants ====
 
@@ -59,10 +62,12 @@ const int UP = 1,
 // ==== Global Variables ====
 
 /* ---- player info ---- */
-uint32_t p1_colour = red,
-         p2_colour = blue;
+uint32_t p1_colour = blue,
+         p2_colour = green;
 int turns;
 /* -- end player info -- */
+
+int isSinglePlayer = 1;
 
 // == End Global Variables ==
 
@@ -150,12 +155,18 @@ int playConnectFour() {
     do {
       //!!! -- take input --
       //!!! use serial for debug
-      while (!Serial.available()); //wait for serial data before parsing
-      col = Serial.parseInt();
-      Serial.println(col);
-
-      // clamp inputs to valid range
-      col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+      if(isSinglePlayer && cur_player == P2) {
+        col = random() % 8;
+      } else {
+//#if !DEBUG
+        while (!Serial.available()); //wait for serial data before parsing
+        col = Serial.parseInt();
+        Serial.println(col);
+  
+        // clamp inputs to valid range
+        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+      }
+//#endif
     } while (!dropToken_connect4(board, col, cur_player));
 
     printBoard(board);
@@ -187,13 +198,6 @@ int dropToken_connect4(int **board, int col, int token) {
     return 0;
   }
 
-  Serial.print(col);
-  Serial.print(" ");
-  Serial.print(token);
-  Serial.print(" ");
-  Serial.print(y);
-  Serial.println(" ");
-
   uint32_t colour = getPlayerColour(token);
 
   int i = -2;
@@ -213,8 +217,6 @@ int dropToken_connect4(int **board, int col, int token) {
     Return true if a player has won, or a draw is reached (board is full)
 */
 int gameOver_connect4(int **board) {
-  Serial.print("WP: ");
-  Serial.println(winningPlayer_connect4(board));
   return winningPlayer_connect4(board) > 0 || boardFull();
 }
 
@@ -252,66 +254,170 @@ void connect4Cascade(int **board) {
     !!!!!!NOTE: MUST SPECIFY WIN DATA!!!!!!!
 */
 int winningPlayer_connect4(int **board) {
-  int *winData;
-  int *checkWin;
-//  int noWin[4] = { -1, -1, -1, -1};
-  int i = 0;
+  int winData[4] = {0};
   int flashes = 3 * 2;
 
-  winData = detectDiagLine(P1, SEQ_LENGTH, board, checkWin);
-//  winData = checkWin[0] != -1 ? checkWin : noWin;
-  if (winData[0] == -1)
-    //flashWin();
-    return winData[3];
-
-  winData = detectHorizLine(P1, SEQ_LENGTH, board, checkWin);
-//  winData = checkWin[0] != -1 ? checkWin : noWin;
-  if (winData[0] == -1)
-    return winData[3];
-
-  winData = detectVertLine(P1, SEQ_LENGTH, board, checkWin);
-//  winData = checkWin[0] != -1 ? checkWin : noWin;
-  if (winData[0] == -1)
-    return winData[3];
-
-  winData = detectDiagLine(P2, SEQ_LENGTH, board, checkWin);
-//  winData = checkWin[0] != -1 ? checkWin : noWin;
-  if (winData[0] == -1)
-    return winData[3];
-
-  winData = detectHorizLine(P2, SEQ_LENGTH, board, checkWin);
-//  winData = checkWin[0] != -1 ? checkWin : noWin;
-  if (winData[0] == -1)
-    return winData[3];
-
-  winData = detectVertLine(P2, SEQ_LENGTH, board, checkWin);
-  if (winData[0] == -1)
-    return winData[3];
-  else
-    return 0;
-
+  detectDiagLine(P1, SEQ_LENGTH, board, winData);
+  if (winData[0] == -1) {
+    detectHorizLine(P1, SEQ_LENGTH, board, winData);
+    if (winData[0] == -1) {
+      detectVertLine(P1, SEQ_LENGTH, board, winData);
+      if (winData[0] == -1) {
+        detectDiagLine(P2, SEQ_LENGTH, board, winData);
+        if (winData[0] == -1) {
+          detectHorizLine(P2, SEQ_LENGTH, board, winData);
+          if (winData[0] == -1) {
+            detectVertLine(P2, SEQ_LENGTH, board, winData);
+            if (winData[0] == -1) {
+              return 0;
+            }
+          }
+        }
+      }
+    }
+  }
 
   //flashes 3 times
-  //  while (flashes-- > 0) {
-  //    while (i++ < SEQ_LENGTH) {
-  //      switch (winData[2]) {
-  //        case UP:
-  //          printCell(winData[0] + i, winData[1], flashes % 2 ? webworkGreen : off, 0); break;
-  //        case LEFT:
-  //          printCell(winData[0], winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
-  //        case UP_LEFT:
-  //          printCell(winData[0] + i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
-  //        case DOWN_LEFT:
-  //          printCell(winData[0] - i, winData[1] + i, flashes % 2 ? webworkGreen : off, 0); break;
-  //        default:
-  //          Serial.println("ERROR: check line detecting logic"); break;
-  //      }
-  //    }
-  //    delay(500);
-  //  }
+  delay(500);
+  int x = winData[0], y = winData[1];
+  if(p1_colour != green) {
+    if(p2_colour != green) {
+      victoryBlink = green;  //!green vs !green
+    } else {
+      if(p1_colour != red) {
+        victoryBlink = red;  //!red vs green
+      } else {
+        victoryBlink = blue; //red vs green
+      }
+    }
+  } else {
+    if(p2_colour != red) {
+      victoryBlink = red;  //green vs !red
+    } else {
+      victoryBlink = blue; //green vs red  
+    }
+  }
+  
+  while (flashes-- > 0) {
+    int i = -1;
+    while (i++ < SEQ_LENGTH - 1) {
+      uint32_t colour = flashes % 2 ? victoryBlink : getPlayerColour(winData[3]);
+      switch (winData[2]) {
+        case UP:
+          printCell(x    , y + i, colour, 0); break;
+        case LEFT:
+          printCell(x + i, y    , colour, 0); break;
+        case UP_LEFT:
+          printCell(x + i, y + i, colour, 0); break;
+        case DOWN_LEFT:
+          printCell(x + i, y - i, colour, 0); break;
+        default:
+          Serial.print("ERROR: check line detecting logic: Win Data is ");Serial.println(winData[2]); break;
+      }
+    }
+    strip.show();
+    delay(500);
+  }
 
-  //return winData[3];
+  return winData[3];
+}
 
+/*
+   Detects if there is a vertical sequence of one player's tokens of length len.
+   If one is found, it returns the coordinates of the first token, as well as the direction
+   of the sequence, in the form:
+
+   -> returnArray[] = {x, y, dir, player}
+
+   If no such sequence is found, returns NULL
+*/
+void detectVertLine(int player, int len, int** board, int *coordAndDir) {
+  int x, y, count;
+  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through bottom half of grid
+    for (x = 0; x < X_DIM; x++) {
+      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
+        if (board[y + count][x] != player)
+          break;     //you're not on the right track, try a different sequence
+      }
+      if (count == len) {
+        //we found a sequence of length len, so we return coords/direction
+        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = UP; coordAndDir[3] = player;
+        Serial.print("x: ");Serial.print(x);Serial.print(" y: ");Serial.println(y);
+        return;
+      }
+    }
+  }
+  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
+}
+
+/*
+   Detects if there is a horizontal sequence of one player's tokens of length len.
+   If one is found, it returns the coordinates of the first token, as well as the direction
+   of the sequence, in the form:
+
+   -> returnArray[] = {x, y, dir, player}
+
+   If no such sequence is found, returns NULL
+*/
+void detectHorizLine(int player, int len, int** board, int *coordAndDir) {
+  int x, y, count;
+
+  for (x = 0; x <= X_DIM - len; x++) {                          //iterate through left half of grid
+    for (y = 0; y < Y_DIM; y++) {
+      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
+        if (board[y][x + count] != player)
+          break;     //you're not on the right track, try a different sequence
+      }
+      if (count == len) {
+        //we found a sequence of length len, so we return coords/direction
+        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = LEFT; coordAndDir[3] = player;
+        return;
+      }
+    }
+  }
+  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
+}
+
+/*
+   Detects if there is a diagonal sequence of one player's tokens of length len.
+   If one is found, it returns the coordinates of the first token, as well as the direction
+   of the sequence, in the form:
+
+   -> returnArray[] = {y, x, dir, player}
+
+   If no such sequence is found, returns NULL
+*/
+void detectDiagLine(int player, int len, int** board, int *coordAndDir) {
+  int x, y, count;
+
+  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all of bottom left corner of grid
+    for (x = 0; x <= X_DIM - len; x++) {
+      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
+        if (board[y + count][x + count] != player)
+          break;     //you're not on the right track, try a different sequence
+      }
+
+      if (count == len) {
+        //we found a sequence of length len, so we return coords/direction
+        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = UP_LEFT; coordAndDir[3] = player;
+        return;
+      }
+    }
+  }
+  for (y = len - 1; y < Y_DIM; y++) {                           //iterate through all of top left corner of grid
+    for (x = 0; x <= X_DIM - len; x++) {
+      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
+        if (board[y - count][x + count] != player)
+          break;     //you're not on the right track, try a different sequence
+      }
+      if (count == len) {
+        //we found a sequence of length len, so we return coords/direction
+        coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = DOWN_LEFT; coordAndDir[3] = player;
+        return;
+      }
+    }
+  }
+  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
 }
 
 /*
@@ -477,7 +583,7 @@ void startupLEDSequence() {
     delay(250);
   }
 
-  for(i = 0; i < 64; i++) {
+  for (i = 0; i < 64; i++) {
     strip.setPixelColor(i + 3, yellow);
     strip.setPixelColor(i + 2, green);
     strip.setPixelColor(i + 1, cyan);
@@ -485,127 +591,27 @@ void startupLEDSequence() {
     delay(10);
     strip.show();
   }
-  
-  for(i = 0; i < 64; i++) {
+
+  for (i = 0; i < 64; i++) {
     strip.setPixelColor(i + 3, yellow);
     strip.setPixelColor(i + 2, green);
     strip.setPixelColor(i + 1, cyan);
-    if((i > 9 && i < 14) || i == 18 || (i > 25 && i < 29) || i == 37 || i == 45 || (i > 49 && i < 53)) {
+    if ((i > 9 && i < 14) || i == 18 || (i > 25 && i < 29) || i == 37 || i == 45 || (i > 49 && i < 53)) {
       strip.setPixelColor(i, blue);
     } else {
       strip.setPixelColor(i, off);
     }
-    
+
     delay(10);
     strip.show();
   }
-  
+
   delay(5000);
 
   for (int j = 0; j < X_DIM * Y_DIM; j++) {
     strip.setPixelColor(j, off);
     strip.show();
   }
-}
-
-/*
-   Detects if there is a vertical sequence of one player's tokens of length len.
-   If one is found, it returns the coordinates of the first token, as well as the direction
-   of the sequence, in the form:
-
-   -> returnArray[] = {x, y, dir, player}
-
-   If no such sequence is found, returns NULL
-*/
-int* detectVertLine(int player, int len, int** board, int *coordAndDir) {
-  int x, y, count;
-
-  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through bottom half of grid
-    for (x = 0; x < X_DIM; x++) {
-      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
-        if (board[y + count][x] != player)
-          break;     //you're not on the right track, try a different sequence
-      }
-      if (count == len) {
-        //we found a sequence of length len, so we return coords/direction
-        coordAndDir[0] = y; coordAndDir[1] = x; coordAndDir[2] = UP; coordAndDir[3] = player;
-        return coordAndDir;
-      }
-    }
-  }
-  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
-  return coordAndDir;
-}
-
-/*
-   Detects if there is a horizontal sequence of one player's tokens of length len.
-   If one is found, it returns the coordinates of the first token, as well as the direction
-   of the sequence, in the form:
-
-   -> returnArray[] = {x, y, dir, player}
-
-   If no such sequence is found, returns NULL
-*/
-int* detectHorizLine(int player, int len, int** board, int *coordAndDir) {
-  int x, y, count;
-
-  for (x = 0; x <= X_DIM - len; x++) {                          //iterate through left half of grid
-    for (y = 0; y < Y_DIM; y++) {
-      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
-        if (board[y][x + count] != player)
-          break;     //you're not on the right track, try a different sequence
-      }
-      if (count == len) {
-        //we found a sequence of length len, so we return coords/direction
-        coordAndDir[0] = y; coordAndDir[1] = x; coordAndDir[2] = LEFT; coordAndDir[3] = player;
-        return coordAndDir;
-      }
-    }
-  }
-  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
-  return coordAndDir;
-}
-
-/*
-   Detects if there is a diagonal sequence of one player's tokens of length len.
-   If one is found, it returns the coordinates of the first token, as well as the direction
-   of the sequence, in the form:
-
-   -> returnArray[] = {y, x, dir, player}
-
-   If no such sequence is found, returns NULL
-*/
-int* detectDiagLine(int player, int len, int** board, int *coordAndDir) {
-  int x, y, count;
-
-  for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all of bottom left corner of grid
-    for (x = 0; x <= X_DIM - len; x++) {
-      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
-        if (board[y + count][x + count] != player)
-          break;     //you're not on the right track, try a different sequence
-      }
-      if (count == len) {
-        //we found a sequence of length len, so we return coords/direction
-        coordAndDir[0] = y; coordAndDir[1] = x; coordAndDir[2] = UP_LEFT; coordAndDir[3] = player;
-        return coordAndDir;
-      }
-    }
-  }
-  for (y = len - 1; y < Y_DIM; y++) {                           //iterate through all of top left corner of grid
-    for (x = 0; x <= X_DIM - len; x++) {
-      for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
-        if (board[y - count][x + count] != player)
-          break;     //you're not on the right track, try a different sequence
-      }
-      if (count == len) {
-        //we found a sequence of length len, so we return coords/direction
-        coordAndDir[0] = y; coordAndDir[1] = x; coordAndDir[2] = DOWN_LEFT; coordAndDir[3] = player;
-        return coordAndDir;
-      }
-    }
-  }
-  coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
-  return coordAndDir;
 }
 
 /*
