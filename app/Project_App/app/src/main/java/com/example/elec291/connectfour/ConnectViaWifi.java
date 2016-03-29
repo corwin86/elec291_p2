@@ -62,7 +62,7 @@ public class ConnectViaWifi extends AppCompatActivity {
                 try{
 
                     String lineRead = WifiConnection.POST(urlToConnection);
-                    connectMessage.setText(WifiConnection.st);
+                    connectMessage.setText(lineRead);
 
                 } catch (IOException e) {
                     e.printStackTrace();
