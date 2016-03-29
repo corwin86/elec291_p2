@@ -2,7 +2,7 @@
 
 #define PIN 6
 
-#define DEBUG 1
+#define DEBUG 0
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -136,23 +136,8 @@ int playConnectFour() {
       board[y][x] = EMPTY_CELL;
     }
   }
-
-//  while (1) {
-//    for (y = 0; y < Y_DIM; y++) {
-//      for (x = 0; x < X_DIM; x++) {
-//        board[y][x] = P2;
-//      }
-//    }
-//    printBoard(board);
-//    delay(250);
-//    for (y = 0; y < Y_DIM; y++) {
-//      for (x = 0; x < X_DIM; x++) {
-//        board[y][x] = EMPTY_CELL;
-//      }
-//    }
-//    printBoard(board);
-//    delay(250);
-//  }
+  
+  printBoard(board);
 
   //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
@@ -238,21 +223,22 @@ int gameOver_connect4(int **board) {
     !!!untested!!!
 */
 void connect4Cascade(int **board) {
+  Serial.print("Cascade\n");
   int x, y, count;
 
-  for (count = 0; count < Y_DIM; count++) {
-    //replace all cells with the value above them
-    for (y = 0; y < 6 - count; y++) {
-      for (x = 0; x < X_DIM; x++) {
-        board[y][x] = board[y + 1][x];
+  for(count = 0; count < Y_DIM; count++) {
+    for(y = Y_DIM - 1; y >= count; y--) {
+      for(x = 0; x < X_DIM; x++) {
+        if(y == 0) {
+          board[y][x] = EMPTY_CELL;
+        } else {
+          board[y][x] = board[y - 1][x];
+        }
       }
     }
-    //replaces top row with EMPTY_CELL
-    for (x = 0; x < X_DIM; y++) {
-      board[7 - count][x] = EMPTY_CELL;
-    }
+    
     printBoard(board);
-    delay(100);
+    delay(TOKEN_DROP_SPEED);
   }
 }
 
@@ -329,18 +315,12 @@ void printBoard(int **board) {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-#if DEBUG
       Serial.print(board[y][x]); Serial.print("\t");
-#endif
       printCell(x, y, getPlayerColour(board[y][x]), 0);
     }
-#if DEBUG
     Serial.println();
-#endif
   }
-#if DEBUG
   Serial.println();
-#endif
 
   strip.show();
 }
