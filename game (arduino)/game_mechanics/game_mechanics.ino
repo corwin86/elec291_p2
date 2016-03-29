@@ -156,7 +156,7 @@ int playConnectFour() {
       //!!! -- take input --
       //!!! use serial for debug
       if(isSinglePlayer && cur_player == P2) {
-        col = random() % 8;
+        col = aiNextMove(board);
       } else {
 //#if !DEBUG
         while (!Serial.available()); //wait for serial data before parsing
@@ -425,6 +425,14 @@ void detectDiagLine(int player, int len, int** board, int *coordAndDir) {
 */
 int boardFull() {
   return turns >= X_DIM * Y_DIM;
+}
+
+/*
+ * Returns column number for AI's move
+ */
+int aiNextMove(int **board) {
+  
+  return random() % X_DIM; //random column
 }
 
 /*
