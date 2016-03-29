@@ -2,7 +2,7 @@
 
 #define PIN 6
 
-#define USE_SERIAL 1
+#define DEBUG 1
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -35,8 +35,9 @@ const int P1 = 1,          //
           P2 = 2,          // tokens used on board
           EMPTY_CELL = 0;  //
 const int X_DIM = 8,
-          Y_DIM = 8;
+          Y_DIM = 8,
           SEQ_LENGTH = 5;
+const int TOKEN_DROP_SPEED = 35; // millis delay for token dropping
 /* -- end game parameters -- */
 
 /* ---- error states ---- */
@@ -75,7 +76,10 @@ void setup() {
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
+  
+#if !DEBUG
   startupLEDSequence();
+#endif
 }
 
 void loop() {
@@ -199,6 +203,23 @@ int dropToken_connect4(int **board, int col, int token) {
     return 0;
   }
 
+  Serial.print(col);
+  Serial.print(" ");
+  Serial.print(token);
+  Serial.print(" ");
+  Serial.print(y);
+  Serial.println(" ");
+
+  uint32_t colour = getPlayerColour(token);
+
+  int i = -2;
+  while(++i < y - 1) {
+    delay(TOKEN_DROP_SPEED);
+    printCell(col, i, off, 0);
+    printCell(col, i + 1, colour, 0);
+    strip.show();
+  }
+
   board[y][col] = token; //place token
 
   return 1; //successfully dropped token
@@ -254,7 +275,7 @@ int winningPlayer_connect4(int **board) {
   int *vert2 = detectVertLine(P2, 5, board);
   int *horiz2 = detectHorizLine(P2, 5, board);
   int *diag2 = detectDiagLine(P2, 5, board);
-  int *winData = vert != NULL ? vert : horiz != NULL ? horiz : diag;
+  int *winData = vert1 != NULL ? vert1 : horiz1 != NULL ? horiz1 : diag1;
   //!!!!!use helper functions to determine if there was a win or not
 
   if (winData == NULL)
@@ -308,17 +329,16 @@ void printBoard(int **board) {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-#if USE_SERIAL
-      Serial.print(board[y][x]); 
+#if DEBUG
+      Serial.print(board[y][x]); Serial.print("\t");
 #endif
-      Serial.print(getPlayerColour(board[y][x]));Serial.print("\t");
       printCell(x, y, getPlayerColour(board[y][x]), 0);
     }
-#if USE_SERIAL
+#if DEBUG
     Serial.println();
 #endif
   }
-#if USE_SERIAL
+#if DEBUG
   Serial.println();
 #endif
 
