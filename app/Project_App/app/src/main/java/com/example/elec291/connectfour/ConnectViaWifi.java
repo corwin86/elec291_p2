@@ -33,13 +33,13 @@ public class ConnectViaWifi extends AppCompatActivity {
             public void onClick(View v) {
                 //startActivity(new Intent("com.example.elec291.connect4.GameBoard"));
                 try {
-                    WifiConnection.POST(urlToConnection);
-                    connectMessage.setText("Send Message");
+                    String lineRead = WifiConnection.POST(urlToConnection);
+                    connectMessage.setText(lineRead);
                 } catch (IOException e) {
                     e.printStackTrace();
                     connectMessage.setText("Did not send message");
                 }
-                SystemClock.sleep(1000);
+                SystemClock.sleep(3000);
                 startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
 
             }

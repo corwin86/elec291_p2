@@ -19,15 +19,18 @@ import java.net.URLConnection;
 public class WifiConnection {
 
 
-    public static void POST(String url) throws IOException {
-        URL connect_url = new URL(url);
-        HttpURLConnection httpConnection = (HttpURLConnection)  connect_url.openConnection();
+    public static String POST(String url) throws IOException {
+
         try {
+            URL connect_url = new URL(url);
+            HttpURLConnection httpConnection = (HttpURLConnection)  connect_url.openConnection();
 
             //Posting Contect
+            httpConnection.setRequestMethod("GET");
             httpConnection.setDoOutput(true);
-            httpConnection.setDoInput(true);
-            httpConnection.setChunkedStreamingMode(0);
+            httpConnection.connect();
+            //httpConnection.setDoInput(true);
+            //httpConnection.setChunkedStreamingMode(0);
 
 //            httpConnection.setRequestProperty("Content-Type", "application/json");
 //            httpConnection.setRequestProperty("Accept", "application/json");
@@ -35,16 +38,29 @@ public class WifiConnection {
 
            //
            // OutputStream out = new BufferedOutputStream(httpConnection.getOutputStream());
-            OutputStreamWriter outStream = new OutputStreamWriter(httpConnection.getOutputStream());
-            outStream.write("App is connected");
-            outStream.flush();
-            //writeStream(out);
 
-            InputStream in = new BufferedInputStream(httpConnection.getInputStream());
-            String input = readStream(in);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
+            String line;
+
+            while((line = reader.readLine())!= null){
+                System.out.println(line);
+            }
+
+            reader.close();
+            httpConnection.disconnect();
+
+            return line;
+
+//            OutputStreamWriter outStream = new OutputStreamWriter(httpConnection.getOutputStream());
+//            outStream.write("App is connected");
+//            outStream.flush();
+//            //writeStream(out);
+//
+//            InputStream in = new BufferedInputStream(httpConnection.getInputStream());
+//            String input = readStream(in);
         }
             finally {
-                httpConnection.disconnect();
+               // httpConnection.disconnect();
             }
         }
 
