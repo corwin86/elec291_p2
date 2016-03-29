@@ -59,14 +59,15 @@ public class ConnectViaWifi extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //startActivity(new Intent("com.example.elec291.connect4.GameBoard"));
+                try{
 
-                    //String lineRead = WifiConnection.POST(urlToConnection);
+                    String lineRead = WifiConnection.POST(urlToConnection);
                     connectMessage.setText(WifiConnection.st);
 
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    connectMessage.setText("Did not send message");
-//                }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    connectMessage.setText("Did not send message");
+                }
                 SystemClock.sleep(3000);
                 startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
 
