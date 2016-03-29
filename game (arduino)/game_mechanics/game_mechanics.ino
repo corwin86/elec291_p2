@@ -148,9 +148,6 @@ int playConnectFour() {
   turns = 0;
   while (!gameOver_connect4(board)) {
     //!!! game logic not done
-
-    Serial.println("!GO");
-
     int col;
     do {
       //!!! -- take input --
@@ -431,8 +428,94 @@ int boardFull() {
  * Returns column number for AI's move
  */
 int aiNextMove(int **board) {
+  // check for 4 of own colour
+  // check for 4 of other colour
+  // check for 3 of own colour
+  // check for 3 of other colour
+  // random
+  int data[4] = {0};
+  int i;
+  for(i = SEQ_LENGTH - 1; i > 2; i--) {
+    //find own i in a row
+    detectDiagLine(P2, i, board, data);
+    if(data[0] == -1) {
+      detectVertLine(P2, i, board, data);
+      if(data[0] == -1) {
+        detectHorizLine(P2, i, board, data);
+      } else break;
+    } else break;
+    
+    //find other players' i in a row
+    detectDiagLine(P1, i, board, data);
+    if(data[0] == -1) {
+      detectVertLine(P1, i, board, data);
+      if(data[0] == -1) {
+        detectHorizLine(P1, i, board, data);
+      } else break;
+    } else break;
+  }
   
+  int x = data[0], y = data[1], dir = data[2], player = data[3];
+  
+  //!!!
+  switch (dir) {
+    case UP : {
+      if(y != i - 1 && board[y - 1][x] == EMPTY_CELL) {
+        Serial.println("U");
+        return x;
+      }
+        
+      break;
+    }
+    case LEFT : {
+      if(board[y][x + i + 1] == EMPTY_CELL && numEmptyBelowPoint(x + i + 1, y, board) == 0) { 
+        Serial.println("L1");
+        return x + i + 1;
+      } else if(board[y][x - 1] && numEmptyBelowPoint(x - 1, y, board) == 0) {
+        Serial.println("L2");
+        return x - 1;
+      }
+      
+      break;
+    }
+    case UP_LEFT : {
+      if(numEmptyBelowPoint(x + i + 1, y + 1, board) == 0) { 
+        Serial.println("UL1");Serial.print(x);Serial.print(" ");Serial.println(y);
+        return x + i + 1;
+      } else if(numEmptyBelowPoint(x - 1, y - i - 1, board) == 0) {
+        Serial.println("UL2");Serial.print(x);Serial.print(" ");Serial.println(y);
+        return x - 1;
+      }
+      
+      break;
+    }
+    case DOWN_LEFT : {
+      if(numEmptyBelowPoint(x + i + 1, y - 1, board) == 0) { 
+        Serial.println("DL1 ");Serial.print(x);Serial.print(" ");Serial.println(y);
+        return x + i + 1;
+      } else if(numEmptyBelowPoint(x - 1, y + i + 1, board) == 0) {
+        Serial.println("DL2");Serial.print(x);Serial.print(" ");Serial.println(y);
+        return x - 1;
+      }
+      
+      break;
+    }
+  }
+  
+  Serial.println("AI Randy");
   return random() % X_DIM; //random column
+}
+
+int numEmptyBelowPoint(int x, int y, int **board) {
+  if(x < 0 || x >= X_DIM || y < 0 || y >= Y_DIM) {
+    return -1;
+  }
+  int sum = 0, i = 1;
+  while(board[y + i][x] == EMPTY_CELL && y + i < Y_DIM) {
+    Serial.print("sum ");Serial.println(sum);
+    sum++;
+    i++;
+  }
 }
 
 /*
@@ -468,12 +551,12 @@ void printBoard(int **board) {
   int x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-      Serial.print(board[y][x]); Serial.print("\t");
+      //Serial.print(board[y][x]); Serial.print("\t");
       printCell(x, y, getPlayerColour(board[y][x]), 0);
     }
-    Serial.println();
+    //Serial.println();
   }
-  Serial.println();
+  //Serial.println();
 
   strip.show();
 }
