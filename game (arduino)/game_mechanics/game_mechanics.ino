@@ -36,6 +36,7 @@ const int P1 = 1,          //
           EMPTY_CELL = 0;  //
 const int X_DIM = 8,
           Y_DIM = 8;
+          SEQ_LENGTH = 5;
 /* -- end game parameters -- */
 
 /* ---- error states ---- */
@@ -66,11 +67,13 @@ int p1_colour,
 void setup() {
   Serial.begin(9600);
 
-  //added by ben
+  //buffer for parsing
+  char appBuffer[128] = {0};
+  
+  //initialize LED array
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
-
   startupLEDSequence();
 }
 
@@ -216,7 +219,7 @@ int gameOver_connect4(int **board) {
 void connect4Cascade(int **board) {
   int x, y, count;
 
-  for (count = 0; count < Y_DIM; count--) {
+  for (count = 0; count < Y_DIM; count++) {
     //replace all cells with the value above them
     for (y = 0; y < 6 - count; y++) {
       for (x = 0; x < X_DIM; x++) {
@@ -236,14 +239,20 @@ void connect4Cascade(int **board) {
     Return player ID of winning player, 0 if none
 
     Modifies board: if winning player found, changes winning
-      tiles to webwork green
+      tiles to webwork green?
 
     !!!!!!NOTE: MUST SPECIFY WIN DATA!!!!!!!
 */
 int winningPlayer_connect4(int **board) {
   //array to pass to helper functions to determine the coordinates of all winning tiles
-  int winData[8];
-  int i;
+  
+  int *vert1 = detectVertLine(P1, 5, board);
+  int *horiz1 = detectHorizLine(P1, 5, board);
+  int *diag1 = detectDiagLine(P1, 5, board);
+  int *vert2 = detectVertLine(P2, 5, board);
+  int *horiz2 = detectHorizLine(P2, 5, board);
+  int *diag2 = detectDiagLine(P2, 5, board);
+  int *winData = vert != NULL ? vert : horiz != NULL ? horiz : diag;
   //!!!!!use helper functions to determine if there was a win or not
 
   if (winData == NULL)
