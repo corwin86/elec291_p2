@@ -69,6 +69,8 @@ int turns;
 
 int isSinglePlayer = 1;
 
+int AIRecursionLevel = 1;
+
 // == End Global Variables ==
 
 void setup() {
@@ -141,6 +143,7 @@ int playConnectFour() {
       board[y][x] = EMPTY_CELL;
     }
   }
+  
   printBoard(board);
 
   //---- gameplay ----
@@ -152,19 +155,19 @@ int playConnectFour() {
     do {
       //!!! -- take input --
       //!!! use serial for debug
-      if(isSinglePlayer && cur_player == P2) {
+      if (isSinglePlayer && cur_player == P2) {
         col = aiNextMove(board);
       } else {
-//#if !DEBUG
+        //#if !DEBUG
         while (!Serial.available()); //wait for serial data before parsing
         col = Serial.parseInt();
         Serial.println(col);
-  
+
         // clamp inputs to valid range
         col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
       }
-//#endif
-    } while (!dropToken_connect4(board, col, cur_player));
+      //#endif
+    } while (!dropToken_connect4(board, col, cur_player, 1));
 
     printBoard(board);
 
@@ -185,7 +188,7 @@ int playConnectFour() {
 /*
     Place a player token on board in column x !!!untested
 */
-int dropToken_connect4(int **board, int col, int token) {
+int dropToken_connect4(int **board, int col, int token, int animated) {
   int y = -1;
   while (board[y + 1][col] == EMPTY_CELL && y + 1 < Y_DIM) {
     y++;
@@ -195,14 +198,16 @@ int dropToken_connect4(int **board, int col, int token) {
     return 0;
   }
 
-  uint32_t colour = getPlayerColour(token);
+  if (animated) {
+    uint32_t colour = getPlayerColour(token);
 
-  int i = -2;
-  while (++i < y - 1) {
-    delay(TOKEN_DROP_SPEED);
-    printCell(col, i, off, 0);
-    printCell(col, i + 1, colour, 0);
-    strip.show();
+    int i = -2;
+    while (++i < y - 1) {
+      delay(TOKEN_DROP_SPEED);
+      printCell(col, i, off, 0);
+      printCell(col, i + 1, colour, 0);
+      strip.show();
+    }
   }
 
   board[y][col] = token; //place token
@@ -214,7 +219,7 @@ int dropToken_connect4(int **board, int col, int token) {
     Return true if a player has won, or a draw is reached (board is full)
 */
 int gameOver_connect4(int **board) {
-  return winningPlayer_connect4(board) > 0 || boardFull();
+  return winningPlayer_connect4(board, 1) > 0 || boardFull();
 }
 
 /*
@@ -250,7 +255,7 @@ void connect4Cascade(int **board) {
 
     !!!!!!NOTE: MUST SPECIFY WIN DATA!!!!!!!
 */
-int winningPlayer_connect4(int **board) {
+int winningPlayer_connect4(int **board, int flash) {
   int winData[4] = {0};
   int flashes = 3 * 2;
 
@@ -275,45 +280,47 @@ int winningPlayer_connect4(int **board) {
   }
 
   //flashes 3 times
-  delay(500);
-  int x = winData[0], y = winData[1];
-  if(p1_colour != green) {
-    if(p2_colour != green) {
-      victoryBlink = green;  //!green vs !green
-    } else {
-      if(p1_colour != red) {
-        victoryBlink = red;  //!red vs green
-      } else {
-        victoryBlink = blue; //red vs green
-      }
-    }
-  } else {
-    if(p2_colour != red) {
-      victoryBlink = red;  //green vs !red
-    } else {
-      victoryBlink = blue; //green vs red  
-    }
-  }
-  
-  while (flashes-- > 0) {
-    int i = -1;
-    while (i++ < SEQ_LENGTH - 1) {
-      uint32_t colour = flashes % 2 ? victoryBlink : getPlayerColour(winData[3]);
-      switch (winData[2]) {
-        case UP:
-          printCell(x    , y + i, colour, 0); break;
-        case LEFT:
-          printCell(x + i, y    , colour, 0); break;
-        case UP_LEFT:
-          printCell(x + i, y + i, colour, 0); break;
-        case DOWN_LEFT:
-          printCell(x + i, y - i, colour, 0); break;
-        default:
-          Serial.print("ERROR: check line detecting logic: Win Data is ");Serial.println(winData[2]); break;
-      }
-    }
-    strip.show();
+  if (flash) {
     delay(500);
+    int x = winData[0], y = winData[1];
+    if (p1_colour != green) {
+      if (p2_colour != green) {
+        victoryBlink = green;  //!green vs !green
+      } else {
+        if (p1_colour != red) {
+          victoryBlink = red;  //!red vs green
+        } else {
+          victoryBlink = blue; //red vs green
+        }
+      }
+    } else {
+      if (p2_colour != red) {
+        victoryBlink = red;  //green vs !red
+      } else {
+        victoryBlink = blue; //green vs red
+      }
+    }
+
+    while (flashes-- > 0) {
+      int i = -1;
+      while (i++ < SEQ_LENGTH - 1) {
+        uint32_t colour = flashes % 2 ? victoryBlink : getPlayerColour(winData[3]);
+        switch (winData[2]) {
+          case UP:
+            printCell(x    , y + i, colour, 0); break;
+          case LEFT:
+            printCell(x + i, y    , colour, 0); break;
+          case UP_LEFT:
+            printCell(x + i, y + i, colour, 0); break;
+          case DOWN_LEFT:
+            printCell(x + i, y - i, colour, 0); break;
+          default:
+            Serial.print("ERROR: check line detecting logic: Win Data is "); Serial.println(winData[2]); break;
+        }
+      }
+      strip.show();
+      delay(500);
+    }
   }
 
   return winData[3];
@@ -339,7 +346,7 @@ void detectVertLine(int player, int len, int** board, int *coordAndDir) {
       if (count == len) {
         //we found a sequence of length len, so we return coords/direction
         coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = UP; coordAndDir[3] = player;
-        Serial.print("x: ");Serial.print(x);Serial.print(" y: ");Serial.println(y);
+        Serial.print("x: "); Serial.print(x); Serial.print(" y: "); Serial.println(y);
         return;
       }
     }
@@ -428,94 +435,63 @@ int boardFull() {
  * Returns column number for AI's move
  */
 int aiNextMove(int **board) {
-  // check for 4 of own colour
-  // check for 4 of other colour
-  // check for 3 of own colour
-  // check for 3 of other colour
-  // random
-  int data[4] = {0};
-  int i;
-  for(i = SEQ_LENGTH - 1; i > 2; i--) {
-    //find own i in a row
-    detectDiagLine(P2, i, board, data);
-    if(data[0] == -1) {
-      detectVertLine(P2, i, board, data);
-      if(data[0] == -1) {
-        detectHorizLine(P2, i, board, data);
-      } else break;
-    } else break;
+  int ai_col, p_col;
+  int next_move = -1;
+  int col_points[X_DIM] = {0};
+  
+  for (ai_col = 0; ai_col < X_DIM; ai_col++) {
+    dropToken_connect4(board, ai_col, P2, 0);
     
-    //find other players' i in a row
-    detectDiagLine(P1, i, board, data);
-    if(data[0] == -1) {
-      detectVertLine(P1, i, board, data);
-      if(data[0] == -1) {
-        detectHorizLine(P1, i, board, data);
-      } else break;
-    } else break;
-  }
-  
-  int x = data[0], y = data[1], dir = data[2], player = data[3];
-  
-  //!!!
-  switch (dir) {
-    case UP : {
-      if(y != i - 1 && board[y - 1][x] == EMPTY_CELL) {
-        Serial.println("U");
-        return x;
-      }
+    if(winningPlayer_connect4(board, 0) == P1) {
+      next_move = ai_col; //win if you can
+    } else {
+      for (p_col = 0; p_col < X_DIM; p_col++) {
+        int p_break = 0;
+        dropToken_connect4(board, p_col, P1, 0);
         
-      break;
-    }
-    case LEFT : {
-      if(board[y][x + i + 1] == EMPTY_CELL && numEmptyBelowPoint(x + i + 1, y, board) == 0) { 
-        Serial.println("L1");
-        return x + i + 1;
-      } else if(board[y][x - 1] && numEmptyBelowPoint(x - 1, y, board) == 0) {
-        Serial.println("L2");
-        return x - 1;
+        if(winningPlayer_connect4(board, 0) == P1) {
+          col_points[ai_col] = -1000;
+          p_break = 1;
+        } else {
+          //!!! expand recursively, time permitting
+        }
+        popToken(board, p_col); //remove board modification
+        
+        if(p_break) {
+          break;
+        }
       }
-      
-      break;
     }
-    case UP_LEFT : {
-      if(numEmptyBelowPoint(x + i + 1, y + 1, board) == 0) { 
-        Serial.println("UL1");Serial.print(x);Serial.print(" ");Serial.println(y);
-        return x + i + 1;
-      } else if(numEmptyBelowPoint(x - 1, y - i - 1, board) == 0) {
-        Serial.println("UL2");Serial.print(x);Serial.print(" ");Serial.println(y);
-        return x - 1;
-      }
-      
-      break;
-    }
-    case DOWN_LEFT : {
-      if(numEmptyBelowPoint(x + i + 1, y - 1, board) == 0) { 
-        Serial.println("DL1 ");Serial.print(x);Serial.print(" ");Serial.println(y);
-        return x + i + 1;
-      } else if(numEmptyBelowPoint(x - 1, y + i + 1, board) == 0) {
-        Serial.println("DL2");Serial.print(x);Serial.print(" ");Serial.println(y);
-        return x - 1;
-      }
-      
-      break;
+    popToken(board, ai_col); //remove board modifications
+  
+    Serial.print("Col Points at ");Serial.print(ai_col);Serial.print(" are "); Serial.println(col_points[ai_col]);
+     
+    if(next_move != -1) {
+      return next_move;
     }
   }
   
-  Serial.println("AI Randy");
-  return random() % X_DIM; //random column
+  return selectNextMove(col_points); //random column
 }
 
-int numEmptyBelowPoint(int x, int y, int **board) {
-  if(x < 0 || x >= X_DIM || y < 0 || y >= Y_DIM) {
-    return -1;
+int selectNextMove(int *col_points) {
+  int i;
+  int next_move = 0;
+  for(i = 1; i < X_DIM; i++) {
+    if(col_points[i] > col_points[next_move]) {
+      next_move = i;
+    }
   }
-  int sum = 0, i = 1;
-  while(board[y + i][x] == EMPTY_CELL && y + i < Y_DIM) {
-    Serial.print("sum ");Serial.println(sum);
-    sum++;
-    i++;
+  return next_move;
+}
+
+void popToken(int **board, int col) {
+  int y = 0;
+  while (board[y][col] == EMPTY_CELL && y < Y_DIM) {
+    y++;
   }
+  
+  board[y][col] = EMPTY_CELL;
 }
 
 /*
