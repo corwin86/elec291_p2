@@ -185,21 +185,25 @@ void loop(void)
         // Respond with the path that was accessed.
         // First send the success response code.
         client.fastrprintln(F("HTTP/1.1 200 OK"));
-        // Then send a few headers to identify the type of data returned and that
-        // the connection will not be held open.
+//        // Then send a few headers to identify the type of data returned and that
+//        // the connection will not be held open.
         client.fastrprintln(F("Content-Type: text/plain"));
         client.fastrprintln(F("Connection: close"));
         client.fastrprintln(F("Server: Adafruit CC3000"));
-        // Send an empty line to signal start of body.
+//        // Send an empty line to signal start of body.
         client.fastrprintln(F(""));
         // Now send the response data.
         client.fastrprintln(F("Connection successful"));
         client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+        client.fastrprint(F("what is this shit"));
       }
       else {
-        // Unsupported action, respond with an HTTP 405 method not allowed error.
-        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
-        client.fastrprintln(F(""));
+//        // Unsupported action, respond with an HTTP 405 method not allowed error.
+//        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
+//        client.fastrprintln(F(""));
+
+          //if not "GET", then should be write
+//          Serial.println(buffer);
       }
     }
 
