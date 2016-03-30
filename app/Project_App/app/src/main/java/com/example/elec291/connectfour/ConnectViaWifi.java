@@ -101,10 +101,11 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view){
         URL connect_url = null;
 
-            String stringUrl = "http://www.android.com/";
+            String stringUrl = "http://192.168.43.82/";
             ConnectivityManager connmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connmgr.getActiveNetworkInfo();
             if(networkInfo != null && networkInfo.isConnected()){
+                System.out.println("Network available");
                 new DownloadWebpageTask().execute(urlToConnection);
             }
             else{
@@ -119,7 +120,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 //            writeStream(out);
 
 
-        //startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
+        startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
     }
 
     private class DownloadWebpageTask extends AsyncTask<String, Void, String>{
@@ -149,16 +150,25 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
         try{
             URL connect_url = connect_url = new URL(myurl);
             HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
+            System.out.println("Checkpoint1");
             connection.setReadTimeout(10000);
             connection.setConnectTimeout(15000);
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
+            System.out.println("Checkpoint2");
 
+            System.out.println("Checkpoint3");
             connection.connect();
-            int resposne = connection.getResponseCode();
+            System.out.println("Checkpoint 4");
+            System.out.println(connection.getResponseCode());
+            //int response = connection.getResponseCode();
+            //System.out.println(response);
+            System.out.println("Checkpoint 5");
             is = connection.getInputStream();
+            System.out.println("Checkpoint 6");
 
             String contectAsString = readIt(is, len);
+            System.out.println(contectAsString);
             return contectAsString;
         } finally{
             if(is != null){
