@@ -1,64 +1,10 @@
-
-/***************************************************
-  Adafruit CC3000 Breakout/Shield Simple HTTP Server
-    
-  This is a simple implementation of a bare bones
-  HTTP server that can respond to very simple requests.
-  Note that this server is not meant to handle high
-  load, concurrent connections, SSL, etc.  A 16mhz Arduino 
-  with 2K of memory can only handle so much complexity!  
-  This server example is best for very simple status messages
-  or REST APIs.
-
-  See the CC3000 tutorial on Adafruit's learning system
-  for more information on setting up and using the
-  CC3000:
-    http://learn.adafruit.com/adafruit-cc3000-wifi  
-    
-  Requirements:
-  
-  This sketch requires the Adafruit CC3000 library.  You can
-  download the library from:
-    https://github.com/adafruit/Adafruit_CC3000_Library
-  
-  For information on installing libraries in the Arduino IDE
-  see this page:
-    http://arduino.cc/en/Guide/Libraries
-  
-  Usage:
-    
-  Update the SSID and, if necessary, the CC3000 hardware pin 
-  information below, then run the sketch and check the 
-  output of the serial port.  After connecting to the 
-  wireless network successfully the sketch will output 
-  the IP address of the server and start listening for 
-  connections.  Once listening for connections, connect
-  to the server IP from a web browser.  For example if your
-  server is listening on IP 192.168.1.130 you would access
-  http://192.168.1.130/ from your web browser.
-  
-  Created by Tony DiCola and adapted from HTTP server code created by Eric Friedrich.
-  
-  This code was adapted from Adafruit CC3000 library example 
-  code which has the following license:
-  
-  Designed specifically to work with the Adafruit WiFi products:
-  ----> https://www.adafruit.com/products/1469
-
-  Adafruit invests time and resources providing this open source code, 
-  please support Adafruit and open-source hardware by purchasing 
-  products from Adafruit!
-
-  Written by Limor Fried & Kevin Townsend for Adafruit Industries.  
-  BSD license, all text above must be included in any redistribution      
- ****************************************************/
 #include <Adafruit_CC3000.h>
 #include <SPI.h>
 #include "utility/debug.h"
 #include "utility/socket.h"
 
 // These are the interrupt and control pins
-#define ADAFRUIT_CC3000_IRQ   3  // MUST be an interrupt pin!
+#define ADAFRUIT_CC3000_IRQ   3  // MUST be an interrupt pin
 // These can be any two pins
 #define ADAFRUIT_CC3000_VBAT  5
 #define ADAFRUIT_CC3000_CS    10
@@ -131,9 +77,6 @@ void setup(void)
     delay(1000);
   }
 
-  // ******************************************************
-  // You can safely remove this to save some flash memory!
-  // ******************************************************
   Serial.println(F("\r\nNOTE: This sketch may cause problems with other sketches"));
   Serial.println(F("since the .disconnect() function is never called, so the"));
   Serial.println(F("AP may refuse connection requests from the CC3000 until a"));
@@ -199,11 +142,11 @@ void loop(void)
 //        client.fastrprint(F("what is this shit"));
       }
       else if(strcmp(action, "POST") == 0){
-//        // Unsupported action, respond with an HTTP 405 method not allowed error.
+        //if "POST" then display on serial screen
+        client.fastrprintln(F("HTTP/1.1 200 OK"));
 //        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
-//        client.fastrprintln(F(""));
-
-          //if "POST" then display on serial screen
+        client.fastrprintln(F(""));
+        
           client.fastrprintln(F("HTTP/1.1 200 OK"));
           char temp[BUFFER_SIZE+1];
           for(int i = 0; i < sizeof(buffer); i++){
@@ -213,6 +156,11 @@ void loop(void)
           
           Serial.println(inputString);
           
+      }
+      else{
+        // Unsupported action, respond with an HTTP 405 method not allowed error.
+        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
+        client.fastrprintln(F(""));
       }
     }
 
