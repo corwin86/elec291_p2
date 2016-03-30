@@ -27,7 +27,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.nio.Buffer;
 
 /**
  * Created by rohini on 24/03/16.
@@ -172,7 +174,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             String contectAsString = readIt(is, len);
             System.out.println(contectAsString);
             return contectAsString;
-        } finally{
+        } finally{  
             if(is != null){
                 is.close();
             }
@@ -181,23 +183,44 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 
     private void Upload(String myurl) throws IOException {
         OutputStream os = null;
+        BufferedReader reader=  null;
         int len = 500;
         try{
+            String text = "";
             URL connect_url = new URL(myurl);
             HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
-            connection.setReadTimeout(10000);
+            System.out.println("Checkpoint1");
+            //connection.setReadTimeout(10000);
             connection.setConnectTimeout(15000);
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
+            connection.setDoInput(true);
+            System.out.println("Checkpoint2");
             connection.connect();
+            System.out.println("Checkpoint3");
             int response = connection.getResponseCode();
+            System.out.println("Checkpoint4");
             System.out.println(response);
             writeIt(os);
+            System.out.println("Checkpoint5");
 
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            System.out.println("Checkpoint6");
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+
+            while((line = reader.readLine()) != null){
+                sb.append(line + "\n");
+                System.out.println("Checkpoint7");
+            }
+
+            text = sb.toString();
+            System.out.println("Checkpoint8");
         }
         finally {
             if(os != null){
                 os.close();
+                reader.close();
             }
         }
     }
@@ -214,6 +237,10 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
         String output = "First post";
         stream.write(output.getBytes());
         stream.flush();
+    }
+
+    public void serverResponse( URLConnection conn) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
     }
 
