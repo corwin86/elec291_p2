@@ -130,7 +130,9 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 
             //params comes from the execute() call
             try{
-                return downloadUrl(urls[0]);
+                //return downloadUrl(urls[0]);
+                Upload(urls[0]);
+                return "worked";
             } catch(IOException e){
                 return "unable to retrieve webpage";
             }
@@ -148,7 +150,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
         int len = 500;
 
         try{
-            URL connect_url = connect_url = new URL(myurl);
+            URL connect_url = new URL(myurl);
             HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
             System.out.println("Checkpoint1");
             connection.setReadTimeout(10000);
@@ -177,12 +179,42 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    private void Upload(String myurl) throws IOException {
+        OutputStream os = null;
+        int len = 500;
+        try{
+            URL connect_url = new URL(myurl);
+            HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
+            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(15000);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.connect();
+            int response = connection.getResponseCode();
+            System.out.println(response);
+            writeIt(os);
+
+        }
+        finally {
+            if(os != null){
+                os.close();
+            }
+        }
+    }
+
     public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException{
         Reader reader = null;
         reader = new InputStreamReader(stream, "UTF-8");
         char[] buffer = new char[len];
         reader.read(buffer);
         return new String(buffer);
+    }
+
+    public void writeIt(OutputStream stream) throws IOException{
+        String output = "First post";
+        stream.write(output.getBytes());
+        stream.flush();
+
     }
 
 
