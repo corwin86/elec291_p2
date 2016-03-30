@@ -497,7 +497,7 @@ int aiNextMove(int **board, int aiToken, int otherToken) {
 */
 int aiExampleCall(int **board) {
   int col_points[X_DIM] = {0};
-  aiRecursiveSearch(board, difficulty, col_points);
+  aiRecursiveSearch(board, 1, col_points);
   return selectNextMove(col_points);
 }
 
@@ -536,14 +536,14 @@ void aiRecursiveSearch(int **board, int level, int *col_points) {
 
         if (winningPlayer_connect4(board, 0) == P1) {
           col_points[ai_col] += BAD_MOVE / (level + 1); //future loss with this move, but one level deeper than ai move !!!!!!!could be problematic, overlap with next level!!!!!!
-          p_break = 1;
-        } else if (level-- > 0) {                     //decrement level and call again, otherwise start popping tokens and returning
+          p_break = 1;                                  //!!!!!still necessary with recursive search????????
+        } else if (level++ < difficulty) {                     //decrement level and call again, otherwise start popping tokens and returning
           aiRecursiveSearch(board, level, col_points);
         }
         popToken(board, p_col); //remove board modification
 
         if (p_break) {
-          break;
+          break;        //!!!!!still necessary with recursive search????????
         }
       }
     }
