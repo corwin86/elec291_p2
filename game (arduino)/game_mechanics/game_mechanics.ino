@@ -40,6 +40,8 @@ const int P1 = 1,          //
 const int X_DIM = 8,
           Y_DIM = 8,
           SEQ_LENGTH = 5;
+const int BAD_MOVE = -1000,
+          IMPOSSIBLE_MOVE = -2000;
 const int TOKEN_DROP_SPEED = 35; // millis delay for token dropping
 /* -- end game parameters -- */
 
@@ -75,6 +77,7 @@ int AIRecursionLevel = 1;
 
 void setup() {
   Serial.begin(9600);
+  randomSeed(analogRead(4));
 
   //buffer for parsing
   char appBuffer[128] = {0};
@@ -155,17 +158,26 @@ int playConnectFour() {
     do {
       //!!! -- take input --
       //!!! use serial for debug
-      if (isSinglePlayer && cur_player == P2) {
-        col = aiNextMove(board);
+      
+      if(cur_player == P1) {
+        col = aiNextMove(board, P1, P2);
       } else {
-        //#if !DEBUG
-        while (!Serial.available()); //wait for serial data before parsing
-        col = Serial.parseInt();
-        Serial.println(col);
-
-        // clamp inputs to valid range
-        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+        col = aiNextMove(board, P2, P1);
       }
+      
+//      if (isSinglePlayer && cur_player == P2) {
+//        col = aiNextMove(board, P2, P1);
+//      } else {
+//        //#if !DEBUG
+//        while (!Serial.available()); //wait for serial data before parsing
+//        col = Serial.parseInt();
+//        Serial.println(col);
+//
+//        // clamp inputs to valid range
+//        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+//      }
+
+
       //#endif
     } while (!dropToken_connect4(board, col, cur_player, 1));
 
@@ -434,23 +446,30 @@ int boardFull() {
 /*
  * Returns column number for AI's move
  */
-int aiNextMove(int **board) {
+int aiNextMove(int **board, int aiToken, int otherToken) {
   int ai_col, p_col;
   int next_move = -1;
   int col_points[X_DIM] = {0};
   
   for (ai_col = 0; ai_col < X_DIM; ai_col++) {
-    dropToken_connect4(board, ai_col, P2, 0);
+    if(board[0][ai_col] != EMPTY_CELL) {
+      col_points[ai_col] = IMPOSSIBLE_MOVE;
+      continue;
+    }
+    dropToken_connect4(board, ai_col, aiToken, 0);
     
-    if(winningPlayer_connect4(board, 0) == P1) {
+    if(winningPlayer_connect4(board, 0) == aiToken) {
       next_move = ai_col; //win if you can
     } else {
       for (p_col = 0; p_col < X_DIM; p_col++) {
+        if(board[0][p_col] != EMPTY_CELL) {
+          continue;
+        }
         int p_break = 0;
-        dropToken_connect4(board, p_col, P1, 0);
+        dropToken_connect4(board, p_col, otherToken, 0);
         
-        if(winningPlayer_connect4(board, 0) == P1) {
-          col_points[ai_col] = -1000;
+        if(winningPlayer_connect4(board, 0) == otherToken) {
+          col_points[ai_col] = BAD_MOVE;
           p_break = 1;
         } else {
           //!!! expand recursively, time permitting
@@ -463,8 +482,6 @@ int aiNextMove(int **board) {
       }
     }
     popToken(board, ai_col); //remove board modifications
-  
-    Serial.print("Col Points at ");Serial.print(ai_col);Serial.print(" are "); Serial.println(col_points[ai_col]);
      
     if(next_move != -1) {
       return next_move;
@@ -476,12 +493,32 @@ int aiNextMove(int **board) {
 
 int selectNextMove(int *col_points) {
   int i;
-  int next_move = 0;
+  int next_move = 0, ties = 0;
   for(i = 1; i < X_DIM; i++) {
-    if(col_points[i] > col_points[next_move]) {
+    if(col_points[i] != IMPOSSIBLE_MOVE && col_points[i] > col_points[next_move]) {
       next_move = i;
+      ties = 0;
+    } else if(col_points[i] == col_points[next_move]) {
+      ties++;
     }
   }
+  
+  ties = random(0, ties);
+  
+  Serial.println(ties);
+  
+  i = 0;
+  while(ties > 0) {
+    if(col_points[i] == col_points[next_move]) {
+      ties--;
+      next_move = i;
+    }
+    if(i == X_DIM) {
+      i = 0;
+    }
+    i++;
+  }
+  
   return next_move;
 }
 
