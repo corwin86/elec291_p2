@@ -159,26 +159,24 @@ int playConnectFour() {
       //!!! -- take input --
       //!!! use serial for debug
       
-      if(cur_player == P1) {
-        col = aiNextMove(board, P1, P2);
-      } else {
-        col = aiNextMove(board, P2, P1);
-      }
-      
-//      if (isSinglePlayer && cur_player == P2) {
-//        col = aiNextMove(board, P2, P1);
+//      !!! AI vs AI
+//      if(cur_player == P1) {
+//        col = aiNextMove(board, P1, P2);
 //      } else {
-//        //#if !DEBUG
-//        while (!Serial.available()); //wait for serial data before parsing
-//        col = Serial.parseInt();
-//        Serial.println(col);
-//
-//        // clamp inputs to valid range
-//        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+//        col = aiNextMove(board, P2, P1);
 //      }
+      
+      if (isSinglePlayer && cur_player == P2) {
+        col = aiNextMove(board, P2, P1);
+      } else {
+        //#if !DEBUG
+        while (!Serial.available()); //wait for serial data before parsing
+        col = Serial.parseInt();
+        Serial.println(col);
 
-
-      //#endif
+        // clamp inputs to valid range
+        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+      }
     } while (!dropToken_connect4(board, col, cur_player, 1));
 
     printBoard(board);
