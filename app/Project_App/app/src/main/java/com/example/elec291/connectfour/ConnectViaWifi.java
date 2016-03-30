@@ -198,9 +198,10 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             System.out.println("Checkpoint2");
             connection.connect();
             System.out.println("Checkpoint3");
-            int response = connection.getResponseCode();
+            //int response = connection.getResponseCode();
+            System.out.println(connection.getResponseCode());
             System.out.println("Checkpoint4");
-            System.out.println(response);
+            //System.out.println(response);
             writeIt(os);
             System.out.println("Checkpoint5");
 
