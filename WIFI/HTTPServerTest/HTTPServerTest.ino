@@ -194,16 +194,25 @@ void loop(void)
         client.fastrprintln(F(""));
         // Now send the response data.
         client.fastrprintln(F("Connection successful"));
-        client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
-        client.fastrprint(F("what is this shit"));
+        client.fastrprint(F("body"));
+//        client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+//        client.fastrprint(F("what is this shit"));
       }
-      else {
+      else if(strcmp(action, "POST") == 0){
 //        // Unsupported action, respond with an HTTP 405 method not allowed error.
 //        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
 //        client.fastrprintln(F(""));
 
-          //if not "GET", then should be write
-//          Serial.println(buffer);
+          //if "POST" then display on serial screen
+          client.fastrprintln(F("HTTP/1.1 200 OK"));
+          char temp[BUFFER_SIZE+1];
+          for(int i = 0; i < sizeof(buffer); i++){
+            temp[i] = (char) buffer[i];
+          }
+          String inputString = String(temp);
+          
+          Serial.println(inputString);
+          
       }
     }
 
