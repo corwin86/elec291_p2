@@ -36,11 +36,13 @@ const int CONNECT_FOUR = 0;
 /* ---- game parameters ---- */
 const int P1 = 1,          //
           P2 = 2,          // tokens used on board
+          AI = 2,           //
           EMPTY_CELL = 0;  //
 const int X_DIM = 8,
           Y_DIM = 8,
           SEQ_LENGTH = 5;
 const int BAD_MOVE = -1000,
+          GOOD_MOVE = 1000,
           IMPOSSIBLE_MOVE = -2000;
 const int TOKEN_DROP_SPEED = 35; // millis delay for token dropping
 /* -- end game parameters -- */
@@ -69,9 +71,10 @@ uint32_t p1_colour = blue,
 int turns;
 /* -- end player info -- */
 
-int isSinglePlayer = 1;
-
-int AIRecursionLevel = 1;
+/* ---- gane parameters ---- */
+int   isSinglePlayer = 1,
+      difficulty = 2;         //AI recursion depth
+/* -- end gane parameters -- */
 
 // == End Global Variables ==
 
@@ -111,7 +114,7 @@ void loop() {
       }
   }
 
-  //!!! need loop/replay handling -> TBD
+  //!!! need loop/replay handling? -> TBD
 }
 
 int runGame(int gameId) {
@@ -146,7 +149,7 @@ int playConnectFour() {
       board[y][x] = EMPTY_CELL;
     }
   }
-  
+
   printBoard(board);
 
   //---- gameplay ----
@@ -158,16 +161,16 @@ int playConnectFour() {
     do {
       //!!! -- take input --
       //!!! use serial for debug
-      
-//      !!! AI vs AI
-//      if(cur_player == P1) {
-//        col = aiNextMove(board, P1, P2);
-//      } else {
-//        col = aiNextMove(board, P2, P1);
-//      }
-      
+
+      //      !!! AI vs AI
+      //      if(cur_player == P1) {
+      //        col = aiNextMove(board, P1, P2);
+      //      } else {
+      //        col = aiNextMove(board, P2, P1);
+      //      }
+
       if (isSinglePlayer && cur_player == P2) {
-        col = aiNextMove(board, P2, P1);
+        col = aiNextMove(board, AI, P1);
       } else {
         //#if !DEBUG
         while (!Serial.available()); //wait for serial data before parsing
@@ -442,81 +445,141 @@ int boardFull() {
 }
 
 /*
- * Returns column number for AI's move
- */
+   Returns column number for AI's move
+*/
 int aiNextMove(int **board, int aiToken, int otherToken) {
   int ai_col, p_col;
   int next_move = -1;
   int col_points[X_DIM] = {0};
-  
+
   for (ai_col = 0; ai_col < X_DIM; ai_col++) {
-    if(board[0][ai_col] != EMPTY_CELL) {
+    if (board[0][ai_col] != EMPTY_CELL) {
       col_points[ai_col] = IMPOSSIBLE_MOVE;
       continue;
     }
     dropToken_connect4(board, ai_col, aiToken, 0);
-    
-    if(winningPlayer_connect4(board, 0) == aiToken) {
-      next_move = ai_col; //win if you can
+
+    if (winningPlayer_connect4(board, 0) == aiToken) {
+      return ai_col; //win if you can
     } else {
       for (p_col = 0; p_col < X_DIM; p_col++) {
-        if(board[0][p_col] != EMPTY_CELL) {
+        if (board[0][p_col] != EMPTY_CELL) {
           continue;
         }
         int p_break = 0;
         dropToken_connect4(board, p_col, otherToken, 0);
-        
-        if(winningPlayer_connect4(board, 0) == otherToken) {
+
+        if (winningPlayer_connect4(board, 0) == otherToken) {
           col_points[ai_col] = BAD_MOVE;
           p_break = 1;
         } else {
           //!!! expand recursively, time permitting
         }
         popToken(board, p_col); //remove board modification
-        
-        if(p_break) {
+
+        if (p_break) {
           break;
         }
       }
     }
     popToken(board, ai_col); //remove board modifications
-     
-    if(next_move != -1) {
+
+    if (next_move != -1) {
       return next_move;
     }
   }
-  
+
   return selectNextMove(col_points); //random column
 }
+
+/*
+    Example of call to aiRecursiveSearch
+*/
+int aiExampleCall(int **board) {
+  int col_points[X_DIM] = {0};
+  aiRecursiveSearch(board, difficulty, col_points);
+  return selectNextMove(col_points);
+}
+
+/*
+    Searches through possible moves recursively by checking a number of
+    moves in the future. !!!!!!!!!!!!!!!!! 1st attempt !!!!!!!!!!!!!!!!!
+
+    level - how many turns in advance the function is checking
+    board - the board
+
+    Modifies: col_points - the current number of points for each column, changes through recursive calls
+*/
+void aiRecursiveSearch(int **board, int level, int *col_points) {
+  int ai_col, p_col;
+
+  //note: num points assigned equal to 1000/level.
+  //ex. if it can win 3 moves in advance but can lose in 2 moves, assign 333 - 500 = -167 points.
+
+  for (ai_col = 0; ai_col < X_DIM; ai_col++) {
+    if (board[0][ai_col] != EMPTY_CELL) {
+      col_points[ai_col] = IMPOSSIBLE_MOVE;
+      continue;
+    }
+    dropToken_connect4(board, ai_col, P2, 0);
+
+    if (winningPlayer_connect4(board, 0) == AI) {
+      col_points[ai_col] += GOOD_MOVE / level;        //future win with this move
+
+    } else {
+      for (p_col = 0; p_col < X_DIM; p_col++) {
+        if (board[0][p_col] != EMPTY_CELL) {
+          continue;
+        }
+        int p_break = 0;
+        dropToken_connect4(board, p_col, P1, 0);
+
+        if (winningPlayer_connect4(board, 0) == P1) {
+          col_points[ai_col] += BAD_MOVE / (level + 1); //future loss with this move, but one level deeper than ai move !!!!!!!could be problematic, overlap with next level!!!!!!
+          p_break = 1;
+        } else if (level-- > 0) {                     //decrement level and call again, otherwise start popping tokens and returning
+          aiRecursiveSearch(board, level, col_points);
+        }
+        popToken(board, p_col); //remove board modification
+
+        if (p_break) {
+          break;
+        }
+      }
+    }
+    popToken(board, ai_col); //remove board modifications
+  }
+}
+
 
 int selectNextMove(int *col_points) {
   int i;
   int next_move = 0, ties = 0;
-  for(i = 1; i < X_DIM; i++) {
-    if(col_points[i] != IMPOSSIBLE_MOVE && col_points[i] > col_points[next_move]) {
+  for (i = 1; i < X_DIM; i++) {
+    if (col_points[i] != IMPOSSIBLE_MOVE && col_points[i] > col_points[next_move]) {
       next_move = i;
       ties = 0;
-    } else if(col_points[i] == col_points[next_move]) {
+    } else if (col_points[i] == col_points[next_move]) {
       ties++;
     }
   }
-  
+
   ties = random(0, ties);
-  
+
   Serial.println(ties);
-  
+
   i = 0;
-  while(ties > 0) {
-    if(col_points[i] == col_points[next_move]) {
+  while (ties > 0) {
+    if (col_points[i] == col_points[next_move]) {
       ties--;
       next_move = i;
     }
-    if(i == X_DIM) {
+    if (i == X_DIM) {
       i = 0;
     }
     i++;
   }
-  
+
   return next_move;
 }
 
@@ -525,7 +588,7 @@ void popToken(int **board, int col) {
   while (board[y][col] == EMPTY_CELL && y < Y_DIM) {
     y++;
   }
-  
+
   board[y][col] = EMPTY_CELL;
 }
 
