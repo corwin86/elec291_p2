@@ -144,6 +144,13 @@ void loop(void)
         client.fastrprint(F("what is this shit"));
       }
       else if(strcmp(action, "POST") == 0){
+
+        while(client.availabe()){
+          Serial.write(client.read());
+        }Serial.println();
+
+        Serial.print(inputString); Serial.println(" <-- printed message");
+        
         //if "POST" then display on serial screen
         client.fastrprintln(F("HTTP/1.1 200 OK"));
 //        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
@@ -156,13 +163,13 @@ void loop(void)
         client.fastrprintln(F("Connection successful"));
         client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
        
-          char temp[BUFFER_SIZE+1];
-          for(int i = 0; i < sizeof(buffer); i++){
-            temp[i] = (char) buffer[i];
-          }
-          String inputString = String(temp);
-          
-          Serial.print(inputString); Serial.println(" <-- printed message");
+//          char temp[BUFFER_SIZE+1];
+//          for(int i = 0; i < sizeof(buffer); i++){
+//            temp[i] = (char) buffer[i];
+//          }
+//          String inputString = String(temp);
+//          
+//          Serial.print(inputString); Serial.println(" <-- printed message");
           
       }
       else {
