@@ -39,7 +39,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
     Button buttonConnect;
     TextView connectMessage;
     static String  str;
-    String urlToConnection = "http://192.168.231.103/";
+    String urlToConnection = "http://192.168.43.82/";
     String testURL = "http://www.android.com/";
 
     @Override
@@ -131,8 +131,8 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 
             //params comes from the execute() call
             try{
-                return downloadUrl(urls[0]);
-                //return Upload(urls[0]);
+                //return downloadUrl(urls[0]);
+                return Upload(urls[0]);
             } catch(IOException e){
                 return "unable to retrieve webpage";
             }
@@ -188,6 +188,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
     }
 
     private String Upload(String myurl) throws IOException {
+        //OutputStream os = null;
         DataOutputStream os = null;
         BufferedReader reader=  null;
         int len = 500;
@@ -199,29 +200,39 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             connection.setReadTimeout(10000);
             connection.setConnectTimeout(15000);
             connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "text/plain");
             connection.setDoOutput(true);
-            //connection.setDoInput(true);
+            connection.setDoInput(true);
             System.out.println("Checkpoint2");
             connection.connect();
             System.out.println("Checkpoint3");
             //int response = connection.getResponseCode();
-            System.out.println(connection.getResponseCode());
+            //System.out.println(connection.getResponseCode());
             System.out.println("Checkpoint4");
             //System.out.println(response);
             //os = connection.getOutputStream();
             System.out.println("Checkpoint getOutputStream");
-            os = new DataOutputStream( connection.getOutputStream());
+            //os = connection.getOutputStream();
+            os = new DataOutputStream(connection.getOutputStream());
+            System.out.println("Instantiate");
+            //os.writeBytes("First post");
+            //os.write("First post".getBytes());
             os.writeBytes("First post");
+            //os.write(5);
+            System.out.println("Instantiate");
             os.flush();
+            System.out.println("flush");
             os.close();
+            System.out.println(connection.getResponseCode());
            // writeIt(os);
-            System.out.println("Checkpoint5");
+            System.out.println("close");
 
 
-            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            InputStream serverResponse = new BufferedInputStream(connection.getInputStream());
+            reader = new BufferedReader(new InputStreamReader(serverResponse));
             System.out.println("Checkpoint6");
             StringBuilder sb = new StringBuilder();
-            String line = null;
+            String line = "";
 
             while((line = reader.readLine()) != null){
                 sb.append(line + "\n");
@@ -230,7 +241,8 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 
             text = sb.toString();
             System.out.println("Checkpoint8");
-            return "post worked";
+            //return "post worked";
+            return text;
         }
         finally {
             if(os != null){
