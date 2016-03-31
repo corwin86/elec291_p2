@@ -144,14 +144,25 @@ void loop(void)
         client.fastrprint(F("what is this shit"));
       }
       else if(strcmp(action, "POST") == 0){
-
-        while(client.available()){
-          Serial.write(client.read());
-        }Serial.println();
-
-        //Serial.print(inputString); Serial.println(" <-- printed message");
         
-        //if "POST" then display on serial screen
+        //Read data from post request body and store info into fields
+        String data = "";
+        
+        while(client.available()){
+          //Serial.write(client.read());
+          char currentChar = client.read();
+          bool StartBody = false;
+          
+          if(currentChar == '\n')
+            StartBody = true
+
+          if(StartBody == true){
+            data += (String) currentChar;
+          }
+          
+        }Serial.println(data);
+        
+        //Send server response back to client
         client.fastrprintln(F("HTTP/1.1 200 OK"));
 //        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
         client.fastrprintln(F("Content-Type: text/plain"));
