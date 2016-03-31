@@ -291,6 +291,25 @@ int playConnectFour() {
         }
         else
           col = listenForInput();
+//=======
+//      //!!! -- take input --
+//      //!!! use serial for debug
+//
+//      //      !!! AI vs AI
+////      if(cur_player == P1) {
+////        col = aiNextMove(board, P1, P2);
+////      } else {
+////        col = aiNextMove(board, P2, P1);
+////      }
+//
+//      if (isSinglePlayer && cur_player == P2) {
+//        col = aiExampleCall(board); //aiNextMove(board, AI, P1);
+//      } else {
+//        //#if !DEBUG
+//        while (!Serial.available()); //wait for serial data before parsing
+//        col = Serial.parseInt();
+//        Serial.println(col);
+//>>>>>>> gamedev
 
       }
       else {      //AI mode
@@ -308,6 +327,7 @@ int playConnectFour() {
   //-- end gameplay --
 
   //!!! perhaps delay this call for user to confirm end game
+  delay(5000);
   connect4Cascade(board); //GUI feature indicates game end, ***CLEARS BOARD***
 
   // free malloc'd memory
@@ -333,7 +353,7 @@ int dropToken_connect4(int **board, int col, int token, int animated) {
     uint32_t colour = getPlayerColour(token);
 
     int i = -2;
-    while (++i < y - 1) {
+    while (++i < y) {
       delay(TOKEN_DROP_SPEED);
       printCell(col, i, off, 0);
       printCell(col, i + 1, colour, 0);
@@ -412,6 +432,7 @@ int winningPlayer_connect4(int **board, int flash) {
 
   //flashes 3 times
   if (flash) {
+    printBoard(board);
     delay(500);
     int x = winData[0], y = winData[1];
     if (p1_colour != green) {
@@ -477,7 +498,6 @@ void detectVertLine(int player, int len, int** board, int *coordAndDir) {
       if (count == len) {
         //we found a sequence of length len, so we return coords/direction
         coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = UP; coordAndDir[3] = player;
-        Serial.print("x: "); Serial.print(x); Serial.print(" y: "); Serial.println(y);
         return;
       }
     }
@@ -615,7 +635,7 @@ int aiNextMove(int **board, int aiToken, int otherToken) {
 */
 int aiExampleCall(int **board) {
   int col_points[X_DIM] = {0};
-  aiRecursiveSearch(board, difficulty, col_points);
+  aiRecursiveSearch(board, 0, col_points);
   return selectNextMove(col_points);
 }
 
@@ -629,6 +649,7 @@ int aiExampleCall(int **board) {
     Modifies: col_points - the current number of points for each column, changes through recursive calls
 */
 void aiRecursiveSearch(int **board, int level, int *col_points) {
+  level++;
   int ai_col, p_col;
 
   //note: num points assigned equal to 1000/level.
@@ -654,8 +675,8 @@ void aiRecursiveSearch(int **board, int level, int *col_points) {
 
         if (winningPlayer_connect4(board, 0) == P1) {
           col_points[ai_col] += BAD_MOVE / (level + 1); //future loss with this move, but one level deeper than ai move !!!!!!!could be problematic, overlap with next level!!!!!!
-          p_break = 1;
-        } else if (level-- > 0) {                     //decrement level and call again, otherwise start popping tokens and returning
+          p_break = 1;                                  //!!!!!still necessary with recursive search????????
+        } else if (level + 1 <= difficulty) {                     //decrement level and call again, otherwise start popping tokens and returning
           aiRecursiveSearch(board, level, col_points);
         }
         popToken(board, p_col); //remove board modification
@@ -667,27 +688,27 @@ void aiRecursiveSearch(int **board, int level, int *col_points) {
     }
     popToken(board, ai_col); //remove board modifications
   }
+  level--;
 }
 
 
 int selectNextMove(int *col_points) {
   int i;
   int next_move = 0, ties = 0;
-  for (i = 1; i < X_DIM; i++) {
-    if (col_points[i] != IMPOSSIBLE_MOVE && col_points[i] > col_points[next_move]) {
+  for (i = 0; i < X_DIM; i++) { //!!! start at 0
+    if (col_points[i] > col_points[next_move]) {
       next_move = i;
       ties = 0;
     } else if (col_points[i] == col_points[next_move]) {
       ties++;
     }
+    Serial.print(i);Serial.print(": ");Serial.print(col_points[i]);
   }
 
-  ties = random(0, ties);
-
-  Serial.println(ties);
+  ties = random(0, ties + 1);
 
   i = 0;
-  while (ties > 0) {
+  while (ties >= 0) {
     if (col_points[i] == col_points[next_move]) {
       ties--;
       next_move = i;
