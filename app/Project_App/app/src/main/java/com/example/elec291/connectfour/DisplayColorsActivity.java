@@ -66,26 +66,32 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
         if(clicks == 0) {
             switch ((v.getId())) {
                 case R.id.buttonRed:
+                    MainActivity.Player1Color = "red";
                     clicks = 1;
                     colorButtonClick(buttonRed);
                     break;
                 case R.id.buttonBlue:
+                    MainActivity.Player1Color = "blue";
                     clicks = 1;
                     colorButtonClick(buttonBlue);
                     break;
                 case R.id.buttonGreen:
+                    MainActivity.Player1Color = "green";
                     clicks = 1;
                     colorButtonClick(buttonGreen);
                     break;
                 case R.id.buttonCyan:
+                    MainActivity.Player1Color = "cyan";
                     clicks = 1;
                     colorButtonClick(buttonCyan);
                     break;
                 case R.id.buttonYellow:
+                    MainActivity.Player1Color = "yellow";
                     clicks = 1;
                     colorButtonClick(buttonYellow);
                     break;
                 case R.id.buttonMagenta:
+                    MainActivity.Player1Color = "magenta";
                     clicks = 1;
                     colorButtonClick(buttonMagenta);
                     break;
@@ -95,26 +101,32 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
         else if(clicks == 1){
             switch((v.getId())){
                 case R.id.buttonRed:
+                    MainActivity.Player2Color = "red";
                     clicks = 2;
                     onClickTwo(buttonRed);
                     break;
                 case R.id.buttonBlue:
+                    MainActivity.Player2Color = "blue";
                     clicks = 2;
                     onClickTwo(buttonBlue);
                     break;
                 case R.id.buttonGreen:
+                    MainActivity.Player2Color = "green";
                     clicks = 2;
                     onClickTwo(buttonGreen);
                     break;
                 case R.id.buttonCyan:
+                    MainActivity.Player2Color = "cyan";
                     clicks = 2;
                     onClickTwo(buttonCyan);
                     break;
                 case R.id.buttonYellow:
+                    MainActivity.Player2Color = "yellow";
                     clicks = 2;
                     onClickTwo(buttonYellow);
                     break;
                 case R.id.buttonMagenta:
+                    MainActivity.Player2Color = "magenta";
                     clicks = 2;
                     onClickTwo(buttonMagenta);
                     break;

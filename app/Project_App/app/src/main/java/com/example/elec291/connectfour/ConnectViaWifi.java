@@ -217,7 +217,8 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             System.out.println("Instantiate");
             //os.writeBytes("First post");
             //os.write("First post".getBytes());
-            os.writeBytes("First post");
+            //os.writeBytes("First post");
+            os.writeBytes(createStringBody());
             //os.write(5);
             System.out.println("Instantiate");
             os.flush();
@@ -256,6 +257,12 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
         String output = "First post";
         stream.write(output.getBytes());
         stream.flush();
+    }
+
+    public String createStringBody(){
+        String concatenated;
+        concatenated = "Mode:\t" + MainActivity.PlayerModeSelected + "\n" + "Player1 Color: \t" + MainActivity.Player1Color +  "\n" + "Player2 Color: \t" + MainActivity.Player2Color;
+        return concatenated;
     }
 
 
