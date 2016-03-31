@@ -145,10 +145,11 @@ void loop(void)
         //Read data from post request body and store info into fields
         String data = "";
 
+
+        bool StartBody = false;
         while (client.available()) {
           //Serial.write(client.read());
           char currentChar = client.read();
-          bool StartBody = false;
 
           if (currentChar == '\n')
             StartBody = true;
