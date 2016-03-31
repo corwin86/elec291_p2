@@ -4,7 +4,7 @@
 #include "utility/socket.h"
 
 // These are the interrupt and control pins
-#define ADAFRUIT_CC3000_IRQ   3  // MUST be an interrupt pin
+#define ADAFRUIT_CC3000_IRQ   3  // MUST be an interrupt pin!
 // These can be any two pins
 #define ADAFRUIT_CC3000_VBAT  5
 #define ADAFRUIT_CC3000_CS    10
@@ -76,6 +76,15 @@ void setup(void)
   while (! displayConnectionDetails()) {
     delay(1000);
   }
+
+  // ******************************************************
+  // You can safely remove this to save some flash memory!
+  // ******************************************************
+  Serial.println(F("\r\nNOTE: This sketch may cause problems with other sketches"));
+  Serial.println(F("since the .disconnect() function is never called, so the"));
+  Serial.println(F("AP may refuse connection requests from the CC3000 until a"));
+  Serial.println(F("timeout period passes.  This is normal behaviour since"));
+  Serial.println(F("there isn't an obvious moment to disconnect with a server.\r\n"));
   
   // Start listening for connections
   httpServer.begin();
@@ -131,15 +140,21 @@ void loop(void)
         client.fastrprintln(F(""));
         // Now send the response data.
         client.fastrprintln(F("Connection successful"));
-        client.fastrprint(F("body"));
-//        client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
-//        client.fastrprint(F("what is this shit"));
+        client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+        client.fastrprint(F("what is this shit"));
       }
       else if(strcmp(action, "POST") == 0){
         //if "POST" then display on serial screen
         client.fastrprintln(F("HTTP/1.1 200 OK"));
 //        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
+        client.fastrprintln(F("Content-Type: text/plain"));
+        client.fastrprintln(F("Connection: close"));
+        client.fastrprintln(F("Server: Adafruit CC3000"));
+//        // Send an empty line to signal start of body.
         client.fastrprintln(F(""));
+        
+        client.fastrprintln(F("Connection successful"));
+        client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
        
           char temp[BUFFER_SIZE+1];
           for(int i = 0; i < sizeof(buffer); i++){
@@ -147,19 +162,22 @@ void loop(void)
           }
           String inputString = String(temp);
           
-          Serial.println(inputString);
+          Serial.print(inputString); Serial.println(" <-- printed message");
           
       }
-      else{
-        // Unsupported action, respond with an HTTP 405 method not allowed error.
-        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
-        client.fastrprintln(F(""));
+      else {
+//        // Unsupported action, respond with an HTTP 405 method not allowed error.
+//        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
+//        client.fastrprintln(F(""));
+
+          //if not "GET", then should be write
+//          Serial.println(buffer);
       }
     }
 
     // Wait a short period to make sure the response had time to send before
     // the connection is closed (the CC3000 sends data asyncronously).
-    delay(100);
+    delay(200);
 
     // Close the connection when done.
     Serial.println(F("Client disconnected"));
