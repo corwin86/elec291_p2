@@ -121,8 +121,7 @@ int      turns;
 /* -- end player info -- */
 
 /* ---- gane parameters ---- */
-int   isSinglePlayer = 1,
-      difficulty = 2,         //AI recursion depth
+int   difficulty = 2,         //AI recursion depth
       game_mode = SINGLE_PLAYER;   //starts in 1p mode
 /* -- end gane parameters -- */
 
@@ -233,7 +232,6 @@ int runGame(int gameId) {
         }
         break;
       }
-    //!!! add cases per new game
     default : {
         // gameId did not match any library games
         return ERR_INVALID_GAMEID;
@@ -277,6 +275,8 @@ int playConnectFour() {
           }
           else
             col = listenForInput();
+          if (col == -1)
+            continue; //if connection error, try turn again
         }
         else
           col = aiNextMove(board, AI, P1);
@@ -291,26 +291,8 @@ int playConnectFour() {
         }
         else
           col = listenForInput();
-//=======
-//      //!!! -- take input --
-//      //!!! use serial for debug
-//
-//      //      !!! AI vs AI
-////      if(cur_player == P1) {
-////        col = aiNextMove(board, P1, P2);
-////      } else {
-////        col = aiNextMove(board, P2, P1);
-////      }
-//
-//      if (isSinglePlayer && cur_player == P2) {
-//        col = aiExampleCall(board); //aiNextMove(board, AI, P1);
-//      } else {
-//        //#if !DEBUG
-//        while (!Serial.available()); //wait for serial data before parsing
-//        col = Serial.parseInt();
-//        Serial.println(col);
-//>>>>>>> gamedev
-
+        if (col == -1)
+          continue; //if connection error, try turn again
       }
       else {      //AI mode
         int other_player = cur_player == P1 ? P2 : P1;
@@ -702,7 +684,7 @@ int selectNextMove(int *col_points) {
     } else if (col_points[i] == col_points[next_move]) {
       ties++;
     }
-    Serial.print(i);Serial.print(": ");Serial.print(col_points[i]);
+    Serial.print(i); Serial.print(": "); Serial.print(col_points[i]);
   }
 
   ties = random(0, ties + 1);
@@ -1003,9 +985,16 @@ bool displayConnectionDetails(void)
 */
 int gameSetup() {
   game_mode = listenForInput();
+  if (game_mode == -1) {
+    return game_mode;
+  }
+
   int players = 2;
   while (players-- > 0) {
     int colour = listenForInput();
+    if (colour == -1) {
+      return colour;
+    }
     switch (colour) {
       case 0:
         p1_colour = players == 1 ? red : white;
@@ -1033,7 +1022,7 @@ int gameSetup() {
         break;
     }
   }
-
+  return 0;
 }
 
 /*
