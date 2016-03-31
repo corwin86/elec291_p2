@@ -144,8 +144,6 @@ void loop(void)
 
         //Read data from post request body and store info into fields
         String data = "";
-
-
         bool StartBody = false;
         while (client.available()) {
           //Serial.write(client.read());
@@ -158,31 +156,25 @@ void loop(void)
             data += (String) currentChar;
           }
 
-        } Serial.println(data);
+        } Serial.println(data); //can be removed later
 
         //Send server response back to client
         //This would be used to send stuff like game state, win alert, etc back to client
         client.fastrprintln(F("HTTP/1.1 200 OK"));
-
         client.fastrprintln(F("Content-Type: text/plain"));
         client.fastrprintln(F("Connection: close"));
         client.fastrprintln(F("Server: Adafruit CC3000"));
-        //        // Send an empty line to signal start of body.
+        
+        // Send an empty line to signal start of body.
         client.fastrprintln(F(""));
 
-        
+        // Can be removed later
         client.fastrprintln(F("Connection successful"));
         client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
 
-        //          char temp[BUFFER_SIZE+1];
-        //          for(int i = 0; i < sizeof(buffer); i++){
-        //            temp[i] = (char) buffer[i];
-        //          }
-        //          String inputString = String(temp);
-        //
-        //          Serial.print(inputString); Serial.println(" <-- printed message");
-
+        // TODO: Return player turn
       }
+
       else {
         //        // Unsupported action, respond with an HTTP 405 method not allowed error.
         //        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
@@ -195,7 +187,7 @@ void loop(void)
 
     // Wait a short period to make sure the response had time to send before
     // the connection is closed (the CC3000 sends data asyncronously).
-    delay(200);
+    delay(100);
 
     // Close the connection when done.
     Serial.println(F("Client disconnected"));
