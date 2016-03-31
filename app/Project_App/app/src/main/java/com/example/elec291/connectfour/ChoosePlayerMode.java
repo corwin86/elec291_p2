@@ -46,9 +46,11 @@ public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         switch ((v.getId())){
             case R.id.buttonSinglePlayer:
+                MainActivity.PlayerModeSelected = "single";
                 onPlayerClick(buttonSinglePlayer);
                 break;
             case R.id.buttonMultiPlayer:
+                MainActivity.PlayerModeSelected = "multi";
                 onPlayerClick(buttonMultiPlayer);
                 break;
         }

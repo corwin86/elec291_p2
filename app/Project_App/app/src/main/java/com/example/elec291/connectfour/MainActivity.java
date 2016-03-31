@@ -19,6 +19,11 @@ import android.view.View.OnClickListener;
 public class MainActivity extends AppCompatActivity{
 
     Button playButton;
+    static String PlayerModeSelected;
+    static String Player1Color;
+    static String Player2Color;
+
+
     static Drawable player1Color;
     static Drawable player2Color;
 
