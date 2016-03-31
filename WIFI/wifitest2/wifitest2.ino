@@ -14,8 +14,8 @@
 Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT,
                                          SPI_CLOCK_DIVIDER); // you can change this clock speed
 
-#define WLAN_SSID       "Connectify-1"   // cannot be longer than 32 characters!
-#define WLAN_PASS       "bigballs"
+#define WLAN_SSID       "SM-N900W8 0389"   // cannot be longer than 32 characters!
+#define WLAN_PASS       "asdfghjk"
 // Security can be WLAN_SEC_UNSEC, WLAN_SEC_WEP, WLAN_SEC_WPA or WLAN_SEC_WPA2
 #define WLAN_SECURITY   WLAN_SEC_WPA2
 
@@ -145,11 +145,11 @@ void loop(void)
       }
       else if(strcmp(action, "POST") == 0){
 
-        while(client.availabe()){
+        while(client.available()){
           Serial.write(client.read());
         }Serial.println();
 
-        Serial.print(inputString); Serial.println(" <-- printed message");
+        //Serial.print(inputString); Serial.println(" <-- printed message");
         
         //if "POST" then display on serial screen
         client.fastrprintln(F("HTTP/1.1 200 OK"));
