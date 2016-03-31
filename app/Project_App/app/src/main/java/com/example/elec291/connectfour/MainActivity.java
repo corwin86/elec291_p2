@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity{
     static Drawable player1Color;
     static Drawable player2Color;
 
+    static String urlToConnection = "http://192.168.43.82/";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

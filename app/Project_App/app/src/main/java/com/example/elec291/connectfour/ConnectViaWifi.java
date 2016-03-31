@@ -38,7 +38,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 
     Button buttonConnect;
     TextView connectMessage;
-    String urlToConnection = "http://192.168.43.82/";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -55,7 +55,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view){
         String modeAndColors = createStringBody();
         WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
-        wifiConnection.doPOST(modeAndColors, urlToConnection);
+        wifiConnection.doPOST(modeAndColors, MainActivity.urlToConnection);
 
 //        ConnectivityManager connmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 //        NetworkInfo networkInfo = connmgr.getActiveNetworkInfo();
