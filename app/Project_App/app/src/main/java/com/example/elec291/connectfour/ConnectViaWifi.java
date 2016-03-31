@@ -38,80 +38,34 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 
     Button buttonConnect;
     TextView connectMessage;
-    static String  str;
     String urlToConnection = "http://192.168.43.82/";
-    String testURL = "http://www.android.com/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_connect_to_wifi);
 
-
-//        try{
-////            Socket s = new Socket("192.168.43.82", 80);
-////
-////            //outgoing stream redirect to socket
-////            OutputStream out = s.getOutputStream();
-////
-////            PrintWriter output = new PrintWriter(out);
-////            output.println("Hello Android!");
-////            BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
-////
-////            st = input.readLine();
-////            s.close();
-//        } catch (UnknownHostException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-
         //initialization
         connectMessage = (TextView) findViewById(R.id.textView10);
         buttonConnect = (Button) findViewById(R.id.buttonConnect);
         buttonConnect.setOnClickListener(this);
-//        buttonConnect.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                //startActivity(new Intent("com.example.elec291.connect4.GameBoard"));
-//                //try{
-//                    //String lineRead = WifiConnection.POST(testURL);
-//                try {
-//                    POST(testURL);
-//                    connectMessage.setText(str);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//
-////               / }
-////                catch (IOException e) {
-////                    e.printStackTrace();
-////                    connectMessage.setText("Did not send message");
-////                }
-//                SystemClock.sleep(3000);
-//                startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
-//
-//            }
-//        });
-
     }
 
     //@Override
     public void onClick(View view){
-        URL connect_url = null;
+        String modeAndColors = createStringBody();
+        WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
+        wifiConnection.doPOST(modeAndColors, urlToConnection);
 
-        ConnectivityManager connmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connmgr.getActiveNetworkInfo();
-        if(networkInfo != null && networkInfo.isConnected()){
-            System.out.println("Network available");
-            new DownloadWebpageTask().execute(urlToConnection);
-        }
-        else{
-            System.out.println("no network connection available");
-        }
+//        ConnectivityManager connmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connmgr.getActiveNetworkInfo();
+//        if(networkInfo != null && networkInfo.isConnected()){
+//            System.out.println("Network available");
+//            new DownloadWebpageTask().execute(urlToConnection);
+//        }
+//        else{
+//            System.out.println("no network connection available");
+//        }
 //
 //            connect_url = new URL(urlToConnection);
 //            HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
@@ -124,140 +78,140 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
         startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
     }
 
-    private class DownloadWebpageTask extends AsyncTask<String, Void, String>{
-
-        @Override
-        protected String doInBackground(String...urls){
-
-            //params comes from the execute() call
-            try{
-                //return downloadUrl(urls[0]);
-                return Upload(urls[0]);
-            } catch(IOException e){
-                return "unable to retrieve webpage";
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result){
-            System.out.println(result);
-        }
-
-    }
-
-    private String downloadUrl(String myurl) throws IOException{
-        InputStream is = null;
-        int len = 500;
-
-        try{
-            URL connect_url = connect_url = new URL(myurl);
-            HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
-            System.out.println("Checkpoint1");
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
-            connection.setRequestMethod("GET");
-            connection.setDoInput(true);
-            System.out.println("Checkpoint2");
-
-            System.out.println("Checkpoint3");
-            connection.connect();
-            System.out.println("Checkpoint 4");
-            System.out.println(connection.getResponseCode());
-            //int response = connection.getResponseCode();
-            //System.out.println(response);
-            System.out.println("Checkpoint 5");
-            is = connection.getInputStream();
-            System.out.println("Checkpoint 6");
-
-            String contectAsString = readIt(is, len);
-            System.out.println(contectAsString);
-            return contectAsString;
-        } finally{
-            if(is != null){
-                is.close();
-            }
-        }
-    }
-
-    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException{
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[len];
-        reader.read(buffer);
-        return new String(buffer);
-    }
-
-    private String Upload(String myurl) throws IOException {
-        //OutputStream os = null;
-        DataOutputStream os = null;
-        BufferedReader reader=  null;
-        int len = 500;
-        try{
-            String text = "";
-            URL connect_url = new URL(myurl);
-            HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
-            System.out.println("Checkpoint1");
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "text/plain");
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-            System.out.println("Checkpoint2");
-            connection.connect();
-            System.out.println("Checkpoint3");
-            //int response = connection.getResponseCode();
-            //System.out.println(connection.getResponseCode());
-            System.out.println("Checkpoint4");
-            //System.out.println(response);
-            //os = connection.getOutputStream();
-            System.out.println("Checkpoint getOutputStream");
-            //os = connection.getOutputStream();
-            os = new DataOutputStream(connection.getOutputStream());
-            System.out.println("Instantiate");
-            //os.writeBytes("First post");
-            //os.write("First post".getBytes());
-            //os.writeBytes("First post");
-            os.writeBytes(createStringBody());
-            //os.write(5);
-            System.out.println("Instantiate");
-            os.flush();
-            System.out.println("flush");
-            os.close();
-            System.out.println(connection.getResponseCode());
-           // writeIt(os);
-            System.out.println("close");
-
-
-            InputStream serverResponse = new BufferedInputStream(connection.getInputStream());
-            reader = new BufferedReader(new InputStreamReader(serverResponse));
-            System.out.println("Checkpoint6");
-            StringBuilder sb = new StringBuilder();
-            String line = "";
-
-            while((line = reader.readLine()) != null){
-                sb.append(line + "\n");
-                System.out.println("Checkpoint7");
-            }
-
-            text = sb.toString();
-            System.out.println("Checkpoint8");
-            //return "post worked";
-            return text;
-        }
-        finally {
-            if(os != null){
-                os.close();
-                reader.close();
-            }
-        }
-    }
-
-    public void writeIt(OutputStream stream) throws IOException{
-        String output = "First post";
-        stream.write(output.getBytes());
-        stream.flush();
-    }
+//    private class DownloadWebpageTask extends AsyncTask<String, Void, String>{
+//
+//        @Override
+//        protected String doInBackground(String...urls){
+//
+//            //params comes from the execute() call
+//            try{
+//                //return downloadUrl(urls[0]);
+//                return Upload(urls[0]);
+//            } catch(IOException e){
+//                return "unable to retrieve webpage";
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String result){
+//            System.out.println(result);
+//        }
+//
+//    }
+//
+//    private String downloadUrl(String myurl) throws IOException{
+//        InputStream is = null;
+//        int len = 500;
+//
+//        try{
+//            URL connect_url = connect_url = new URL(myurl);
+//            HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
+//            System.out.println("Checkpoint1");
+//            connection.setReadTimeout(10000);
+//            connection.setConnectTimeout(15000);
+//            connection.setRequestMethod("GET");
+//            connection.setDoInput(true);
+//            System.out.println("Checkpoint2");
+//
+//            System.out.println("Checkpoint3");
+//            connection.connect();
+//            System.out.println("Checkpoint 4");
+//            System.out.println(connection.getResponseCode());
+//            //int response = connection.getResponseCode();
+//            //System.out.println(response);
+//            System.out.println("Checkpoint 5");
+//            is = connection.getInputStream();
+//            System.out.println("Checkpoint 6");
+//
+//            String contectAsString = readIt(is, len);
+//            System.out.println(contectAsString);
+//            return contectAsString;
+//        } finally{
+//            if(is != null){
+//                is.close();
+//            }
+//        }
+//    }
+//
+//    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException{
+//        Reader reader = null;
+//        reader = new InputStreamReader(stream, "UTF-8");
+//        char[] buffer = new char[len];
+//        reader.read(buffer);
+//        return new String(buffer);
+//    }
+//
+//    private String Upload(String myurl) throws IOException {
+//        //OutputStream os = null;
+//        DataOutputStream os = null;
+//        BufferedReader reader=  null;
+//        int len = 500;
+//        try{
+//            String text = "";
+//            URL connect_url = new URL(myurl);
+//            HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
+//            System.out.println("Checkpoint1");
+//            connection.setReadTimeout(10000);
+//            connection.setConnectTimeout(15000);
+//            connection.setRequestMethod("POST");
+//            connection.setRequestProperty("Content-Type", "text/plain");
+//            connection.setDoOutput(true);
+//            connection.setDoInput(true);
+//            System.out.println("Checkpoint2");
+//            connection.connect();
+//            System.out.println("Checkpoint3");
+//            //int response = connection.getResponseCode();
+//            //System.out.println(connection.getResponseCode());
+//            System.out.println("Checkpoint4");
+//            //System.out.println(response);
+//            //os = connection.getOutputStream();
+//            System.out.println("Checkpoint getOutputStream");
+//            //os = connection.getOutputStream();
+//            os = new DataOutputStream(connection.getOutputStream());
+//            System.out.println("Instantiate");
+//            //os.writeBytes("First post");
+//            //os.write("First post".getBytes());
+//            //os.writeBytes("First post");
+//            os.writeBytes(createStringBody());
+//            //os.write(5);
+//            System.out.println("Instantiate");
+//            os.flush();
+//            System.out.println("flush");
+//            os.close();
+//            System.out.println(connection.getResponseCode());
+//           // writeIt(os);
+//            System.out.println("close");
+//
+//
+//            InputStream serverResponse = new BufferedInputStream(connection.getInputStream());
+//            reader = new BufferedReader(new InputStreamReader(serverResponse));
+//            System.out.println("Checkpoint6");
+//            StringBuilder sb = new StringBuilder();
+//            String line = "";
+//
+//            while((line = reader.readLine()) != null){
+//                sb.append(line + "\n");
+//                System.out.println("Checkpoint7");
+//            }
+//
+//            text = sb.toString();
+//            System.out.println("Checkpoint8");
+//            //return "post worked";
+//            return text;
+//        }
+//        finally {
+//            if(os != null){
+//                os.close();
+//                reader.close();
+//            }
+//        }
+//    }
+//
+//    public void writeIt(OutputStream stream) throws IOException{
+//        String output = "First post";
+//        stream.write(output.getBytes());
+//        stream.flush();
+//    }
 
     public String createStringBody(){
         String concatenated;
@@ -265,36 +219,4 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
         return concatenated;
     }
 
-
-
-
-
-//    public void POST(String url) throws IOException {
-//        URL connect_url = new URL(url);
-//        HttpURLConnection httpConnection = (HttpURLConnection) connect_url.openConnection();
-//
-//        try {
-//            InputStream in = new BufferedInputStream(httpConnection.getInputStream());
-//            str = readStream(in);
-//            //return str;
-//        } finally {
-//            httpConnection.disconnect();
-//        }
-//    }
-//
-//    public static String readStream(InputStream in) throws IOException {
-//        StringBuilder sb = new StringBuilder();
-//        BufferedReader r = new BufferedReader(new InputStreamReader(in),1000);
-//        for (String line = r.readLine(); line != null; line =r.readLine()){
-//            sb.append(line);
-//        }
-//        in.close();
-//        return sb.toString();
-//    }
-//
-//    public void writeStream(OutputStream out) throws IOException {
-//        String written = "Android Connection";
-//        out.write(written.getBytes());
-//
-//    }
 }
