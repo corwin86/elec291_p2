@@ -1,3 +1,4 @@
+
 package com.example.elec291.connectfour;
 
 import android.content.AsyncQueryHandler;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,9 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.nio.Buffer;
 
 /**
  * Created by rohini on 24/03/16.
@@ -39,7 +39,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
     Button buttonConnect;
     TextView connectMessage;
     static String  str;
-    String urlToConnection = "http://192.168.43.82/";
+    String urlToConnection = "http://192.168.231.103/";
     String testURL = "http://www.android.com/";
 
     @Override
@@ -103,16 +103,15 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view){
         URL connect_url = null;
 
-            String stringUrl = "http://172.20.10.4/";
-            ConnectivityManager connmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connmgr.getActiveNetworkInfo();
-            if(networkInfo != null && networkInfo.isConnected()){
-                System.out.println("Network available");
-                new DownloadWebpageTask().execute(urlToConnection);
-            }
-            else{
-                System.out.println("no network connection available");
-            }
+        ConnectivityManager connmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connmgr.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()){
+            System.out.println("Network available");
+            new DownloadWebpageTask().execute(urlToConnection);
+        }
+        else{
+            System.out.println("no network connection available");
+        }
 //
 //            connect_url = new URL(urlToConnection);
 //            HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
@@ -133,8 +132,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             //params comes from the execute() call
             try{
                 return downloadUrl(urls[0]);
-                //downloadUrl(urls[0]);
-                //return "worked";
+                //return Upload(urls[0]);
             } catch(IOException e){
                 return "unable to retrieve webpage";
             }
@@ -152,7 +150,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
         int len = 500;
 
         try{
-            URL connect_url = new URL(myurl);
+            URL connect_url = connect_url = new URL(myurl);
             HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
             System.out.println("Checkpoint1");
             connection.setReadTimeout(10000);
@@ -165,8 +163,8 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             connection.connect();
             System.out.println("Checkpoint 4");
             System.out.println(connection.getResponseCode());
-            int response = connection.getResponseCode();
-            System.out.println(response);
+            //int response = connection.getResponseCode();
+            //System.out.println(response);
             System.out.println("Checkpoint 5");
             is = connection.getInputStream();
             System.out.println("Checkpoint 6");
@@ -174,15 +172,23 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             String contectAsString = readIt(is, len);
             System.out.println(contectAsString);
             return contectAsString;
-        } finally{  
+        } finally{
             if(is != null){
                 is.close();
             }
         }
     }
 
-    private void Upload(String myurl) throws IOException {
-        OutputStream os = null;
+    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException{
+        Reader reader = null;
+        reader = new InputStreamReader(stream, "UTF-8");
+        char[] buffer = new char[len];
+        reader.read(buffer);
+        return new String(buffer);
+    }
+
+    private String Upload(String myurl) throws IOException {
+        DataOutputStream os = null;
         BufferedReader reader=  null;
         int len = 500;
         try{
@@ -190,11 +196,11 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             URL connect_url = new URL(myurl);
             HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
             System.out.println("Checkpoint1");
-            //connection.setReadTimeout(10000);
+            connection.setReadTimeout(10000);
             connection.setConnectTimeout(15000);
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
-            connection.setDoInput(true);
+            //connection.setDoInput(true);
             System.out.println("Checkpoint2");
             connection.connect();
             System.out.println("Checkpoint3");
@@ -202,8 +208,15 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             System.out.println(connection.getResponseCode());
             System.out.println("Checkpoint4");
             //System.out.println(response);
-            writeIt(os);
+            //os = connection.getOutputStream();
+            System.out.println("Checkpoint getOutputStream");
+            os = new DataOutputStream( connection.getOutputStream());
+            os.writeBytes("First post");
+            os.flush();
+            os.close();
+           // writeIt(os);
             System.out.println("Checkpoint5");
+
 
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             System.out.println("Checkpoint6");
@@ -217,6 +230,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 
             text = sb.toString();
             System.out.println("Checkpoint8");
+            return "post worked";
         }
         finally {
             if(os != null){
@@ -226,24 +240,14 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException{
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[len];
-        reader.read(buffer);
-        return new String(buffer);
-    }
-
     public void writeIt(OutputStream stream) throws IOException{
         String output = "First post";
         stream.write(output.getBytes());
         stream.flush();
     }
 
-    public void serverResponse( URLConnection conn) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
-    }
+
 
 
 //    public void POST(String url) throws IOException {
