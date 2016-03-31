@@ -103,7 +103,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view){
         URL connect_url = null;
 
-            String stringUrl = "http://192.168.43.82/";
+            String stringUrl = "http://172.20.10.4/";
             ConnectivityManager connmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connmgr.getActiveNetworkInfo();
             if(networkInfo != null && networkInfo.isConnected()){
@@ -132,9 +132,9 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 
             //params comes from the execute() call
             try{
-                //return downloadUrl(urls[0]);
-                Upload(urls[0]);
-                return "worked";
+                return downloadUrl(urls[0]);
+                //downloadUrl(urls[0]);
+                //return "worked";
             } catch(IOException e){
                 return "unable to retrieve webpage";
             }
@@ -165,8 +165,8 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             connection.connect();
             System.out.println("Checkpoint 4");
             System.out.println(connection.getResponseCode());
-            //int response = connection.getResponseCode();
-            //System.out.println(response);
+            int response = connection.getResponseCode();
+            System.out.println(response);
             System.out.println("Checkpoint 5");
             is = connection.getInputStream();
             System.out.println("Checkpoint 6");
