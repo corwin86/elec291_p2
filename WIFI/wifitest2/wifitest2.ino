@@ -154,7 +154,7 @@ void loop(void)
           bool StartBody = false;
           
           if(currentChar == '\n')
-            StartBody = true
+            StartBody = true;
 
           if(StartBody == true){
             data += (String) currentChar;
