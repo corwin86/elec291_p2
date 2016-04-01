@@ -92,7 +92,7 @@ const int X_DIM = 8,
           SEQ_LENGTH = 5;
 const int BAD_MOVE = -1000,
           GOOD_MOVE = 1000,
-          IMPOSSIBLE_MOVE = -2000;
+          IMPOSSIBLE_MOVE = -11111;
 const int TOKEN_DROP_SPEED = 35; // millis delay for token dropping
 /* -- end game parameters -- */
 
@@ -299,6 +299,29 @@ int playConnectFour() {
         col = aiNextMove(board, cur_player, other_player);
       }
 
+//=======
+      //!!! -- take input --
+      //!!! use serial for debug
+
+      //      !!! AI vs AI
+      if(cur_player == P1) {
+        col = aiExampleCall(board, P1, P2);
+      } else {
+        col = aiExampleCall(board, P2, P1);
+      }
+
+//      if (isSinglePlayer && cur_player == P2) {
+//        col = aiExampleCall(board, P2, P1); //aiNextMove(board, AI, P1);
+//      } else {
+//        //#if !DEBUG
+//        while (!Serial.available()); //wait for serial data before parsing
+//        col = Serial.parseInt();
+//        Serial.println(col);
+//
+//        // clamp inputs to valid range
+//        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+//      }
+//>>>>>>> gamedev
     } while (!dropToken_connect4(board, col, cur_player, 1));
 
     printBoard(board);
@@ -309,7 +332,6 @@ int playConnectFour() {
   //-- end gameplay --
 
   //!!! perhaps delay this call for user to confirm end game
-  delay(5000);
   connect4Cascade(board); //GUI feature indicates game end, ***CLEARS BOARD***
 
   // free malloc'd memory
@@ -616,9 +638,9 @@ int boardFull() {
 /*
     Example of call to aiRecursiveSearch
 */
-int aiExampleCall(int **board) {
+int aiExampleCall(int **board, int ai_token, int player_token) {
   int col_points[X_DIM] = {0};
-  aiRecursiveSearch(board, 0, col_points);
+  aiRecursiveSearch(board, 0, col_points, ai_token, player_token);
   return selectNextMove(col_points);
 }
 
@@ -631,7 +653,7 @@ int aiExampleCall(int **board) {
 
     Modifies: col_points - the current number of points for each column, changes through recursive calls
 */
-void aiRecursiveSearch(int **board, int level, int *col_points) {
+void aiRecursiveSearch(int **board, int level, int *col_points, int ai_token, int player_token) {
   level++;
   int ai_col, p_col;
 
@@ -640,12 +662,15 @@ void aiRecursiveSearch(int **board, int level, int *col_points) {
 
   for (ai_col = 0; ai_col < X_DIM; ai_col++) {
     if (board[0][ai_col] != EMPTY_CELL) {
-      col_points[ai_col] = IMPOSSIBLE_MOVE;
+      //Serial.print("IMP: ");Serial.print(ai_col);Serial.print(" level ");Serial.println(level);
+      if(level == 1) {
+        col_points[ai_col] = IMPOSSIBLE_MOVE;
+      }
       continue;
     }
-    dropToken_connect4(board, ai_col, P2, 0);
+    dropToken_connect4(board, ai_col, ai_token, 0);
 
-    if (winningPlayer_connect4(board, 0) == AI) {
+    if (winningPlayer_connect4(board, 0) == ai_token) {
       col_points[ai_col] += GOOD_MOVE / level;        //future win with this move
 
     } else {
@@ -654,13 +679,13 @@ void aiRecursiveSearch(int **board, int level, int *col_points) {
           continue;
         }
         int p_break = 0;
-        dropToken_connect4(board, p_col, P1, 0);
+        dropToken_connect4(board, p_col, player_token, 0);
 
-        if (winningPlayer_connect4(board, 0) == P1) {
+        if (winningPlayer_connect4(board, 0) == player_token) {
           col_points[ai_col] += BAD_MOVE / (level + 1); //future loss with this move, but one level deeper than ai move !!!!!!!could be problematic, overlap with next level!!!!!!
           p_break = 1;                                  //!!!!!still necessary with recursive search????????
         } else if (level + 1 <= difficulty) {                     //decrement level and call again, otherwise start popping tokens and returning
-          aiRecursiveSearch(board, level, col_points);
+          aiRecursiveSearch(board, level, col_points, ai_token, player_token);
         }
         popToken(board, p_col); //remove board modification
 
@@ -685,8 +710,9 @@ int selectNextMove(int *col_points) {
     } else if (col_points[i] == col_points[next_move]) {
       ties++;
     }
-    Serial.print(i); Serial.print(": "); Serial.print(col_points[i]);
+    Serial.print(i);Serial.print(": ");Serial.println(col_points[i]);
   }
+  Serial.println();
 
   ties = random(0, ties + 1);
 
@@ -696,11 +722,13 @@ int selectNextMove(int *col_points) {
       ties--;
       next_move = i;
     }
+    i++;
     if (i == X_DIM) {
       i = 0;
     }
-    i++;
   }
+
+  Serial.print("AI: ");Serial.println(next_move);
 
   return next_move;
 }
