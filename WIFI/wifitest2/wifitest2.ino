@@ -4,8 +4,7 @@
 #include "utility/socket.h"
 
 // These are the interrupt and control pins
-#define ADAFRUIT_CC3000_IRQ   3  // MUST be an interrupt pin!
-// These can be any two pins
+#define ADAFRUIT_CC3000_IRQ   3
 #define ADAFRUIT_CC3000_VBAT  5
 #define ADAFRUIT_CC3000_CS    10
 // Use hardware SPI for the remaining pins
@@ -72,13 +71,13 @@ void setup(void)
 
   while (!cc3000.checkDHCP())
   {
-    delay(100); 
+    delay(100);
   }
 
-  // Display the IP address DNS, Gateway, etc.
-  //  while (! displayConnectionDetails()) {
-  //    delay(1000);
-  //  }
+//   Display the IP address DNS, Gateway, etc.
+//    while (! displayConnectionDetails()) {
+//      delay(1000);
+//    }
 
   // Start listening for connections
   httpServer.begin();
@@ -87,18 +86,16 @@ void setup(void)
 
 void loop(void)
 {
-  // Try to get a client which is connected.
+  // Declare client
   Adafruit_CC3000_ClientRef client = httpServer.available();
+  
+  // If client is connected... start processing its request
   if (client) {
+    //can be removed later
     Serial.println(F("Client connected."));
-    // Process this request until it completes or times out.
-    // Note that this is explicitly limited to handling one request at a time!
-
-    // Clear the incoming data buffer and point to the beginning of it.
+    // Clear the incoming data buffer and point to the beginning of it
     bufindex = 0;
     memset(&buffer, 0, sizeof(buffer));
-
-    // Clear action and path strings.
     memset(&action, 0, sizeof(action));
     memset(&path,   0, sizeof(path));
 
@@ -107,12 +104,7 @@ void loop(void)
 
     // Read all the incoming data until it can be parsed or the timeout expires.
     bool parsed = false;
-    while (!parsed && (millis() < endtime) && (bufindex < BUFFER_SIZE)) {
-      if (client.available()) {
-        buffer[bufindex++] = client.read();
-      }
-      parsed = parseRequest(buffer, bufindex, action, path);
-    }
+    parsed = parsingRequest(client, parsed, endtime); //function to parse request
 
     // Handle the request if it was parsed.
     if (parsed) {
@@ -120,80 +112,102 @@ void loop(void)
       Serial.println(F("Processing request"));
       Serial.print(F("Action: ")); Serial.println(action);
       Serial.print(F("Path: ")); Serial.println(path);
-      
-      // RESPONSE FOR GET REQUEST
-      if (strcmp(action, "GET") == 0) {
-        // RESPOND TO GET REQUEST
-        // First send the success response code.
-        client.fastrprintln(F("HTTP/1.1 200 OK"));
-        //        // Then send a few headers to identify the type of data returned and that
-        //        // the connection will not be held open.
-        client.fastrprintln(F("Content-Type: text/plain"));
-        client.fastrprintln(F("Connection: close"));
-        client.fastrprintln(F("Server: Adafruit CC3000"));
-        //        // Send an empty line to signal start of body.
-        client.fastrprintln(F(""));
-        // Now send the response data.
-        client.fastrprintln(F("Connection successful"));
-        client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
-        client.fastrprint(F("what is this shit"));
-      }
 
-      // RESPONSE FOR POST REQUEST
-      else if (strcmp(action, "POST") == 0) {
+      processRequest(client, action); //function to process request
 
-        //Read data from post request body and store info into fields
-        String data = "";
-        bool StartBody = false;
-        while (client.available()) {
-          //Serial.write(client.read());
-          char currentChar = client.read();
+      // Wait a short period to make sure the response had time to send before
+      // the connection is closed (the CC3000 sends data asyncronously).
+      delay(100);
 
-          if (currentChar == '\n')
-            StartBody = true;
-
-          if (StartBody == true) {
-            data += (String) currentChar;
-          }
-
-        } Serial.println(data); //can be removed later
-
-        //Send server response back to client
-        //This would be used to send stuff like game state, win alert, etc back to client
-        client.fastrprintln(F("HTTP/1.1 200 OK"));
-        client.fastrprintln(F("Content-Type: text/plain"));
-        client.fastrprintln(F("Connection: close"));
-        client.fastrprintln(F("Server: Adafruit CC3000"));
-        
-        // Send an empty line to signal start of body.
-        client.fastrprintln(F(""));
-
-        // Can be removed later
-        client.fastrprintln(F("Connection successful"));
-        client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
-
-        // TODO: Return player turn
-      }
-
-      else {
-        //        // Unsupported action, respond with an HTTP 405 method not allowed error.
-        //        client.fastrprintln(F("HTTP/1.1 405 Method Not Allowed"));
-        //        client.fastrprintln(F(""));
-
-        //if not "GET", then should be write
-        //          Serial.println(buffer);
-      }
+      // Close the connection when done.
+      Serial.println(F("Client disconnected"));
+      client.close();
     }
-
-    // Wait a short period to make sure the response had time to send before
-    // the connection is closed (the CC3000 sends data asyncronously).
-    delay(100);
-
-    // Close the connection when done.
-    Serial.println(F("Client disconnected"));
-    client.close();
   }
 }
+
+//Parses request by calling sub function parseRequest, puts parsed request data into respective fields
+bool parsingRequest(Adafruit_CC3000_ClientRef client, bool parsed, unsigned long endtime)
+{
+  while (!parsed && (millis() < endtime) && (bufindex < BUFFER_SIZE)) {
+    if (client.available()) {
+      buffer[bufindex++] = client.read();
+    }
+    parsed = parseRequest(buffer, bufindex, action, path);
+  }
+  return parsed;
+}
+
+//Once the request is parsed, determine which type of request and perfrom action accordingly
+void processRequest(Adafruit_CC3000_ClientRef client, char* action)
+{
+  //RESPONSE FOR GET REQUEST (NOT NEEDED)
+  if (strcmp(action, "GET") == 0) {
+    respondGet(client);
+  }
+
+  // RESPONSE FOR POST REQUEST
+  else if (strcmp(action, "POST") == 0) {
+    respondPost(client);
+  }
+  else {
+    // Unsupported action, respond with an HTTP 405 method not allowed error.
+    client.fastrprintln(F("HTTP/1.1 200 OK"));
+    client.fastrprintln(F(""));
+    client.fastrprintln(F("-1"));
+  }
+}
+
+void respondGet(Adafruit_CC3000_ClientRef client){
+  // First send the success response code.
+    client.fastrprintln(F("HTTP/1.1 200 OK"));
+    //        // Then send a few headers to identify the type of data returned and that
+    //        // the connection will not be held open.
+    client.fastrprintln(F("Content-Type: text/plain"));
+    client.fastrprintln(F("Connection: close"));
+    client.fastrprintln(F("Server: Adafruit CC3000"));
+    //        // Send an empty line to signal start of body.
+    client.fastrprintln(F(""));
+    // Now send the response data.
+    client.fastrprintln(F("Connection successful"));
+    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+    client.fastrprint(F("what is this shit"));
+}
+
+void respondPost(Adafruit_CC3000_ClientRef client){
+      //Read data from post request body and store info into fields
+    String data = "";
+    bool StartBody = false;
+    while (client.available()) {
+      //Serial.write(client.read());
+      char currentChar = client.read();
+
+      if (currentChar == '\n')
+        StartBody = true;
+
+      if (StartBody == true) {
+        data += (String) currentChar;
+      }
+
+    } //Serial.println(data); //can be removed later
+
+    //Send server response back to client
+    //This would be used to send stuff like game state, win alert, etc back to client
+    client.fastrprintln(F("HTTP/1.1 200 OK"));
+    client.fastrprintln(F("Content-Type: text/plain"));
+    client.fastrprintln(F("Connection: close"));
+    client.fastrprintln(F("Server: Adafruit CC3000"));
+
+    // Send an empty line to signal start of body.
+    client.fastrprintln(F(""));
+
+    // Can be removed later
+    client.fastrprintln(F("Connection successful"));
+    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+
+    // TODO: Return player turn
+}
+
 
 // Return true if the buffer contains an HTTP request.  Also returns the request
 // path and action strings if the request was parsed.  This does not attempt to
@@ -229,8 +243,7 @@ void parseFirstLine(char* line, char* action, char* path) {
 }
 
 // Tries to read the IP address and other connection details
-bool displayConnectionDetails(void)
-{
+bool displayConnectionDetails(void) {
   uint32_t ipAddress, netmask, gateway, dhcpserv, dnsserv;
 
   if (!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv))
