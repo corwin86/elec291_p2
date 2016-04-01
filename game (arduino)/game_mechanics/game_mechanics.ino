@@ -41,12 +41,10 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 
 /********************END SERVER DEFINES********************/
 
-/********************LED DEFINES********************/
+/********************GAME DEFINES********************/
 #define LED_PIN 6
-/********************END LED DEFINES********************/
-
 #define DEBUG 1
-
+/******************END GAME DEFINES*****************/
 
 
 
@@ -126,20 +124,22 @@ int   difficulty = 2,         //AI recursion depth
 /* -- end gane parameters -- */
 
 /* ---- server variables ---- */
+const int MAX_WAIT_TIME = 10000;
 Adafruit_CC3000_Server httpServer(LISTEN_PORT);
-uint8_t   buffer[BUFFER_SIZE + 1];
-int       bufindex = 0;
-char      action[MAX_ACTION + 1];
-char      path[MAX_PATH + 1];
+uint8_t buffer[BUFFER_SIZE + 1];
+int     bufindex = 0;
+char    action[MAX_ACTION + 1];
+char    path[MAX_PATH + 1];
 /* -- end server variables -- */
 
 // == End Global Variables ==
 
 void setup() {
-  /************END SERVER SETUP**************/
+  /************ SERVER SETUP **************/
   Serial.begin(115200);
-  Serial.println(F("Hello, CC3000!\n"));
 
+  //can be safely removed later
+  Serial.println(F("Hello, CC3000!\n"));
   Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
 
   // Initialise the module
@@ -150,34 +150,29 @@ void setup() {
     while (1);
   }
 
+  //attempt to connect to wifi network
   Serial.print(F("\nAttempting to connect to ")); Serial.println(WLAN_SSID);
   if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
     Serial.println(F("Failed!"));
     while (1);
   }
 
+  //can be safely removed later
   Serial.println(F("Connected!"));
-
   Serial.println(F("Request DHCP"));
+
   while (!cc3000.checkDHCP())
   {
-    delay(100); // ToDo: Insert a DHCP timeout!
+    delay(100);
   }
 
-  // Display the IP address DNS, Gateway, etc.
-  while (! displayConnectionDetails()) {
-    delay(1000);
-  }
-
-  Serial.println(F("\r\nNOTE: This sketch may cause problems with other sketches"));
-  Serial.println(F("since the .disconnect() function is never called, so the"));
-  Serial.println(F("AP may refuse connection requests from the CC3000 until a"));
-  Serial.println(F("timeout period passes.  This is normal behaviour since"));
-  Serial.println(F("there isn't an obvious moment to disconnect with a server.\r\n"));
+  //   Display the IP address DNS, Gateway, etc.
+  //    while (! displayConnectionDetails()) {
+  //      delay(1000);
+  //    }
 
   // Start listening for connections
   httpServer.begin();
-
   Serial.println(F("Listening for connections..."));
   /************END SERVER SETUP**************/
 
@@ -198,7 +193,7 @@ void setup() {
 }
 
 void loop() {
-  int gameId = 0; //!!! if time allows, input from bluetooth app
+  int gameId = 0;
   int e = runGame(gameId);
 
   // error handle
@@ -215,8 +210,6 @@ void loop() {
         break;
       }
   }
-
-  //!!! need loop/replay handling? -> TBD
 }
 
 int runGame(int gameId) {
@@ -240,8 +233,6 @@ int runGame(int gameId) {
 }
 
 int playConnectFour() {
-
-
   // Create board
   int **board = createBoard();
 
@@ -263,7 +254,6 @@ int playConnectFour() {
     do {
       // -- take input --
       // use serial for debug
-
       if (game_mode == SINGLE_PLAYER) {
         if (cur_player == P1) {
           if (DEBUG) {
@@ -274,7 +264,7 @@ int playConnectFour() {
             col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
           }
           else
-            col = listenForInput();
+            col = getMoveFromServer();
           if (col == -1)
             continue; //if connection error, try turn again
         }
@@ -290,7 +280,7 @@ int playConnectFour() {
           col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
         }
         else
-          col = listenForInput();
+          col = getMoveFromServer();
         if (col == -1)
           continue; //if connection error, try turn again
       }
@@ -299,29 +289,29 @@ int playConnectFour() {
         col = aiNextMove(board, cur_player, other_player);
       }
 
-//=======
+      //=======
       //!!! -- take input --
       //!!! use serial for debug
 
       //      !!! AI vs AI
-      if(cur_player == P1) {
+      if (cur_player == P1) {
         col = aiExampleCall(board, P1, P2);
       } else {
         col = aiExampleCall(board, P2, P1);
       }
 
-//      if (isSinglePlayer && cur_player == P2) {
-//        col = aiExampleCall(board, P2, P1); //aiNextMove(board, AI, P1);
-//      } else {
-//        //#if !DEBUG
-//        while (!Serial.available()); //wait for serial data before parsing
-//        col = Serial.parseInt();
-//        Serial.println(col);
-//
-//        // clamp inputs to valid range
-//        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
-//      }
-//>>>>>>> gamedev
+      //      if (isSinglePlayer && cur_player == P2) {
+      //        col = aiExampleCall(board, P2, P1); //aiNextMove(board, AI, P1);
+      //      } else {
+      //        //#if !DEBUG
+      //        while (!Serial.available()); //wait for serial data before parsing
+      //        col = Serial.parseInt();
+      //        Serial.println(col);
+      //
+      //        // clamp inputs to valid range
+      //        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+      //      }
+      //>>>>>>> gamedev
     } while (!dropToken_connect4(board, col, cur_player, 1));
 
     printBoard(board);
@@ -587,8 +577,8 @@ int boardFull() {
 }
 
 /*
- *  Returns column number for AI's move
- */
+    Returns column number for AI's move
+*/
 // *** DEPRECATED ***
 //int aiNextMove(int **board, int aiToken, int otherToken) {
 //  int ai_col, p_col;
@@ -663,7 +653,7 @@ void aiRecursiveSearch(int **board, int level, int *col_points, int ai_token, in
   for (ai_col = 0; ai_col < X_DIM; ai_col++) {
     if (board[0][ai_col] != EMPTY_CELL) {
       //Serial.print("IMP: ");Serial.print(ai_col);Serial.print(" level ");Serial.println(level);
-      if(level == 1) {
+      if (level == 1) {
         col_points[ai_col] = IMPOSSIBLE_MOVE;
       }
       continue;
@@ -710,7 +700,7 @@ int selectNextMove(int *col_points) {
     } else if (col_points[i] == col_points[next_move]) {
       ties++;
     }
-    Serial.print(i);Serial.print(": ");Serial.println(col_points[i]);
+    Serial.print(i); Serial.print(": "); Serial.println(col_points[i]);
   }
   Serial.println();
 
@@ -728,7 +718,7 @@ int selectNextMove(int *col_points) {
     }
   }
 
-  Serial.print("AI: ");Serial.println(next_move);
+  Serial.print("AI: "); Serial.println(next_move);
 
   return next_move;
 }
@@ -924,27 +914,111 @@ void startupLEDSequence() {
   //!!! Wait for mode and colour inputs
   delay(2000); //!!! delete
 
+
   for (int j = 0; j < X_DIM * Y_DIM; j++) {
     strip.setPixelColor(j, off);
     strip.show();
   }
 }
 
-/*
-   Returns the colour of the player
-*/
+// Returns the colour of the player
 uint32_t getPlayerColour(int player) {
-  if (player == P1)
-    return p1_colour;
-  else if (player == P2)
-    return p2_colour;
-  else
-    return off;
+  uint32_t p = player == P1 ? p1_colour : player == P2 ? p2_colour : off;
+  return p;
 }
 
+//calculates the position of an LED in the matrix
 int calculateLedPosition(int x, int y) {
   int led = 8 * y + x;
   return led;
+}
+
+//================ SERVER FUNCTIONS ================= //
+
+//Parses request by calling sub function parseRequest, puts parsed request data into respective fields
+bool parsingRequest(Adafruit_CC3000_ClientRef client, bool parsed, unsigned long endtime)
+{
+  while (!parsed && (millis() < endtime) && (bufindex < BUFFER_SIZE)) {
+    if (client.available()) {
+      buffer[bufindex++] = client.read();
+    }
+    parsed = parseRequest(buffer, bufindex, action, path);
+  }
+  return parsed;
+}
+
+//Once the request is parsed, determine which type of request and perfrom action accordingly
+void processRequest(Adafruit_CC3000_ClientRef client, char* action)
+{
+  //RESPONSE FOR GET REQUEST (NOT NEEDED)
+  if (strcmp(action, "GET") == 0) {
+    respondGet(client);
+  }
+
+  // RESPONSE FOR POST REQUEST
+  else if (strcmp(action, "POST") == 0) {
+    respondPost(client);
+  }
+  else {
+    // Unsupported action, respond with an HTTP 405 method not allowed error.
+    client.fastrprintln(F("HTTP/1.1 200 OK"));
+    client.fastrprintln(F(""));
+    client.fastrprintln(F("-1"));
+  }
+}
+
+void respondGet(Adafruit_CC3000_ClientRef client){
+  // First send the success response code.
+    client.fastrprintln(F("HTTP/1.1 200 OK"));
+    //        // Then send a few headers to identify the type of data returned and that
+    //        // the connection will not be held open.
+    client.fastrprintln(F("Content-Type: text/plain"));
+    client.fastrprintln(F("Connection: close"));
+    client.fastrprintln(F("Server: Adafruit CC3000"));
+    //        // Send an empty line to signal start of body.
+    client.fastrprintln(F(""));
+    // Now send the response data.
+    client.fastrprintln(F("Connection successful"));
+    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+    client.fastrprint(F("what is this shit"));
+}
+
+int count = 0;
+void respondPost(Adafruit_CC3000_ClientRef client){
+    //Read data from post request body and store info into fields
+    String data = "";
+    bool StartBody = false;
+    while (client.available()) {
+      //Serial.write(client.read());
+      char currentChar = client.read();
+
+      if (currentChar == '\n')
+        StartBody = true;
+
+      if (StartBody == true) {
+        data += (String) currentChar;
+      }
+
+    } Serial.println(data); //can be removed later
+
+    //Send server response back to client
+    //This would be used to send stuff like game state, win alert, etc back to client
+    client.fastrprintln(F("HTTP/1.1 200 OK"));
+    client.fastrprintln(F("Content-Type: text/plain"));
+    client.fastrprintln(F("Connection: close"));
+    client.fastrprintln(F("Server: Adafruit CC3000"));
+
+    // Send an empty line to signal start of body.
+    client.fastrprintln(F(""));
+
+    // Can be removed later
+    client.fastrprintln(count % 2 == 0 ? "1" : "2");
+    Serial.print("PLAYER: "); Serial.println(count % 2 == 0 ? "1" : "2");
+    count++;
+//    client.fastrprintln(F("Connection successful"));
+//    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+
+    // TODO: Return player turn
 }
 
 /*
@@ -970,9 +1044,7 @@ bool parseRequest(uint8_t* buf, int bufSize, char* action, char* path) {
   return false;
 }
 
-/*
-    Parse the action and path from the first line of an HTTP request.
-*/
+// Parse the action and path from the first line of an HTTP request.
 void parseFirstLine(char* line, char* action, char* path) {
   // Parse first word up to whitespace as action.
   char* lineaction = strtok(line, " ");
@@ -984,11 +1056,8 @@ void parseFirstLine(char* line, char* action, char* path) {
     strncpy(path, linepath, MAX_PATH);
 }
 
-/*
-   Tries to read the IP address and other connection details
-*/
-bool displayConnectionDetails(void)
-{
+// Tries to read the IP address and other connection details
+bool displayConnectionDetails(void) {
   uint32_t ipAddress, netmask, gateway, dhcpserv, dnsserv;
 
   if (!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv))
@@ -1008,15 +1077,16 @@ bool displayConnectionDetails(void)
   }
 }
 
+
 /*
     Sets up game parameters from app input
 
     returns 0 if successfully initialized, or -1 if connection error
 */
 int gameSetup() {
-  game_mode = listenForInput();
-  if (game_mode == -1) {
-    return game_mode;
+  setupString = listenForInput();
+  if (setupString == NULL){
+    return -1;
   }
 
   int players = 2;
@@ -1060,7 +1130,57 @@ int gameSetup() {
 
     returns -1 if not connected or other error occurred
 */
-int listenForInput() {
+string listenForInput() {
+  int waitTime = 0;
+  while (waitTime < MAX_WAIT_TIME) {
+    // Declare client
+    Adafruit_CC3000_ClientRef client = httpServer.available();
+
+    // If client is connected... start processing its request
+    if (client) {
+      //can be removed later
+      Serial.println(F("Client connected."));
+      // Clear the incoming data buffer and point to the beginning of it
+      bufindex = 0;
+      memset(&buffer, 0, sizeof(buffer));
+      memset(&action, 0, sizeof(action));
+      memset(&path,   0, sizeof(path));
+
+      // Set a timeout for reading all the incoming data.
+      unsigned long endtime = millis() + TIMEOUT_MS;
+
+      // Read all the incoming data until it can be parsed or the timeout expires.
+      bool parsed = false;
+      parsed = parsingRequest(client, parsed, endtime); //function to parse request
+
+      // Handle the request if it was parsed.
+      if (parsed) {
+        //can be removed later
+        Serial.println(F("Processing request"));
+        Serial.print(F("Action: ")); Serial.println(action);
+        Serial.print(F("Path: ")); Serial.println(path);
+
+        processRequest(client, action); //function to process request
+
+        // Wait a short period to make sure the response had time to send before
+        // the connection is closed (the CC3000 sends data asyncronously).
+        delay(100);
+
+        // Close the connection when done.
+        Serial.println(F("Client disconnected"));
+        client.close();
+      }
+    }
+  }
+  return NULL;
+}
+
+//returns a move from the server by parsing a number, -1 if not a valid move read
+int getMoveFromServer(){
+  string next_move = listenForInput();
+  //parse and return as a number
+
+  Serial.println("ERROR: no move read");
   return -1;
 }
 
