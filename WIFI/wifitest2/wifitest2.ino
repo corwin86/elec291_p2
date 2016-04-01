@@ -174,6 +174,7 @@ void respondGet(Adafruit_CC3000_ClientRef client){
     client.fastrprint(F("what is this shit"));
 }
 
+int count = 0;
 void respondPost(Adafruit_CC3000_ClientRef client){
       //Read data from post request body and store info into fields
     String data = "";
@@ -189,7 +190,7 @@ void respondPost(Adafruit_CC3000_ClientRef client){
         data += (String) currentChar;
       }
 
-    } //Serial.println(data); //can be removed later
+    } Serial.println(data); //can be removed later
 
     //Send server response back to client
     //This would be used to send stuff like game state, win alert, etc back to client
@@ -202,8 +203,11 @@ void respondPost(Adafruit_CC3000_ClientRef client){
     client.fastrprintln(F(""));
 
     // Can be removed later
-    client.fastrprintln(F("Connection successful"));
-    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+    client.fastrprintln(count % 2 == 0 ? "1" : "2");
+    Serial.print("PLAYER: "); Serial.println(count % 2 == 0 ? "1" : "2");
+    count++;
+//    client.fastrprintln(F("Connection successful"));
+//    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
 
     // TODO: Return player turn
 }
