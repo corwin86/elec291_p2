@@ -30,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by rohini on 24/03/16.
@@ -55,7 +56,14 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view){
         String modeAndColors = createStringBody();
         WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
-        wifiConnection.doPOST(modeAndColors, MainActivity.urlToConnection);
+        try {
+            String responseString = wifiConnection.doPOST(modeAndColors, MainActivity.urlToConnection);
+            System.out.println(responseString);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
 //        ConnectivityManager connmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 //        NetworkInfo networkInfo = connmgr.getActiveNetworkInfo();

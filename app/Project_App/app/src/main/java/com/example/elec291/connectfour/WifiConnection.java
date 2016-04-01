@@ -29,6 +29,8 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -46,18 +48,24 @@ public class WifiConnection extends AppCompatActivity {
     private String stringToBePosted;
 
 
-    public void doPOST(String toBeSent, String urlString){
+    public String doPOST(String toBeSent, String urlString) throws ExecutionException, InterruptedException {
 
         stringToBePosted = toBeSent;
         ConnectivityManager connmgr = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connmgr.getActiveNetworkInfo();
         if(networkInfo != null && networkInfo.isConnected()){
             System.out.println("Network available");
-            new DownloadWebpageTask().execute(urlString);
+            DownloadWebpageTask task = new DownloadWebpageTask();
+            task.execute(urlString);
+            String response = task.get();
+            return response;
+
+            //String s = new DownloadWebpageTask().execute(urlString).get();
         }
         else{
             System.out.println("no network connection available");
         }
+        return toBeSent;
     }
 
 
@@ -68,12 +76,22 @@ public class WifiConnection extends AppCompatActivity {
         protected String doInBackground(String...urls){
 
             //params comes from the execute() call
-            try{
-                //return downloadUrl(urls[0]);
-                return Upload(urls[0]);
-            } catch(IOException e){
-                return "unable to retrieve webpage";
-            }
+            boolean timedOut;
+            String response = "";
+
+            do {
+                try {
+                    timedOut = false;
+                    //return downloadUrl(urls[0]);
+                    response =  Upload(urls[0]);
+                } catch (IOException e) {
+                    return "unable to retrieve webpage";
+                } catch (TimeoutException e) {
+                    timedOut = true;
+                }
+            } while(timedOut);
+
+            return response;
         }
 
         @Override
@@ -91,7 +109,7 @@ public class WifiConnection extends AppCompatActivity {
             URL connect_url = connect_url = new URL(myurl);
             HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
             System.out.println("Checkpoint1");
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(15000);
             connection.setConnectTimeout(15000);
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
@@ -125,7 +143,7 @@ public class WifiConnection extends AppCompatActivity {
         return new String(buffer);
     }
 
-    private String Upload(String myurl) throws IOException {
+    private String Upload(String myurl) throws IOException, TimeoutException {
         //OutputStream os = null;
         DataOutputStream os = null;
         BufferedReader reader=  null;
@@ -136,7 +154,7 @@ public class WifiConnection extends AppCompatActivity {
             HttpURLConnection connection = (HttpURLConnection) connect_url.openConnection();
             System.out.println("Checkpoint1");
             connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
+            connection.setConnectTimeout(60000);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "text/plain");
             connection.setDoOutput(true);
@@ -186,7 +204,12 @@ public class WifiConnection extends AppCompatActivity {
         finally {
             if(os != null){
                 os.close();
+            }
+            if(reader != null){
                 reader.close();
+            }
+            else{
+                throw new TimeoutException();
             }
         }
     }
