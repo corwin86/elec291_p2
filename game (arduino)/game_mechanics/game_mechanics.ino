@@ -565,52 +565,53 @@ int boardFull() {
 }
 
 /*
-   Returns column number for AI's move
-*/
-int aiNextMove(int **board, int aiToken, int otherToken) {
-  int ai_col, p_col;
-  int next_move = -1;
-  int col_points[X_DIM] = {0};
-
-  for (ai_col = 0; ai_col < X_DIM; ai_col++) {
-    if (board[0][ai_col] != EMPTY_CELL) {
-      col_points[ai_col] = IMPOSSIBLE_MOVE;
-      continue;
-    }
-    dropToken_connect4(board, ai_col, aiToken, 0);
-
-    if (winningPlayer_connect4(board, 0) == aiToken) {
-      return ai_col; //win if you can
-    } else {
-      for (p_col = 0; p_col < X_DIM; p_col++) {
-        if (board[0][p_col] != EMPTY_CELL) {
-          continue;
-        }
-        int p_break = 0;
-        dropToken_connect4(board, p_col, otherToken, 0);
-
-        if (winningPlayer_connect4(board, 0) == otherToken) {
-          col_points[ai_col] = BAD_MOVE;
-          p_break = 1;
-        } else {
-          //!!! expand recursively, time permitting
-        }
-        popToken(board, p_col); //remove board modification
-
-        if (p_break) {
-          break;
-        }
-      }
-    }
-    popToken(board, ai_col); //remove board modifications
-
-    if (next_move != -1) {
-      return next_move;
-    }
-  }
-
-  return selectNextMove(col_points); //random column
-}
+ *  Returns column number for AI's move
+ */
+// *** DEPRECATED ***
+//int aiNextMove(int **board, int aiToken, int otherToken) {
+//  int ai_col, p_col;
+//  int next_move = -1;
+//  int col_points[X_DIM] = {0};
+//
+//  for (ai_col = 0; ai_col < X_DIM; ai_col++) {
+//    if (board[0][ai_col] != EMPTY_CELL) {
+//      col_points[ai_col] = IMPOSSIBLE_MOVE;
+//      continue;
+//    }
+//    dropToken_connect4(board, ai_col, aiToken, 0);
+//
+//    if (winningPlayer_connect4(board, 0) == aiToken) {
+//      return ai_col; //win if you can
+//    } else {
+//      for (p_col = 0; p_col < X_DIM; p_col++) {
+//        if (board[0][p_col] != EMPTY_CELL) {
+//          continue;
+//        }
+//        int p_break = 0;
+//        dropToken_connect4(board, p_col, otherToken, 0);
+//
+//        if (winningPlayer_connect4(board, 0) == otherToken) {
+//          col_points[ai_col] = BAD_MOVE;
+//          p_break = 1;
+//        } else {
+//          //!!! expand recursively, time permitting
+//        }
+//        popToken(board, p_col); //remove board modification
+//
+//        if (p_break) {
+//          break;
+//        }
+//      }
+//    }
+//    popToken(board, ai_col); //remove board modifications
+//
+//    if (next_move != -1) {
+//      return next_move;
+//    }
+//  }
+//
+//  return selectNextMove(col_points); //random column
+//}
 
 /*
     Example of call to aiRecursiveSearch
@@ -716,7 +717,7 @@ void popToken(int **board, int col) {
 /*
     Allocate a x_dim by y_dim board to be used in a game
 */
-int ** createBoard() {
+int **createBoard() {
   int **board = (int **)malloc(Y_DIM * sizeof(int *));
   int x, y; // loop indeces
   for (y = 0; y < Y_DIM; y++) {
@@ -892,7 +893,8 @@ void startupLEDSequence() {
     strip.show();
   }
 
-  delay(5000);
+  //!!! Wait for mode and colour inputs
+  delay(2000); //!!! delete
 
   for (int j = 0; j < X_DIM * Y_DIM; j++) {
     strip.setPixelColor(j, off);
