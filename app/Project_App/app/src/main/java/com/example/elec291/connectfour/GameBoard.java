@@ -82,14 +82,15 @@ public class GameBoard extends AppCompatActivity implements View.OnClickListener
                 break;
         }
         try {
-            String playerResponse = wifiConnection.doPOST(move, MainActivity.urlToConnection);
-            int response = Integer.parseInt(playerResponse);
-            System.out.println(response);
-            if(response == 1){
+            String playerResponse = wifiConnection.doPOST(move, MainActivity.urlToConnection).trim();
+
+            //int response = Integer.parseInt(playerResponse.trim());
+            //System.out.println(response);
+            if(playerResponse.equals("1")){
                 player = 1;
                 currentPlayer.setText("Player 1: Make a Move");
             }
-            else if (response == 2){
+            else if (playerResponse.equals("2")){
                 player = 2;
                 currentPlayer.setText("Player 2: Make a Move");
             }
