@@ -223,7 +223,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
 
     public String createStringBody(){
         String concatenated;
-        concatenated = "Mode:\t" + MainActivity.PlayerModeSelected + "\n" + "Player1 Color: \t" + MainActivity.Player1Color +  "\n" + "Player2 Color: \t" + MainActivity.Player2Color;
+        concatenated = "Mode:\t" + ChoosePlayerMode.PlayerModeSelected + "\n" + "Player1 Color: \t" + MainActivity.Player1Color +  "\n" + "Player2 Color: \t" + MainActivity.Player2Color;
         return concatenated;
     }
 

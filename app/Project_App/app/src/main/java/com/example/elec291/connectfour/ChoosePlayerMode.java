@@ -15,10 +15,13 @@ import android.content.Intent;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
+import java.util.concurrent.ExecutionException;
+
 
 public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickListener {
 
-    Button buttonSinglePlayer, buttonMultiPlayer;
+    Button buttonSinglePlayer, buttonMultiPlayer, buttonAI;
+    static String PlayerModeSelected;
 
 
     @Override
@@ -40,34 +43,56 @@ public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickL
         buttonMultiPlayer = (Button) findViewById(R.id.buttonMultiPlayer);
         buttonMultiPlayer.setOnClickListener(this);
 
+        buttonAI = (Button) findViewById(R.id.ButtonAIPlayer);
+        buttonAI.setOnClickListener(this);
+
     }
 
     @Override
     public void onClick(View v) {
         switch ((v.getId())){
             case R.id.buttonSinglePlayer:
-                MainActivity.PlayerModeSelected = "single";
+                PlayerModeSelected = "single";
                 onPlayerClick(buttonSinglePlayer);
                 break;
             case R.id.buttonMultiPlayer:
-                MainActivity.PlayerModeSelected = "multi";
+                PlayerModeSelected = "multi";
                 onPlayerClick(buttonMultiPlayer);
+                break;
+            case R.id.ButtonAIPlayer:
+                PlayerModeSelected = "ai";
+                onPlayerClick(buttonAI);
                 break;
         }
 
     }
 
     public void onPlayerClick(Button pressedButton){
+        WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
+        try{
+            String toPost = stringToBePosted();
+            String responseString = wifiConnection.doPOST(toPost, MainActivity.urlToConnection);
+            System.out.println(responseString);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         if(pressedButton == buttonSinglePlayer){
             startActivity(new Intent(ChoosePlayerMode.this, DisplayColorsActivity.class));
             //startActivity(new Intent(ChoosePlayerMode.this, ConnectViaWifi.class));
         }
-        else{
+        else if(pressedButton == buttonMultiPlayer){
             startActivity(new Intent(ChoosePlayerMode.this, ChooseChipColor.class));
             //startActivity(new Intent(ChoosePlayerMode.this, ConnectViaWifi.class));
         }
+        else{
+            startActivity(new Intent(ChoosePlayerMode.this, DisplayColorsActivity.class));
 
-        //startActivity(new Intent("com.example.elec291.connect4.DisplayColorsActivity"));
+        }
+    }
 
+    public String stringToBePosted(){
+        return "mode:\t" + PlayerModeSelected;
     }
 }

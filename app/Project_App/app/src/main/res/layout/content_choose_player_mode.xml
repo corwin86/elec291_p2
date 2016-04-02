@@ -39,12 +39,21 @@
         android:layout_height="wrap_content"
         android:text="Multi Player"
         android:id="@+id/buttonMultiPlayer"
-        android:layout_below="@+id/buttonSinglePlayer"
-        android:layout_marginTop="93dp"
-        android:layout_alignRight="@+id/buttonSinglePlayer"
-        android:layout_alignEnd="@+id/buttonSinglePlayer"
+        android:layout_centerVertical="true"
         android:layout_alignLeft="@+id/buttonSinglePlayer"
         android:layout_alignStart="@+id/buttonSinglePlayer" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AI against AI"
+        android:id="@+id/ButtonAIPlayer"
+        android:layout_below="@+id/buttonMultiPlayer"
+        android:layout_alignRight="@+id/buttonSinglePlayer"
+        android:layout_alignEnd="@+id/buttonSinglePlayer"
+        android:layout_marginTop="59dp"
+        android:layout_alignLeft="@+id/buttonMultiPlayer"
+        android:layout_alignStart="@+id/buttonMultiPlayer" />
 
     <!--<TextView-->
         <!--android:layout_width="wrap_content"-->

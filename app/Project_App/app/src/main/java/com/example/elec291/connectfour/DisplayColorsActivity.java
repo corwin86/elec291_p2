@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by rohini on 23/03/16.
@@ -25,6 +26,9 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
             textView13, textView14, textView15, textView16, textView17;
     ArrayList<Button> allColorbuttons = new ArrayList<Button>();
     int clicks = 0;
+
+    String Player1Color;
+    String Player2Color;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -66,32 +70,32 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
         if(clicks == 0) {
             switch ((v.getId())) {
                 case R.id.buttonRed:
-                    MainActivity.Player1Color = "red";
+                    Player1Color = "red";
                     clicks = 1;
                     colorButtonClick(buttonRed);
                     break;
                 case R.id.buttonBlue:
-                    MainActivity.Player1Color = "blue";
+                    Player1Color = "blue";
                     clicks = 1;
                     colorButtonClick(buttonBlue);
                     break;
                 case R.id.buttonGreen:
-                    MainActivity.Player1Color = "green";
+                    Player1Color = "green";
                     clicks = 1;
                     colorButtonClick(buttonGreen);
                     break;
                 case R.id.buttonCyan:
-                    MainActivity.Player1Color = "cyan";
+                    Player1Color = "cyan";
                     clicks = 1;
                     colorButtonClick(buttonCyan);
                     break;
                 case R.id.buttonYellow:
-                    MainActivity.Player1Color = "yellow";
+                    Player1Color = "yellow";
                     clicks = 1;
                     colorButtonClick(buttonYellow);
                     break;
                 case R.id.buttonMagenta:
-                    MainActivity.Player1Color = "magenta";
+                    Player1Color = "magenta";
                     clicks = 1;
                     colorButtonClick(buttonMagenta);
                     break;
@@ -101,32 +105,32 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
         else if(clicks == 1){
             switch((v.getId())){
                 case R.id.buttonRed:
-                    MainActivity.Player2Color = "red";
+                    Player2Color = "red";
                     clicks = 2;
                     onClickTwo(buttonRed);
                     break;
                 case R.id.buttonBlue:
-                    MainActivity.Player2Color = "blue";
+                    Player2Color = "blue";
                     clicks = 2;
                     onClickTwo(buttonBlue);
                     break;
                 case R.id.buttonGreen:
-                    MainActivity.Player2Color = "green";
+                    Player2Color = "green";
                     clicks = 2;
                     onClickTwo(buttonGreen);
                     break;
                 case R.id.buttonCyan:
-                    MainActivity.Player2Color = "cyan";
+                    Player2Color = "cyan";
                     clicks = 2;
                     onClickTwo(buttonCyan);
                     break;
                 case R.id.buttonYellow:
-                    MainActivity.Player2Color = "yellow";
+                    Player2Color = "yellow";
                     clicks = 2;
                     onClickTwo(buttonYellow);
                     break;
                 case R.id.buttonMagenta:
-                    MainActivity.Player2Color = "magenta";
+                    Player2Color = "magenta";
                     clicks = 2;
                     onClickTwo(buttonMagenta);
                     break;
@@ -180,10 +184,19 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
                 textView7.setVisibility(View.VISIBLE);
                 break;
         }
+        WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
+        try{
+            String player1Post = player1colorPost();
+            String responseString = wifiConnection.doPOST(player1Post, MainActivity.urlToConnection);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         //Change the text to tell user to choose a different color
         //((TextView) findViewById(R.id.textView2)).setText("Second Color");
         ((TextView) findViewById(R.id.textView2)).setText("Choose Chip Color for CPU");
-        MainActivity.player1Color = pressedButton.getBackground();
+       // MainActivity.player1Color = pressedButton.getBackground();
         setTitle("Choose a Chip Color for the CPU");
 
     }
@@ -234,7 +247,27 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
         }
-        MainActivity.player2Color = pressedButton.getBackground();
+        WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
+        try{
+            String player2Post = player2colorPost();
+            String responseString = wifiConnection.doPOST(player2Post, MainActivity.urlToConnection);
+            System.out.println(responseString);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        //MainActivity.player2Color = pressedButton.getBackground();
+
+    }
+
+    private String player1colorPost(){
+        return "player1colour\t" + Player1Color;
+
+    }
+
+    private String player2colorPost(){
+        return "player2colour\t" + Player2Color;
 
     }
 }
