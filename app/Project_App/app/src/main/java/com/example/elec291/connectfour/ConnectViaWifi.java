@@ -65,6 +65,7 @@ public class ConnectViaWifi extends AppCompatActivity implements View.OnClickLis
             e.printStackTrace();
         }
 
+
         startActivity(new Intent(ConnectViaWifi.this, GameBoard.class));
     }
 
