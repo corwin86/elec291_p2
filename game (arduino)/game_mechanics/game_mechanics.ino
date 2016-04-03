@@ -802,16 +802,12 @@ bool parsingRequest(Adafruit_CC3000_ClientRef client, bool parsed, unsigned long
 }
 
 //Once the request is parsed, determine which type of request and perfrom action accordingly
-void processRequest(Adafruit_CC3000_ClientRef client, char* action)
+String processRequest(Adafruit_CC3000_ClientRef client, char* action)
 {
-  //RESPONSE FOR GET REQUEST (NOT NEEDED)
-  if (strcmp(action, "GET") == 0) {
-    respondGet(client);
-  }
-
+  String data;
   // RESPONSE FOR POST REQUEST
-  else if (strcmp(action, "POST") == 0) {
-    respondPost(client);
+  if (strcmp(action, "POST") == 0) {
+    data = readPost(client);
   }
   else {
     // Unsupported action, respond with an HTTP 405 method not allowed error.
@@ -819,25 +815,11 @@ void processRequest(Adafruit_CC3000_ClientRef client, char* action)
     client.fastrprintln(F(""));
     client.fastrprintln(F("-1"));
   }
+  return data;
 }
 
-void respondGet(Adafruit_CC3000_ClientRef client) {
-  // First send the success response code.
-  client.fastrprintln(F("HTTP/1.1 200 OK"));
-  //        // Then send a few headers to identify the type of data returned and that
-  //        // the connection will not be held open.
-  client.fastrprintln(F("Content-Type: text/plain"));
-  client.fastrprintln(F("Connection: close"));
-  client.fastrprintln(F("Server: Adafruit CC3000"));
-  //        // Send an empty line to signal start of body.
-  client.fastrprintln(F(""));
-  // Now send the response data.
-  client.fastrprintln(F("Connection successful"));
-  client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
-}
-
-void respondPost(Adafruit_CC3000_ClientRef client) {
-  //Read data from post request body and store info into fields
+String readPost(Adafruit_CC3000_ClientRef client){
+    //Read data from post request body and store info into fields
   String data = "";
   bool StartBody = false;
   while (client.available()) {
@@ -853,6 +835,10 @@ void respondPost(Adafruit_CC3000_ClientRef client) {
 
   } Serial.println(data); //can be removed later
 
+  return data;
+}
+
+void respondPost(Adafruit_CC3000_ClientRef client){
   //Send server response back to client
   //This would be used to send stuff like game state, win alert, etc back to client
   client.fastrprintln(F("HTTP/1.1 200 OK"));
@@ -862,8 +848,7 @@ void respondPost(Adafruit_CC3000_ClientRef client) {
 
   // Send an empty line to signal start of body.
   client.fastrprintln(F(""));
-
-  client.fastrprintln(turns % 2 == 0 ? "1" : "2");
+  
   if (gameOver) {
     client.fastrprintln("gameover");
   }
@@ -871,11 +856,51 @@ void respondPost(Adafruit_CC3000_ClientRef client) {
     client.fastrprintln("columnfull");
   }
   else {
+    client.fastrprintln(turns % 2 == 0 ? "1" : "2");
     Serial.print("PLAYER: "); Serial.println(turns % 2 == 0 ? "1" : "2");
   }
-  //    client.fastrprintln(F("Connection successful"));
-  //    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
 }
+
+//void respondPost(Adafruit_CC3000_ClientRef client) {
+//  //Read data from post request body and store info into fields
+//  String data = "";
+//  bool StartBody = false;
+//  while (client.available()) {
+//    //Serial.write(client.read());
+//    char currentChar = client.read();
+//
+//    if (currentChar == '\n')
+//      StartBody = true;
+//
+//    if (StartBody == true) {
+//      data += (String) currentChar;
+//    }
+//
+//  } Serial.println(data); //can be removed later
+//
+//  //Send server response back to client
+//  //This would be used to send stuff like game state, win alert, etc back to client
+//  client.fastrprintln(F("HTTP/1.1 200 OK"));
+//  client.fastrprintln(F("Content-Type: text/plain"));
+//  client.fastrprintln(F("Connection: close"));
+//  client.fastrprintln(F("Server: Adafruit CC3000"));
+//
+//  // Send an empty line to signal start of body.
+//  client.fastrprintln(F(""));
+//  
+//  if (gameOver) {
+//    client.fastrprintln("gameover");
+//  }
+//  else if (!validMove) {
+//    client.fastrprintln("columnfull");
+//  }
+//  else {
+//    client.fastrprintln(turns % 2 == 0 ? "1" : "2");
+//    Serial.print("PLAYER: "); Serial.println(turns % 2 == 0 ? "1" : "2");
+//  }
+//  //    client.fastrprintln(F("Connection successful"));
+//  //    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+//}
 
 /*
   Return true if the buffer contains an HTTP request.  Also returns the request
@@ -1040,21 +1065,19 @@ String listenForInput() {
       Serial.print(F("Action: ")); Serial.println(action);
       Serial.print(F("Path: ")); Serial.println(path);
 #endif
-
-      processRequest(client, action); //function to process request
+      
+      String data = processRequest(client, action); //function to process request
 
       // Wait a short period to make sure the response had time to send before
       // the connection is closed (the CC3000 sends data asyncronously).
       delay(100);
 
       // Close the connection when done.
-#if DEBUG
+
       Serial.println(F("Client disconnected"));
       client.close();
-#endif
     }
   }
-  //}
   return "";
 }
 
