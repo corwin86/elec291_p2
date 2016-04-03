@@ -3,6 +3,7 @@ package com.example.elec291.connectfour;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -47,6 +48,8 @@ public class GameBoard extends AppCompatActivity implements View.OnClickListener
         Column6.setOnClickListener(this);
         Column7.setOnClickListener(this);
         Column8.setOnClickListener(this);
+
+        startActivity(new Intent(GameBoard.this, GameInstructions.class));
     }
 
     @Override
@@ -84,8 +87,6 @@ public class GameBoard extends AppCompatActivity implements View.OnClickListener
         try {
             String playerResponse = wifiConnection.doPOST(move, MainActivity.urlToConnection).trim();
 
-            //int response = Integer.parseInt(playerResponse.trim());
-            //System.out.println(response);
             if(playerResponse.equals("1")){
                 player = 1;
                 currentPlayer.setText("Player 1: Make a Move");
@@ -100,5 +101,14 @@ public class GameBoard extends AppCompatActivity implements View.OnClickListener
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            startActivity(new Intent(GameBoard.this, QuitOrResume.class));
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

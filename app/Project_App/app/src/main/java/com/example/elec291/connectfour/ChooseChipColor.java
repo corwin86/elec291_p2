@@ -143,7 +143,8 @@ public class ChooseChipColor extends AppCompatActivity implements View.OnClickLi
                     finish();
                     SystemClock.sleep(500);
                     //startActivity(new Intent("com.example.elec291.connect4.ConnectViaWifi"));
-                    startActivity(new Intent(ChooseChipColor.this, ConnectViaWifi.class));
+                    startActivity(new Intent(ChooseChipColor.this, GameBoard.class));
+                    //startActivity(new Intent(ChooseChipColor.this, GameInstructions.class));
                     break;
             }
         }
