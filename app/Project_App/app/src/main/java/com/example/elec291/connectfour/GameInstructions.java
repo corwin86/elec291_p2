@@ -41,6 +41,9 @@ public class GameInstructions extends AppCompatActivity implements View.OnClickL
         if(!start_pressed){
             buttonDone.setText("START");
         }
+        else{
+            buttonDone.setText("DONE");
+        }
     }
 
     @Override

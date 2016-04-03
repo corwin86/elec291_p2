@@ -87,7 +87,7 @@ public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickL
             //startActivity(new Intent(ChoosePlayerMode.this, ConnectViaWifi.class));
         }
         else{
-            startActivity(new Intent(ChoosePlayerMode.this, DisplayColorsActivity.class));
+            startActivity(new Intent(ChoosePlayerMode.this, ChooseAIColors.class));
 
         }
     }
