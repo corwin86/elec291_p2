@@ -61,7 +61,7 @@ uint32_t yellow = strip.Color(255, 255, 0);
 uint32_t gold = strip.Color(255, 215, 0);
 uint32_t webworkGreen = strip.Color(118, 255, 122);
 uint32_t white = strip.Color(255, 255, 255);
-uint32_t off = strip.Color(0, 0, 0); 
+uint32_t off = strip.Color(0, 0, 0);
 
 uint32_t victoryBlink;
 
@@ -155,22 +155,22 @@ void setup() {
 
   //attempt to connect to wifi network
   Serial.print(F("\nAttempting to connect to ")); Serial.println(WLAN_SSID);
-//  if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
-//    Serial.println(F("Failed!"));
-//    while (1);
-//  }
+  //  if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
+  //    Serial.println(F("Failed!"));
+  //    while (1);
+  //  }
 
   //can be safely removed later
   Serial.println(F("Connected!"));
   Serial.println(F("Request DHCP"));
 
-//  while (!cc3000.checkDHCP())
-//  {
-//    delay(100);
-//  }
+  //  while (!cc3000.checkDHCP())
+  //  {
+  //    delay(100);
+  //  }
 
   // Start listening for connections
-//  httpServer.begin();
+  //  httpServer.begin();
   /************END SERVER SETUP**************/
 
   randomSeed(analogRead(4));
@@ -249,6 +249,7 @@ int playConnectFour() {
   int cur_player = P1; //cur_player is one of {P1, P2}
   turns = 0;
   while (!gameOver) {
+    validMove = true;
     int col;
     do {
       // -- take input --
@@ -256,13 +257,13 @@ int playConnectFour() {
       if (game_mode == SINGLE_PLAYER) {
         if (cur_player == P1) {
 #if DEBUG
-            while (!Serial.available()); //wait for serial data before parsing
-            col = Serial.parseInt();
-            Serial.println(col);
-            // clamp inputs to valid range
-            col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+          while (!Serial.available()); //wait for serial data before parsing
+          col = Serial.parseInt();
+          Serial.println(col);
+          // clamp inputs to valid range
+          col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
 #else
-            col = getMoveFromServer();
+          col = getMoveFromServer();
 #endif
           if (col == -1)
             continue; //if connection error, try turn again
@@ -280,8 +281,6 @@ int playConnectFour() {
 #else
         col = getMoveFromServer();
 #endif
-        if (col == -1)
-          continue; //if connection error, try turn again
       }
       else {      //AI mode
         int other_player = cur_player == P1 ? P2 : P1;
@@ -294,6 +293,7 @@ int playConnectFour() {
     cur_player = cur_player == P1 ? P2 : P1; //change turns
     turns++;
     gameOver = gameOver_connect4(board);
+    validMove = board[Y_DIM - 1][col] == EMPTY_CELL;
   }
   //-- end gameplay --
 
@@ -722,13 +722,13 @@ void startupLEDSequence() {
   uint32_t s;
   int i, j, k;
   for (i = 0; i < 3 * 4; i++) {
-    for(j = 0; j < X_DIM; j++) {
-      for(k = 0; k < Y_DIM; k++) {
-        if((j == 3 || j == 4) && (k == 3 || k == 4)) {
+    for (j = 0; j < X_DIM; j++) {
+      for (k = 0; k < Y_DIM; k++) {
+        if ((j == 3 || j == 4) && (k == 3 || k == 4)) {
           s = s1;
-        } else if(((j > 1 && j < X_DIM - 2) && (k == 2 || k == 5)) || ((k > 1 && k < Y_DIM - 2) && (j == 2 || j == 5))) {
+        } else if (((j > 1 && j < X_DIM - 2) && (k == 2 || k == 5)) || ((k > 1 && k < Y_DIM - 2) && (j == 2 || j == 5))) {
           s = s2;
-        } else if(((j > 0 && j < X_DIM - 1) && (k == 1 || k == 6)) || ((k > 0 && k < Y_DIM - 1) && (j == 1 || j == 6))) {
+        } else if (((j > 0 && j < X_DIM - 1) && (k == 1 || k == 6)) || ((k > 0 && k < Y_DIM - 1) && (j == 1 || j == 6))) {
           s = s3;
         } else {
           s = s4;
@@ -768,7 +768,7 @@ void startupLEDSequence() {
   }
 
   //!!! Wait for mode and colour inputs
-//  delay(2000); //!!! delete
+  //  delay(2000); //!!! delete
 
 
   for (int j = 0; j < X_DIM * Y_DIM; j++) {
@@ -866,14 +866,14 @@ void respondPost(Adafruit_CC3000_ClientRef client) {
   client.fastrprintln(F(""));
 
   client.fastrprintln(turns % 2 == 0 ? "1" : "2");
-  if (gameOver){
+  if (gameOver) {
     client.fastrprintln("gameover");
   }
-  else if (!validMove){
+  else if (!validMove) {
     client.fastrprintln("columnfull");
   }
-  else{
-  Serial.print("PLAYER: "); Serial.println(turns % 2 == 0 ? "1" : "2");
+  else {
+    Serial.print("PLAYER: "); Serial.println(turns % 2 == 0 ? "1" : "2");
   }
   //    client.fastrprintln(F("Connection successful"));
   //    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
@@ -934,10 +934,10 @@ int connect4Setup() {
       game_mode = decodeGameMode(setupString[1]);
     } else if (setupString[0].equals("player1colour")) {
       p1_colour = decodeColour(setupString[1]);
-      
+
     } else if (setupString[0].equals("player2colour")) {
       p2_colour = decodeColour(setupString[1]);
-      
+
     } else if (setupString[0].equals("start")) {
       if (game_mode != UNINITIALIZED && p1_colour != off && p2_colour != off)
         start = true; //successfully setup connect 4
@@ -954,7 +954,7 @@ int connect4Setup() {
 */
 void parseFieldValuePair(String in, String *setupString) {
   int i = in.indexOf('\t');
-  if (i == -1){
+  if (i == -1) {
     setupString[0] = in;
     return;
   }
