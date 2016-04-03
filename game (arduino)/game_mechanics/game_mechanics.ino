@@ -44,7 +44,7 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 /********************GAME DEFINES********************/
 #define LED_PIN 6
 #define DEBUG 0
-/******************END GAME DEFINES*****************/
+/*******************END GAME DEFINES*****************/
 
 
 
@@ -61,7 +61,7 @@ uint32_t yellow = strip.Color(255, 255, 0);
 uint32_t gold = strip.Color(255, 215, 0);
 uint32_t webworkGreen = strip.Color(118, 255, 122);
 uint32_t white = strip.Color(255, 255, 255);
-uint32_t off = strip.Color(0, 0, 0);
+uint32_t off = strip.Color(0, 0, 0); 
 
 uint32_t victoryBlink;
 
@@ -117,6 +117,8 @@ const int UP = 1,
 uint32_t p1_colour = off,
          p2_colour = off;
 int      turns;
+bool     gameOver,
+         validMove;
 /* -- end player info -- */
 
 /* ---- gane parameters ---- */
@@ -153,31 +155,24 @@ void setup() {
 
   //attempt to connect to wifi network
   Serial.print(F("\nAttempting to connect to ")); Serial.println(WLAN_SSID);
-  if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
-    Serial.println(F("Failed!"));
-    while (1);
-  }
+//  if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
+//    Serial.println(F("Failed!"));
+//    while (1);
+//  }
 
   //can be safely removed later
   Serial.println(F("Connected!"));
   Serial.println(F("Request DHCP"));
 
-  while (!cc3000.checkDHCP())
-  {
-    delay(100);
-  }
-
-  //   Display the IP address DNS, Gateway, etc.
-  //    while (! displayConnectionDetails()) {
-  //      delay(1000);
-  //    }
+//  while (!cc3000.checkDHCP())
+//  {
+//    delay(100);
+//  }
 
   // Start listening for connections
-  httpServer.begin();
-  Serial.println(F("Listening for connections..."));
+//  httpServer.begin();
   /************END SERVER SETUP**************/
 
-  Serial.begin(9600);
   randomSeed(analogRead(4));
 
   //buffer for parsing
@@ -189,7 +184,9 @@ void setup() {
   strip.show();
 
 #if !DEBUG
+  Serial.println("start seq");
   startupLEDSequence();
+  Serial.println("end seq");
 #endif
 }
 
@@ -234,6 +231,7 @@ int runGame(int gameId) {
 }
 
 int playConnectFour() {
+  gameOver = false;
   connect4Setup();
   // Create board
   int **board = createBoard();
@@ -245,13 +243,12 @@ int playConnectFour() {
       board[y][x] = EMPTY_CELL;
     }
   }
-
   printBoard(board);
 
   //---- gameplay ----
   int cur_player = P1; //cur_player is one of {P1, P2}
   turns = 0;
-  while (!gameOver_connect4(board)) {
+  while (!gameOver) {
     int col;
     do {
       // -- take input --
@@ -296,6 +293,7 @@ int playConnectFour() {
 
     cur_player = cur_player == P1 ? P2 : P1; //change turns
     turns++;
+    gameOver = gameOver_connect4(board);
   }
   //-- end gameplay --
 
@@ -717,103 +715,6 @@ void printCell(int x, int y, uint32_t color, int show) {
     Displays a welcome/startup pattern on the LEDs
 */
 void startupLEDSequence() {
-//  int i = 0;
-//
-//  uint32_t square1 = blue;
-//  uint32_t square2 = cyan;
-//  uint32_t square3 = green;
-//  uint32_t square4 = yellow;
-
-  //uint32_t[] colors = red, magenta, green, blue;
-
-//  for (i = 0; i < 3 * 4; i++) {
-//    //printsquare2
-//    printCell(3, 3, square1 , 1);
-//    printCell(4, 3, square1 , 1);
-//    printCell(3, 4, square1 , 1);
-//    printCell(4, 4, square1 , 1);
-//
-//    //print square 2
-//    printCell(2, 2, square2 , 1);
-//    printCell(2, 3, square2 , 1);
-//    printCell(2, 4, square2 , 1);
-//    printCell(2, 5, square2 , 1);
-//
-//    printCell(3, 2, square2 , 1);
-//    printCell(4, 2, square2 , 1);
-//    printCell(3, 5, square2 , 1);
-//    printCell(4, 5, square2 , 1);
-//
-//    printCell(5, 2, square2 , 1);
-//    printCell(5, 3, square2 , 1);
-//    printCell(5, 4, square2 , 1);
-//    printCell(5, 5, square2 , 1);
-//
-//    //print square 3
-//    printCell(1, 1, square3 , 1);
-//    printCell(1, 2, square3 , 1);
-//    printCell(1, 3, square3 , 1);
-//    printCell(1, 4, square3 , 1);
-//    printCell(1, 5, square3 , 1);
-//    printCell(1, 6, square3 , 1);
-//
-//    printCell(2, 1, square3 , 1);
-//    printCell(3, 1, square3 , 1);
-//    printCell(4, 1, square3 , 1);
-//    printCell(5, 1, square3 , 1);
-//    printCell(2, 6, square3 , 1);
-//    printCell(3, 6, square3 , 1);
-//    printCell(4, 6, square3 , 1);
-//    printCell(5, 6, square3 , 1);
-//
-//    printCell(6, 1, square3 , 1);
-//    printCell(6, 2, square3 , 1);
-//    printCell(6, 3, square3 , 1);
-//    printCell(6, 4, square3 , 1);
-//    printCell(6, 5, square3 , 1);
-//    printCell(6, 6, square3 , 1);
-//
-//    //print square 4
-//    printCell(0, 0, square4 , 1);
-//    printCell(0, 1, square4 , 1);
-//    printCell(0, 2, square4 , 1);
-//    printCell(0, 3, square4 , 1);
-//    printCell(0, 4, square4 , 1);
-//    printCell(0, 5, square4 , 1);
-//    printCell(0, 6, square4 , 1);
-//    printCell(0, 7, square4 , 1);
-//
-//    printCell(1, 0, square4 , 1);
-//    printCell(2, 0, square4 , 1);
-//    printCell(3, 0, square4 , 1);
-//    printCell(4, 0, square4 , 1);
-//    printCell(5, 0, square4 , 1);
-//    printCell(6, 0, square4 , 1);
-//    printCell(1, 7, square4 , 1);
-//    printCell(2, 7, square4 , 1);
-//    printCell(3, 7, square4 , 1);
-//    printCell(4, 7, square4 , 1);
-//    printCell(5, 7, square4 , 1);
-//    printCell(6, 7, square4 , 1);
-//
-//    printCell(7, 0, square4 , 1);
-//    printCell(7, 1, square4 , 1);
-//    printCell(7, 2, square4 , 1);
-//    printCell(7, 3, square4 , 1);
-//    printCell(7, 4, square4 , 1);
-//    printCell(7, 5, square4 , 1);
-//    printCell(7, 6, square4 , 1);
-//    printCell(7, 7, square4 , 1);
-//
-//    //switch colors
-//    uint32_t temp = square1;
-//    square1 = square4;
-//    square4 = square3;
-//    square3 = square2;
-//    square2 = temp;
-//
-//    delay(250);
-//  }
   uint32_t s1 = blue;
   uint32_t s2 = cyan;
   uint32_t s3 = green;
@@ -821,19 +722,6 @@ void startupLEDSequence() {
   uint32_t s;
   int i, j, k;
   for (i = 0; i < 3 * 4; i++) {
-//    int j;
-//    for(j = 0; j < 64; j++) {
-//      //(j < 8 && j >= 0) || (j < 64 && j >= 56) || j % 8 == 0 || j % 8 == 7
-//      if((j == 31 || j == 32) || (j == 39 || j == 40)) { //inner square
-//        strip.setPixelColor(j, s1);
-//      } else if((j > 16 && j < ) || ) { //second square
-//        strip.setPixelColor(j, s2);
-//      } else if() {
-//        strip.setPixelColor(j, s3);
-//      } else {
-//        strip.setPixelColor(j, s4);
-//      }
-//    }
     for(j = 0; j < X_DIM; j++) {
       for(k = 0; k < Y_DIM; k++) {
         if((j == 3 || j == 4) && (k == 3 || k == 4)) {
@@ -853,6 +741,7 @@ void startupLEDSequence() {
     s2 = s3;
     s3 = s4;
     s4 = s;
+    delay(500);
   }
 
   for (i = 0; i < 64; i++) {
@@ -879,7 +768,7 @@ void startupLEDSequence() {
   }
 
   //!!! Wait for mode and colour inputs
-  delay(2000); //!!! delete
+//  delay(2000); //!!! delete
 
 
   for (int j = 0; j < X_DIM * Y_DIM; j++) {
@@ -947,10 +836,8 @@ void respondGet(Adafruit_CC3000_ClientRef client) {
   // Now send the response data.
   client.fastrprintln(F("Connection successful"));
   client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
-  client.fastrprint(F("what is this shit"));
 }
 
-int count = 0;
 void respondPost(Adafruit_CC3000_ClientRef client) {
   //Read data from post request body and store info into fields
   String data = "";
@@ -978,14 +865,18 @@ void respondPost(Adafruit_CC3000_ClientRef client) {
   // Send an empty line to signal start of body.
   client.fastrprintln(F(""));
 
-  // Can be removed later
-  client.fastrprintln(count % 2 == 0 ? "1" : "2");
-  Serial.print("PLAYER: "); Serial.println(count % 2 == 0 ? "1" : "2");
-  count++;
+  client.fastrprintln(turns % 2 == 0 ? "1" : "2");
+  if (gameOver){
+    client.fastrprintln("gameover");
+  }
+  else if (!validMove){
+    client.fastrprintln("columnfull");
+  }
+  else{
+  Serial.print("PLAYER: "); Serial.println(turns % 2 == 0 ? "1" : "2");
+  }
   //    client.fastrprintln(F("Connection successful"));
   //    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
-
-  // TODO: Return player turn
 }
 
 /*
@@ -1023,26 +914,6 @@ void parseFirstLine(char* line, char* action, char* path) {
     strncpy(path, linepath, MAX_PATH);
 }
 
-// Tries to read the IP address and other connection details
-bool displayConnectionDetails(void) {
-  uint32_t ipAddress, netmask, gateway, dhcpserv, dnsserv;
-
-  if (!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv))
-  {
-    Serial.println(F("Unable to retrieve the IP Address!\r\n"));
-    return false;
-  }
-  else
-  {
-    Serial.print(F("\nIP Addr: ")); cc3000.printIPdotsRev(ipAddress);
-    Serial.print(F("\nNetmask: ")); cc3000.printIPdotsRev(netmask);
-    Serial.print(F("\nGateway: ")); cc3000.printIPdotsRev(gateway);
-    Serial.print(F("\nDHCPsrv: ")); cc3000.printIPdotsRev(dhcpserv);
-    Serial.print(F("\nDNSserv: ")); cc3000.printIPdotsRev(dnsserv);
-    Serial.println();
-    return true;
-  }
-}
 //================ END SERVER FUNCTIONS ================= //
 
 
@@ -1058,18 +929,20 @@ int connect4Setup() {
   boolean start = false;
   while (!start) {
     parseFieldValuePair(listenForInput(), setupString);
-
+    Serial.print(setupString[0]); Serial.print(" "); Serial.println(setupString[1]);
     if       (setupString[0].equals("mode")) {
       game_mode = decodeGameMode(setupString[1]);
     } else if (setupString[0].equals("player1colour")) {
       p1_colour = decodeColour(setupString[1]);
+      
     } else if (setupString[0].equals("player2colour")) {
       p2_colour = decodeColour(setupString[1]);
-    } else if ("start") {
+      
+    } else if (setupString[0].equals("start")) {
       if (game_mode != UNINITIALIZED && p1_colour != off && p2_colour != off)
         start = true; //successfully setup connect 4
-      else
-        return 0; //something went wrong during setup, vars not initialized
+      //else
+      //  return 0; //something went wrong during setup, vars not initialized
     }
   }
 
@@ -1081,6 +954,10 @@ int connect4Setup() {
 */
 void parseFieldValuePair(String in, String *setupString) {
   int i = in.indexOf('\t');
+  if (i == -1){
+    setupString[0] = in;
+    return;
+  }
   setupString[0] = in.substring(0, i);
   setupString[1] = in.substring(i + 1);
 }
