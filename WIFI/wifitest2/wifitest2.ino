@@ -74,10 +74,10 @@ void setup(void)
     delay(100);
   }
 
-//   Display the IP address DNS, Gateway, etc.
-//    while (! displayConnectionDetails()) {
-//      delay(1000);
-//    }
+  //   Display the IP address DNS, Gateway, etc.
+  //    while (! displayConnectionDetails()) {
+  //      delay(1000);
+  //    }
 
   // Start listening for connections
   httpServer.begin();
@@ -88,7 +88,7 @@ void loop(void)
 {
   // Declare client
   Adafruit_CC3000_ClientRef client = httpServer.available();
-  
+
   // If client is connected... start processing its request
   if (client) {
     //can be removed later
@@ -158,58 +158,58 @@ void processRequest(Adafruit_CC3000_ClientRef client, char* action)
   }
 }
 
-void respondGet(Adafruit_CC3000_ClientRef client){
+void respondGet(Adafruit_CC3000_ClientRef client) {
   // First send the success response code.
-    client.fastrprintln(F("HTTP/1.1 200 OK"));
-    //        // Then send a few headers to identify the type of data returned and that
-    //        // the connection will not be held open.
-    client.fastrprintln(F("Content-Type: text/plain"));
-    client.fastrprintln(F("Connection: close"));
-    client.fastrprintln(F("Server: Adafruit CC3000"));
-    //        // Send an empty line to signal start of body.
-    client.fastrprintln(F(""));
-    // Now send the response data.
-    client.fastrprintln(F("Connection successful"));
-    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
-    client.fastrprint(F("what is this shit"));
+  client.fastrprintln(F("HTTP/1.1 200 OK"));
+  //        // Then send a few headers to identify the type of data returned and that
+  //        // the connection will not be held open.
+  client.fastrprintln(F("Content-Type: text/plain"));
+  client.fastrprintln(F("Connection: close"));
+  client.fastrprintln(F("Server: Adafruit CC3000"));
+  //        // Send an empty line to signal start of body.
+  client.fastrprintln(F(""));
+  // Now send the response data.
+  client.fastrprintln(F("Connection successful"));
+  client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+  client.fastrprint(F("what is this shit"));
 }
 
 int count = 0;
-void respondPost(Adafruit_CC3000_ClientRef client){
-      //Read data from post request body and store info into fields
-    String data = "";
-    bool StartBody = false;
-    while (client.available()) {
-      //Serial.write(client.read());
-      char currentChar = client.read();
+void respondPost(Adafruit_CC3000_ClientRef client) {
+  //Read data from post request body and store info into fields
+  String data = "";
+  bool StartBody = false;
+  while (client.available()) {
+    //Serial.write(client.read());
+    char currentChar = client.read();
 
-      if (currentChar == '\n')
-        StartBody = true;
+    if (currentChar == '\n')
+      StartBody = true;
 
-      if (StartBody == true) {
-        data += (String) currentChar;
-      }
+    if (StartBody == true) {
+      data += (String) currentChar;
+    }
 
-    } Serial.println(data); //can be removed later
+  } Serial.println(data); //can be removed later
 
-    //Send server response back to client
-    //This would be used to send stuff like game state, win alert, etc back to client
-    client.fastrprintln(F("HTTP/1.1 200 OK"));
-    client.fastrprintln(F("Content-Type: text/plain"));
-    client.fastrprintln(F("Connection: close"));
-    client.fastrprintln(F("Server: Adafruit CC3000"));
+  //Send server response back to client
+  //This would be used to send stuff like game state, win alert, etc back to client
+  client.fastrprintln(F("HTTP/1.1 200 OK"));
+  client.fastrprintln(F("Content-Type: text/plain"));
+  client.fastrprintln(F("Connection: close"));
+  client.fastrprintln(F("Server: Adafruit CC3000"));
 
-    // Send an empty line to signal start of body.
-    client.fastrprintln(F(""));
+  // Send an empty line to signal start of body.
+  client.fastrprintln(F(""));
 
-    // Can be removed later
-    client.fastrprintln(count % 2 == 0 ? "1" : "2");
-    Serial.print("PLAYER: "); Serial.println(count % 2 == 0 ? "1" : "2");
-    count++;
-//    client.fastrprintln(F("Connection successful"));
-//    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
+  // Can be removed later
+  client.fastrprintln(count % 2 == 0 ? "1" : "2");
+  Serial.print("PLAYER: "); Serial.println(count % 2 == 0 ? "1" : "2");
+  count++;
+  //    client.fastrprintln(F("Connection successful"));
+  //    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
 
-    // TODO: Return player turn
+  // TODO: Return player turn
 }
 
 

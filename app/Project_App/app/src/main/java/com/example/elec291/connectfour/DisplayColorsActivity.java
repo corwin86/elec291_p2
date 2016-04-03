@@ -143,7 +143,8 @@ public class DisplayColorsActivity extends AppCompatActivity implements View.OnC
                 case R.id.buttonNext:
                     finish();
                     SystemClock.sleep(500);
-                    startActivity(new Intent(DisplayColorsActivity.this, ConnectViaWifi.class));
+                    startActivity(new Intent(DisplayColorsActivity.this, GameBoard.class));
+                    //startActivity(new Intent(DisplayColorsActivity.this, GameInstructions.class));
                     //startActivity(new Intent("com.example.elec291.connect4"));
                     break;
             }

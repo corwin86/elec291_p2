@@ -3,25 +3,25 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:background="#bdeae1">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:ems="10"
-        android:id="@+id/editText"
-        android:layout_marginTop="63dp"
-        android:textSize="24sp"
-        android:text="Press the button corresponding to the column you want to drop your chip in. If your move is invalid, try again."
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="DONE"
         android:id="@+id/buttonDone"
-        android:layout_below="@+id/editText"
+        android:layout_below="@+id/textView18"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="37dp" />
+        android:layout_marginTop="33dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Press the button corresponding to the column you want to drop your chip in. If your move is invalid, try again."
+        android:id="@+id/textView18"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/buttonDone"
+        android:layout_alignStart="@+id/buttonDone"
+        android:layout_marginTop="65dp"
+        android:layout_alignRight="@+id/buttonDone"
+        android:layout_alignEnd="@+id/buttonDone" />
 
 </RelativeLayout>

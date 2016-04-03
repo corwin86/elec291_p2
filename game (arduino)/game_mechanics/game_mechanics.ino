@@ -155,22 +155,22 @@ void setup() {
 
   //attempt to connect to wifi network
   Serial.print(F("\nAttempting to connect to ")); Serial.println(WLAN_SSID);
-  //  if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
-  //    Serial.println(F("Failed!"));
-  //    while (1);
-  //  }
+    if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
+      Serial.println(F("Failed!"));
+      while (1);
+    }
 
   //can be safely removed later
   Serial.println(F("Connected!"));
   Serial.println(F("Request DHCP"));
 
-  //  while (!cc3000.checkDHCP())
-  //  {
-  //    delay(100);
-  //  }
+  while (!cc3000.checkDHCP())
+  {
+    delay(100);
+  }
 
   // Start listening for connections
-  //  httpServer.begin();
+    httpServer.begin();
   /************END SERVER SETUP**************/
 
   randomSeed(analogRead(4));
@@ -373,8 +373,6 @@ void connect4Cascade(int **board) {
 
     Modifies board: if winning player found, flashes winning
       tiles to webwork green 3 times
-
-    !!!!!!NOTE: MUST SPECIFY WIN DATA!!!!!!!
 */
 int winningPlayer_connect4(int **board, int flash) {
   int winData[4] = {0};
