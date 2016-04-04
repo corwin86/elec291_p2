@@ -229,7 +229,7 @@ int8_t playConnectFour() {
           continue; //if connection error, try turn again
       }
       else
-        col = random() % 8; //aiNextMove(board, AI, P1);
+        col = aiNextMove(board, AI, P1);
     }
     else if (game_mode == MULTIPLAYER) {
       //        while (!Serial.available()); //wait for serial data before parsing
@@ -241,7 +241,7 @@ int8_t playConnectFour() {
     }
     else {      //AI mode
       int8_t other_player = cur_player == P1 ? P2 : P1;
-      col = random() % 8; //aiNextMove(board, cur_player, other_player);
+      col = aiNextMove(board, cur_player, other_player);
     }
     validMove = dropToken_connect4(board, col, cur_player, 1);
     // } while (!validMove);
