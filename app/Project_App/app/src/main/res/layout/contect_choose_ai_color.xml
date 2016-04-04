@@ -59,14 +59,12 @@
         android:layout_height="wrap_content"
         android:background="#d8db1e"
         android:id="@+id/buttonYellow"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="40dp"
         android:layout_below="@+id/buttonBlue"
         android:layout_alignLeft="@+id/buttonBlue"
         android:layout_alignStart="@+id/buttonBlue"
-        android:layout_toStartOf="@+id/textView2"
-        android:layout_toLeftOf="@+id/textView2"
-        android:layout_alignRight="@+id/buttonBlue"
-        android:layout_alignEnd="@+id/buttonBlue" />
+        android:layout_toLeftOf="@+id/buttonNext"
+        android:layout_toStartOf="@+id/buttonNext" />
 
     <Button
         android:layout_width="match_parent"

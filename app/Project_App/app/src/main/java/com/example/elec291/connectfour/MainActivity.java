@@ -16,7 +16,7 @@ import android.view.View;
 import android.widget.Toast;
 import android.view.View.OnClickListener;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends Activity{
 
     Button playButton;
     //static String PlayerModeSelected;

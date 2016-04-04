@@ -50,7 +50,7 @@
             android:name=".ChoosePlayerMode"
             android:label="@string/title_activity_choose_player_mode"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.elec291.connectfour.MainActivity" />

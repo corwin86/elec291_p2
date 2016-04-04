@@ -1,5 +1,6 @@
 package com.example.elec291.connectfour;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.SystemClock;
@@ -20,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by rohini on 23/03/16.
  */
-public class DisplayColorsActivity extends AppCompatActivity implements View.OnClickListener{
+public class DisplayColorsActivity extends Activity implements View.OnClickListener{
     Button buttonRed, buttonBlue, buttonGreen, buttonMagenta, buttonYellow, buttonCyan, buttonNext;
     TextView colorText2, textView3, textView4, textView5, textView6, textView7, textView8, textView12,
             textView13, textView14, textView15, textView16, textView17;

@@ -1,5 +1,6 @@
 package com.example.elec291.connectfour;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,7 +19,7 @@ import android.widget.RelativeLayout;
 import java.util.concurrent.ExecutionException;
 
 
-public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickListener {
+public class ChoosePlayerMode extends Activity implements View.OnClickListener {
 
     Button buttonSinglePlayer, buttonMultiPlayer, buttonAI;
     static String PlayerModeSelected;
@@ -27,14 +28,14 @@ public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choose_player_mode);
+        setContentView(R.layout.content_choose_player_mode);
         setTitle("Choose the Number of Players");
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//
+//
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Initialization
         buttonSinglePlayer = (Button) findViewById(R.id.buttonSinglePlayer);
@@ -86,9 +87,8 @@ public class ChoosePlayerMode extends AppCompatActivity implements View.OnClickL
             startActivity(new Intent(ChoosePlayerMode.this, ChooseChipColor.class));
             //startActivity(new Intent(ChoosePlayerMode.this, ConnectViaWifi.class));
         }
-        else{
+        else if (pressedButton == buttonAI){
             startActivity(new Intent(ChoosePlayerMode.this, ChooseAIColors.class));
-
         }
     }
 
