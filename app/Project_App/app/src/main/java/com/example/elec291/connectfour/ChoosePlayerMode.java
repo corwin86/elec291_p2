@@ -69,16 +69,16 @@ public class ChoosePlayerMode extends Activity implements View.OnClickListener {
     }
 
     public void onPlayerClick(Button pressedButton){
-        WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
-        try{
-            String toPost = stringToBePosted();
-            String responseString = wifiConnection.doPOST(toPost, MainActivity.urlToConnection);
-            System.out.println(responseString);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+//        WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
+//        try{
+//            String toPost = stringToBePosted();
+//            String responseString = wifiConnection.doPOST(toPost, MainActivity.urlToConnection);
+//            System.out.println(responseString);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        }
         if(pressedButton == buttonSinglePlayer){
             startActivity(new Intent(ChoosePlayerMode.this, DisplayColorsActivity.class));
             //startActivity(new Intent(ChoosePlayerMode.this, ConnectViaWifi.class));
