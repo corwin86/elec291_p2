@@ -183,14 +183,16 @@ void respondPost(Adafruit_CC3000_ClientRef client) {
     //Serial.write(client.read());
     char currentChar = client.read();
 
-    if (currentChar == '\n')
+    if (currentChar == '\n') {
       StartBody = true;
+      Serial.println("Start Body");
+    }
 
     if (StartBody == true) {
       data += (String) currentChar;
     }
-
-  } Serial.println(data); //can be removed later
+  } Serial.print("Data recieved: "); Serial.println(data); //can be removed later
+    Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
 
   //Send server response back to client
   //This would be used to send stuff like game state, win alert, etc back to client

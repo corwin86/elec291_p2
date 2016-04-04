@@ -42,8 +42,8 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 /********************END SERVER DEFINES********************/
 
 /********************GAME DEFINES********************/
-#define LED_PIN 6
-#define DEBUG 0
+#define LED_PIN 2
+#define DEBUG 1
 /*******************END GAME DEFINES*****************/
 
 
@@ -142,27 +142,27 @@ void setup() {
   Serial.begin(115200);
 
   //can be safely removed later
-  Serial.println(F("Hello, CC3000!\n"));
-  Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
+  //Serial.println(F("Hello, CC3000!\n"));
+  //Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
 
   // Initialise the module
   Serial.println(F("\nInitializing..."));
   if (!cc3000.begin())
   {
-    Serial.println(F("Couldn't begin()! Check your wiring?"));
+    //Serial.println(F("Couldn't begin()! Check your wiring?"));
     while (1);
   }
 
   //attempt to connect to wifi network
   Serial.print(F("\nAttempting to connect to ")); Serial.println(WLAN_SSID);
-    if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
-      Serial.println(F("Failed!"));
-      while (1);
-    }
+  if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
+    Serial.println(F("Failed!"));
+    while (1);
+  }
 
   //can be safely removed later
   Serial.println(F("Connected!"));
-  Serial.println(F("Request DHCP"));
+  //Serial.println(F("Request DHCP"));
 
   while (!cc3000.checkDHCP())
   {
@@ -170,7 +170,8 @@ void setup() {
   }
 
   // Start listening for connections
-    httpServer.begin();
+  httpServer.begin();
+  Serial.println(F("Wifi setup finished."));
   /************END SERVER SETUP**************/
 
   randomSeed(analogRead(4));
@@ -200,11 +201,11 @@ void loop() {
         break;
       }
     case ERR_INVALID_GAMEID : {
-        Serial.print("** ERR - INVALID GAME ID in loop(): "); Serial.println(gameId);
+        //Serial.print("** ERR - INVALID GAME ID in loop(): "); Serial.println(gameId);
         break;
       }
     case ERR_GENERIC_FAIL : {
-        Serial.println("** ERR - GENERIC FAIL: runGame(gameId) failed");
+        //Serial.println("** ERR - GENERIC FAIL: runGame(gameId) failed");
         break;
       }
   }
@@ -249,51 +250,47 @@ int playConnectFour() {
   int cur_player = P1; //cur_player is one of {P1, P2}
   turns = 0;
   while (!gameOver) {
-    validMove = true;
     int col;
-    do {
-      // -- take input --
-      // use serial for debug
-      if (game_mode == SINGLE_PLAYER) {
-        if (cur_player == P1) {
-#if DEBUG
-          while (!Serial.available()); //wait for serial data before parsing
-          col = Serial.parseInt();
-          Serial.println(col);
-          // clamp inputs to valid range
-          col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
-#else
-          col = getMoveFromServer();
-#endif
-          if (col == -1)
-            continue; //if connection error, try turn again
-        }
-        else
-          col = aiNextMove(board, AI, P1);
-      }
-      else if (game_mode == MULTIPLAYER) {
-#if DEBUG
-        while (!Serial.available()); //wait for serial data before parsing
-        col = Serial.parseInt();
-        Serial.println(col);
-        // clamp inputs to valid range
-        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
-#else
+    //do {
+    // -- take input --
+    // use serial for debug
+    if (game_mode == SINGLE_PLAYER) {
+      if (cur_player == P1) {
+        //          while (!Serial.available()); //wait for serial data before parsing
+        //          col = Serial.parseInt();
+        //          Serial.println(col);
+        //          // clamp inputs to valid range
+        //          col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
         col = getMoveFromServer();
-#endif
+        if (col == -1)
+          continue; //if connection error, try turn again
       }
-      else {      //AI mode
-        int other_player = cur_player == P1 ? P2 : P1;
-        col = aiNextMove(board, cur_player, other_player);
-      }
-    } while (!dropToken_connect4(board, col, cur_player, 1));
+      else
+        col = random() % 8; //aiNextMove(board, AI, P1);
+    }
+    else if (game_mode == MULTIPLAYER) {
+      //        while (!Serial.available()); //wait for serial data before parsing
+      //        col = Serial.parseInt();
+      //        Serial.println(col);
+      //        // clamp inputs to valid range
+      //        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
+      col = getMoveFromServer();
+    }
+    else {      //AI mode
+      int other_player = cur_player == P1 ? P2 : P1;
+      col = random() % 8; //aiNextMove(board, cur_player, other_player);
+    }
+    validMove = dropToken_connect4(board, col, cur_player, 1);
+    // } while (!validMove);
 
     printBoard(board);
 
-    cur_player = cur_player == P1 ? P2 : P1; //change turns
-    turns++;
-    gameOver = gameOver_connect4(board);
-    validMove = board[Y_DIM - 1][col] == EMPTY_CELL;
+    if (validMove) {
+      cur_player = cur_player == P1 ? P2 : P1; //change turns
+      turns++;
+      gameOver = gameOver_connect4(board);
+    }
+
   }
   //-- end gameplay --
 
@@ -807,7 +804,9 @@ String processRequest(Adafruit_CC3000_ClientRef client, char* action)
   String data;
   // RESPONSE FOR POST REQUEST
   if (strcmp(action, "POST") == 0) {
-    data = readPost(client);
+    Serial.println("responding to post request...");
+    data = respondPost(client);
+    Serial.println("responded.");
   }
   else {
     // Unsupported action, respond with an HTTP 405 method not allowed error.
@@ -818,29 +817,26 @@ String processRequest(Adafruit_CC3000_ClientRef client, char* action)
   return data;
 }
 
-String readPost(Adafruit_CC3000_ClientRef client){
-    //Read data from post request body and store info into fields
+String respondPost(Adafruit_CC3000_ClientRef client) {
+  //Read data from post request body and store info into fields
   String data = "";
-  bool StartBody = false;
+  int StartBody = 0;
   while (client.available()) {
     //Serial.write(client.read());
     char currentChar = client.read();
 
-    if (currentChar == '\n')
-      StartBody = true;
-
-    if (StartBody == true) {
-      data += (String) currentChar;
+    if (currentChar == '\n') {
+      StartBody ++;
     }
 
-  } Serial.println(data); //can be removed later
+    if (StartBody > 6) {
+      data += (String) currentChar;
+    }
+  } Serial.print("Data recieved: "); Serial.println(data); //can be removed later
+    Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
 
-  return data;
-}
-
-void respondPost(Adafruit_CC3000_ClientRef client){
   //Send server response back to client
-  //This would be used to send stuff like game state, win alert, etc back to client
+  //  This would be used to send stuff like game state, win alert, etc back to client
   client.fastrprintln(F("HTTP/1.1 200 OK"));
   client.fastrprintln(F("Content-Type: text/plain"));
   client.fastrprintln(F("Connection: close"));
@@ -848,59 +844,15 @@ void respondPost(Adafruit_CC3000_ClientRef client){
 
   // Send an empty line to signal start of body.
   client.fastrprintln(F(""));
-  
+
   if (gameOver) {
     client.fastrprintln("gameover");
   }
-  else if (!validMove) {
-    client.fastrprintln("columnfull");
-  }
   else {
     client.fastrprintln(turns % 2 == 0 ? "1" : "2");
-    Serial.print("PLAYER: "); Serial.println(turns % 2 == 0 ? "1" : "2");
   }
+  return data;
 }
-
-//void respondPost(Adafruit_CC3000_ClientRef client) {
-//  //Read data from post request body and store info into fields
-//  String data = "";
-//  bool StartBody = false;
-//  while (client.available()) {
-//    //Serial.write(client.read());
-//    char currentChar = client.read();
-//
-//    if (currentChar == '\n')
-//      StartBody = true;
-//
-//    if (StartBody == true) {
-//      data += (String) currentChar;
-//    }
-//
-//  } Serial.println(data); //can be removed later
-//
-//  //Send server response back to client
-//  //This would be used to send stuff like game state, win alert, etc back to client
-//  client.fastrprintln(F("HTTP/1.1 200 OK"));
-//  client.fastrprintln(F("Content-Type: text/plain"));
-//  client.fastrprintln(F("Connection: close"));
-//  client.fastrprintln(F("Server: Adafruit CC3000"));
-//
-//  // Send an empty line to signal start of body.
-//  client.fastrprintln(F(""));
-//  
-//  if (gameOver) {
-//    client.fastrprintln("gameover");
-//  }
-//  else if (!validMove) {
-//    client.fastrprintln("columnfull");
-//  }
-//  else {
-//    client.fastrprintln(turns % 2 == 0 ? "1" : "2");
-//    Serial.print("PLAYER: "); Serial.println(turns % 2 == 0 ? "1" : "2");
-//  }
-//  //    client.fastrprintln(F("Connection successful"));
-//  //    client.fastrprint(F("You accessed path: ")); client.fastrprintln(path);
-//}
 
 /*
   Return true if the buffer contains an HTTP request.  Also returns the request
@@ -948,7 +900,7 @@ void parseFirstLine(char* line, char* action, char* path) {
 */
 int connect4Setup() {
   String setupString[2]; // 0 is field, 1 is value
-
+  Serial.println("start game setup");
   boolean start = false;
   while (!start) {
     parseFieldValuePair(listenForInput(), setupString);
@@ -964,11 +916,10 @@ int connect4Setup() {
     } else if (setupString[0].equals("start")) {
       if (game_mode != UNINITIALIZED && p1_colour != off && p2_colour != off)
         start = true; //successfully setup connect 4
-      //else
-      //  return 0; //something went wrong during setup, vars not initialized
     }
+    else continue;
   }
-
+  Serial.println("end game setup");
   return 1;
 }
 
@@ -976,6 +927,10 @@ int connect4Setup() {
     Takes string in, parses into a Field-Value pair into setupString array
 */
 void parseFieldValuePair(String in, String *setupString) {
+  if (in.equals("ERROR")) {
+    Serial.println("error in parseFieldValuePair");
+    return;
+  }
   int i = in.indexOf('\t');
   if (i == -1) {
     setupString[0] = in;
@@ -1027,19 +982,13 @@ int decodeGameMode(String s) {
     returns empty string if not connected or other error occurred
 */
 String listenForInput() {
+  String data = "ERROR";
   // Declare and wait for client
   Adafruit_CC3000_ClientRef client = httpServer.available();
-  int waitTime = 0;
-  while (!client && waitTime++ < MAX_WAIT_TIME) {
+  while (!client) {
     client = httpServer.available();
     delay(100);
   }
-
-  //if client not connecting, break and return -1
-  if (waitTime == MAX_WAIT_TIME) {
-    return "";
-  }
-
   // If client is connected... start processing its request
   if (client) {
     //can be removed later
@@ -1061,24 +1010,21 @@ String listenForInput() {
     if (parsed) {
       //can be removed later
 #if DEBUG
-      Serial.println(F("Processing request"));
-      Serial.print(F("Action: ")); Serial.println(action);
-      Serial.print(F("Path: ")); Serial.println(path);
+      //Serial.println(F("Processing request"));
+      //Serial.print(F("Action: ")); Serial.println(action);
 #endif
-      
-      String data = processRequest(client, action); //function to process request
-
+      data = processRequest(client, action); //function to process request
+    
       // Wait a short period to make sure the response had time to send before
       // the connection is closed (the CC3000 sends data asyncronously).
       delay(100);
 
       // Close the connection when done.
-
-      Serial.println(F("Client disconnected"));
       client.close();
+      Serial.println(F("Client disconnected"));
     }
   }
-  return "";
+  return data;
 }
 
 //returns a move from the server by parsing a number, -1 if not a valid move read
