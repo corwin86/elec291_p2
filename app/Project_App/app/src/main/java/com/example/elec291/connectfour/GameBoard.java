@@ -1,11 +1,13 @@
 package com.example.elec291.connectfour;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import java.lang.Integer;
 
@@ -14,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by rohini on 25/03/16.
  */
-public class GameBoard extends AppCompatActivity implements View.OnClickListener{
+public class GameBoard extends Activity implements View.OnClickListener{
 
     Button instructions, Column1, Column2, Column3, Column4, Column5, Column6, Column7, Column8;
     TextView currentPlayer;
