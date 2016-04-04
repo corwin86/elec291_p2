@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="ede7d7">
 
 
 
@@ -9,12 +10,13 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Choose a Chip Color"
-        android:textSize="18sp"
-        android:visibility="invisible"
+        android:textSize="24sp"
         android:id="@+id/textView2"
         android:layout_marginTop="25dp"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textColor="a69d7e" />
+
 
 
     <Button
@@ -98,11 +100,12 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
         android:text="Next"
+        android:visibility="invisible"
+        android:textColor="#fff"
         android:id="@+id/buttonNext"
         android:clickable="false"
-        android:background="#e9d2c2"
+        android:background="#a69d7e"
         android:layout_below="@+id/buttonGreen"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="23dp" />
