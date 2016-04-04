@@ -1,8 +1,8 @@
 #include <Adafruit_NeoPixel.h>
 
-#define PIN 6
+#define PIN 2
 
-#define DEBUG 1
+#define DEBUG 0
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -90,9 +90,9 @@ void setup() {
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
 
-#if !DEBUG
+//#if !DEBUG
   startupLEDSequence();
-#endif
+//#endif
 }
 
 void loop() {
@@ -657,6 +657,7 @@ void printCell(int x, int y, uint32_t color, int show) {
     Displays a welcome/startup pattern on the LEDs
 */
 void startupLEDSequence() {
+  Serial.println("Startup");
   int i = 0;
 
   uint32_t square1 = blue;
