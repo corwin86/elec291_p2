@@ -68,41 +68,35 @@ uint32_t victoryBlink;
 // ==== Constants ====
 
 /* ---- hardware dependent ---- */
-const int MAX_BOARD_X = 8,
+const int8_t MAX_BOARD_X = 8,
           MAX_BOARD_Y = 8,
           LED_BRIGHTNESS = 25;
 /* -- end hardware dependent -- */
 
 /* ---- game ids ---- */
-const int CONNECT_FOUR = 0;
+const int8_t CONNECT_FOUR = 0;
 /* -- end game ids -- */
 
 /* ---- game parameters ---- */
-const int P1 = 1,
+const int8_t P1 = 1,
           P2 = 2,          // tokens used on board
           AI = 2,
           EMPTY_CELL = 0;
-const int AI_VS_AI = 0,
+const int8_t AI_VS_AI = 0,
           SINGLE_PLAYER = 1,  //game modes
           MULTIPLAYER = 2,
           UNINITIALIZED = -1;
-const int X_DIM = 8,
+const int8_t X_DIM = 8,
           Y_DIM = 8,
           SEQ_LENGTH = 5;
 const int BAD_MOVE = -1000,
           GOOD_MOVE = 1000,
           IMPOSSIBLE_MOVE = -11111;
-const int TOKEN_DROP_SPEED = 35; // millis delay for token dropping
+const int8_t TOKEN_DROP_SPEED = 35; // millis delay for token dropping
 /* -- end game parameters -- */
 
-/* ---- error states ---- */
-const int FN_SUCCESS = 1,
-          ERR_GENERIC_FAIL = -1,
-          ERR_INVALID_GAMEID = -2;
-/* -- end error states -- */
-
 /* ---- directions ---- */
-const int UP = 1,
+const int8_t UP = 1,
           LEFT = 2,
           UP_LEFT = 3,
           DOWN_LEFT = 4;
@@ -116,18 +110,17 @@ const int UP = 1,
 /* ---- player info ---- */
 uint32_t p1_colour = off,
          p2_colour = off;
-int      turns;
+int8_t      turns;
 bool     gameOver,
          validMove;
 /* -- end player info -- */
 
 /* ---- gane parameters ---- */
-int   difficulty = 2,         //AI recursion depth
+int8_t   difficulty = 2,         //AI recursion depth
       game_mode = UNINITIALIZED;   //starts in 1p mode
 /* -- end gane parameters -- */
 
 /* ---- server variables ---- */
-const int MAX_WAIT_TIME = 50;   //wait max of 5 seconds to recieve data
 Adafruit_CC3000_Server httpServer(LISTEN_PORT);
 uint8_t buffer[BUFFER_SIZE + 1];
 int     bufindex = 0;
@@ -185,60 +178,37 @@ void setup() {
   strip.show();
 
 #if !DEBUG
-  Serial.println("start seq");
+  Serial.println(F("start seq"));
   startupLEDSequence();
-  Serial.println("end seq");
+  Serial.println(F("end seq"));
 #endif
 }
 
 void loop() {
-  int gameId = 0;
-  int e = runGame(gameId);
-
-  // error handle
-  switch (e) {
-    case FN_SUCCESS : {
-        break;
-      }
-    case ERR_INVALID_GAMEID : {
-        //Serial.print("** ERR - INVALID GAME ID in loop(): "); Serial.println(gameId);
-        break;
-      }
-    case ERR_GENERIC_FAIL : {
-        //Serial.println("** ERR - GENERIC FAIL: runGame(gameId) failed");
-        break;
-      }
-  }
+  int8_t gameId = 0;
+  runGame(gameId);
 }
 
-int runGame(int gameId) {
+int8_t runGame(int8_t gameId) {
   switch (gameId) {
     case CONNECT_FOUR : {
-        int e = playConnectFour();
-
-        // error handle
-        if (e == 1) {
-          return FN_SUCCESS;
-        } else {
-          return ERR_GENERIC_FAIL;
-        }
+        playConnectFour();
         break;
       }
     default : {
         // gameId did not match any library games
-        return ERR_INVALID_GAMEID;
+        return 0;
       }
   }
 }
 
-int playConnectFour() {
+int8_t playConnectFour() {
   gameOver = false;
   connect4Setup();
   // Create board
-  int **board = createBoard();
-
+  int8_t **board = createBoard();
   // initialize board as empty (no tokens until users start dropping)
-  int x, y;
+  int8_t x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
       board[y][x] = EMPTY_CELL;
@@ -247,10 +217,10 @@ int playConnectFour() {
   printBoard(board);
 
   //---- gameplay ----
-  int cur_player = P1; //cur_player is one of {P1, P2}
+  int8_t cur_player = P1; //cur_player is one of {P1, P2}
   turns = 0;
   while (!gameOver) {
-    int col;
+    int8_t col;
     //do {
     // -- take input --
     // use serial for debug
@@ -277,7 +247,7 @@ int playConnectFour() {
       col = getMoveFromServer();
     }
     else {      //AI mode
-      int other_player = cur_player == P1 ? P2 : P1;
+      int8_t other_player = cur_player == P1 ? P2 : P1;
       col = random() % 8; //aiNextMove(board, cur_player, other_player);
     }
     validMove = dropToken_connect4(board, col, cur_player, 1);
@@ -300,14 +270,14 @@ int playConnectFour() {
   // free malloc'd memory
   freeBoard(board);
 
-  return FN_SUCCESS; //game completed successfully
+  return 1; //game completed successfully
 }
 
 /*
     Place a player token on board in column x !!!untested
 */
-int dropToken_connect4(int **board, int col, int token, int animated) {
-  int y = -1;
+int8_t dropToken_connect4(int8_t **board, int8_t col, int8_t token, int8_t animated) {
+  int8_t y = -1;
   while (board[y + 1][col] == EMPTY_CELL && y + 1 < Y_DIM) {
     y++;
   }
@@ -319,7 +289,7 @@ int dropToken_connect4(int **board, int col, int token, int animated) {
   if (animated) {
     uint32_t colour = getPlayerColour(token);
 
-    int i = -2;
+    int8_t i = -2;
     while (++i < y) {
       delay(TOKEN_DROP_SPEED);
       printCell(col, i, off, 0);
@@ -336,7 +306,7 @@ int dropToken_connect4(int **board, int col, int token, int animated) {
 /*
     Return true if a player has won, or a draw is reached (board is full)
 */
-int gameOver_connect4(int **board) {
+int8_t gameOver_connect4(int8_t **board) {
   return winningPlayer_connect4(board, 1) > 0 || boardFull();
 }
 
@@ -345,9 +315,9 @@ int gameOver_connect4(int **board) {
     Modifies board: replaces all user tokens with EMPTY_CELL
     !!!untested!!!
 */
-void connect4Cascade(int **board) {
-  Serial.print("Cascade\n");
-  int x, y, count;
+void connect4Cascade(int8_t **board) {
+  Serial.print(F("Cascade\n"));
+  int8_t x, y, count;
 
   for (count = 0; count < Y_DIM; count++) {
     for (y = Y_DIM - 1; y >= count; y--) {
@@ -371,9 +341,9 @@ void connect4Cascade(int **board) {
     Modifies board: if winning player found, flashes winning
       tiles to webwork green 3 times
 */
-int winningPlayer_connect4(int **board, int flash) {
-  int winData[4] = {0};
-  int flashes = 3 * 2;
+int8_t winningPlayer_connect4(int8_t **board, int8_t flash) {
+  int8_t winData[4] = {0};
+  int8_t flashes = 3 * 2;
 
   detectDiagLine(P1, SEQ_LENGTH, board, winData);
   if (winData[0] == -1) {
@@ -399,7 +369,7 @@ int winningPlayer_connect4(int **board, int flash) {
   if (flash) {
     printBoard(board);
     delay(500);
-    int x = winData[0], y = winData[1];
+    int8_t x = winData[0], y = winData[1];
     if (p1_colour != green) {
       if (p2_colour != green) {
         victoryBlink = green;  //!green vs !green
@@ -419,7 +389,7 @@ int winningPlayer_connect4(int **board, int flash) {
     }
 
     while (flashes-- > 0) {
-      int i = -1;
+      int8_t i = -1;
       while (i++ < SEQ_LENGTH - 1) {
         uint32_t colour = flashes % 2 ? victoryBlink : getPlayerColour(winData[3]);
         switch (winData[2]) {
@@ -432,7 +402,7 @@ int winningPlayer_connect4(int **board, int flash) {
           case DOWN_LEFT:
             printCell(x + i, y - i, colour, 0); break;
           default:
-            Serial.print("ERROR: check line detecting logic: Win Data is "); Serial.println(winData[2]); break;
+            Serial.print(F("ERROR: check line detecting logic: Win Data is ")); Serial.println(winData[2]); break;
         }
       }
       strip.show();
@@ -452,8 +422,8 @@ int winningPlayer_connect4(int **board, int flash) {
 
    If no such sequence is found, returns NULL
 */
-void detectVertLine(int player, int len, int** board, int *coordAndDir) {
-  int x, y, count;
+void detectVertLine(int8_t player, int8_t len, int8_t** board, int8_t *coordAndDir) {
+  int8_t x, y, count;
   for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through bottom half of grid
     for (x = 0; x < X_DIM; x++) {
       for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
@@ -479,8 +449,8 @@ void detectVertLine(int player, int len, int** board, int *coordAndDir) {
 
    If no such sequence is found, returns NULL
 */
-void detectHorizLine(int player, int len, int** board, int *coordAndDir) {
-  int x, y, count;
+void detectHorizLine(int8_t player, int8_t len, int8_t** board, int8_t *coordAndDir) {
+  int8_t x, y, count;
 
   for (x = 0; x <= X_DIM - len; x++) {                          //iterate through left half of grid
     for (y = 0; y < Y_DIM; y++) {
@@ -507,8 +477,8 @@ void detectHorizLine(int player, int len, int** board, int *coordAndDir) {
 
    If no such sequence is found, returns NULL
 */
-void detectDiagLine(int player, int len, int** board, int *coordAndDir) {
-  int x, y, count;
+void detectDiagLine(int8_t player, int8_t len, int8_t** board, int8_t *coordAndDir) {
+  int8_t x, y, count;
 
   for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all of bottom left corner of grid
     for (x = 0; x <= X_DIM - len; x++) {
@@ -541,15 +511,15 @@ void detectDiagLine(int player, int len, int** board, int *coordAndDir) {
 }
 
 // Returns 0 if board contains 1+ empty cells
-int boardFull() {
+int8_t boardFull() {
   return turns >= X_DIM * Y_DIM;
 }
 
 /*
     Example of call to aiRecursiveSearch
 */
-int aiNextMove(int **board, int ai_token, int player_token) {
-  int col_points[X_DIM] = {0};
+int8_t aiNextMove(int8_t **board, int8_t ai_token, int8_t player_token) {
+  int8_t col_points[X_DIM] = {0};
   aiRecursiveSearch(board, 0, col_points, ai_token, player_token);
   return selectNextMove(col_points);
 }
@@ -563,9 +533,9 @@ int aiNextMove(int **board, int ai_token, int player_token) {
 
     Modifies: col_points - the current number of points for each column, changes through recursive calls
 */
-void aiRecursiveSearch(int **board, int level, int *col_points, int ai_token, int player_token) {
+void aiRecursiveSearch(int8_t **board, int8_t level, int8_t *col_points, int8_t ai_token, int8_t player_token) {
   level++;
-  int ai_col, p_col;
+  int8_t ai_col, p_col;
 
   //note: num points assigned equal to 1000/level.
   //ex. if it can win 3 moves in advance but can lose in 2 moves, assign 333 - 500 = -167 points.
@@ -588,7 +558,7 @@ void aiRecursiveSearch(int **board, int level, int *col_points, int ai_token, in
         if (board[0][p_col] != EMPTY_CELL) {
           continue;
         }
-        int p_break = 0;
+        int8_t p_break = 0;
         dropToken_connect4(board, p_col, player_token, 0);
 
         if (winningPlayer_connect4(board, 0) == player_token) {
@@ -610,9 +580,9 @@ void aiRecursiveSearch(int **board, int level, int *col_points, int ai_token, in
 }
 
 
-int selectNextMove(int *col_points) {
-  int i;
-  int next_move = 0, ties = 0;
+int8_t selectNextMove(int8_t *col_points) {
+  int8_t i;
+  int8_t next_move = 0, ties = 0;
   for (i = 0; i < X_DIM; i++) { //!!! start at 0
     if (col_points[i] > col_points[next_move]) {
       next_move = i;
@@ -643,8 +613,8 @@ int selectNextMove(int *col_points) {
   return next_move;
 }
 
-void popToken(int **board, int col) {
-  int y = 0;
+void popToken(int8_t **board, int8_t col) {
+  int8_t y = 0;
   while (board[y][col] == EMPTY_CELL && y < Y_DIM) {
     y++;
   }
@@ -655,11 +625,11 @@ void popToken(int **board, int col) {
 /*
     Allocate a x_dim by y_dim board to be used in a game
 */
-int **createBoard() {
-  int **board = (int **)malloc(Y_DIM * sizeof(int *));
-  int x, y; // loop indeces
+int8_t **createBoard() {
+  int8_t **board = (int8_t **)malloc(Y_DIM * sizeof(int8_t *));
+  int8_t x, y; // loop indeces
   for (y = 0; y < Y_DIM; y++) {
-    board[y] = (int *)malloc(X_DIM * sizeof(int));
+    board[y] = (int8_t *)malloc(X_DIM * sizeof(int8_t));
   }
 
   return board;
@@ -668,8 +638,8 @@ int **createBoard() {
 /*
     Free an x_dim by (irrelevant) board's allocated memory
 */
-void freeBoard(int **board) {
-  int y;
+void freeBoard(int8_t **board) {
+  int8_t y;
   for (y = 0; y < Y_DIM; y++) {
     free(board[y]);
   }
@@ -679,10 +649,10 @@ void freeBoard(int **board) {
 /*
     Output current state of a board
 */
-void printBoard(int **board) {
+void printBoard(int8_t **board) {
   //!!! to be changed to print to LEDs
   //    uses serial for dev
-  int x, y;
+  int8_t x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
       //Serial.print(board[y][x]); Serial.print("\t");
@@ -698,8 +668,8 @@ void printBoard(int **board) {
 /*
    given a row,column and color light up specified led
 */
-void printCell(int x, int y, uint32_t color, int show) {
-  int led = X_DIM * y + x;
+void printCell(int8_t x, int8_t y, uint32_t color, int8_t show) {
+  int8_t led = X_DIM * y + x;
   strip.setPixelColor(led, color); //sets colour of first pixel
   if (show) {
     strip.show(); //'pushes' colour data to the strip
@@ -715,7 +685,7 @@ void startupLEDSequence() {
   uint32_t s3 = green;
   uint32_t s4 = yellow;
   uint32_t s;
-  int i, j, k;
+  int8_t i, j, k;
   for (i = 0; i < 3 * 4; i++) {
     for (j = 0; j < X_DIM; j++) {
       for (k = 0; k < Y_DIM; k++) {
@@ -766,21 +736,21 @@ void startupLEDSequence() {
   //  delay(2000); //!!! delete
 
 
-  for (int j = 0; j < X_DIM * Y_DIM; j++) {
+  for (int8_t j = 0; j < X_DIM * Y_DIM; j++) {
     strip.setPixelColor(j, off);
     strip.show();
   }
 }
 
 // Returns the colour of the player
-uint32_t getPlayerColour(int player) {
+uint32_t getPlayerColour(int8_t player) {
   uint32_t p = player == P1 ? p1_colour : player == P2 ? p2_colour : off;
   return p;
 }
 
 //calculates the position of an LED in the matrix
-int calculateLedPosition(int x, int y) {
-  int led = 8 * y + x;
+int8_t calculateLedPosition(int8_t x, int8_t y) {
+  int8_t led = 8 * y + x;
   return led;
 }
 
@@ -805,10 +775,13 @@ String processRequest(Adafruit_CC3000_ClientRef client, char* action)
   // RESPONSE FOR POST REQUEST
   if (strcmp(action, "POST") == 0) {
     Serial.println("responding to post request...");
+    Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
     data = respondPost(client);
+    Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
     Serial.println("responded.");
   }
   else {
+    Serial.println(F("NOT A POST!!"));
     // Unsupported action, respond with an HTTP 405 method not allowed error.
     client.fastrprintln(F("HTTP/1.1 200 OK"));
     client.fastrprintln(F(""));
@@ -820,20 +793,14 @@ String processRequest(Adafruit_CC3000_ClientRef client, char* action)
 String respondPost(Adafruit_CC3000_ClientRef client) {
   //Read data from post request body and store info into fields
   String data = "";
-  int StartBody = 0;
+  char last_char = '0'; //not a new line
   while (client.available()) {
-    //Serial.write(client.read());
     char currentChar = client.read();
 
-    if (currentChar == '\n') {
-      StartBody ++;
-    }
+    data = (String) last_char + (String) currentChar;
 
-    if (StartBody > 6) {
-      data += (String) currentChar;
-    }
+    last_char = currentChar;
   } Serial.print("Data recieved: "); Serial.println(data); //can be removed later
-    Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
 
   //Send server response back to client
   //  This would be used to send stuff like game state, win alert, etc back to client
@@ -898,63 +865,58 @@ void parseFirstLine(char* line, char* action, char* path) {
 
     returns 1 if successfully initialized, or 0 if connection error
 */
-int connect4Setup() {
-  String setupString[2]; // 0 is field, 1 is value
+int8_t connect4Setup() {
+  char value;
+  char field;
   Serial.println("start game setup");
   boolean start = false;
   while (!start) {
-    parseFieldValuePair(listenForInput(), setupString);
-    Serial.print(setupString[0]); Serial.print(" "); Serial.println(setupString[1]);
-    if       (setupString[0].equals("mode")) {
-      game_mode = decodeGameMode(setupString[1]);
-    } else if (setupString[0].equals("player1colour")) {
-      p1_colour = decodeColour(setupString[1]);
-
-    } else if (setupString[0].equals("player2colour")) {
-      p2_colour = decodeColour(setupString[1]);
-
-    } else if (setupString[0].equals("start")) {
+    parseFieldValuePair(listenForInput(), &field, &value);
+    Serial.print(field); Serial.print(" "); Serial.println(value);
+    if       (field == 'm') {
+      game_mode = decodeGameMode(value);
+    } else if (field == '1') {
+      p1_colour = decodeColour(value);
+    } else if (field == '2') {
+      p2_colour = decodeColour(value);
+    } else if (field == 's') {
       if (game_mode != UNINITIALIZED && p1_colour != off && p2_colour != off)
         start = true; //successfully setup connect 4
     }
     else continue;
   }
   Serial.println("end game setup");
+  Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
   return 1;
 }
 
 /*
     Takes string in, parses into a Field-Value pair into setupString array
 */
-void parseFieldValuePair(String in, String *setupString) {
+void parseFieldValuePair(String in, char *field, char *value) {
   if (in.equals("ERROR")) {
     Serial.println("error in parseFieldValuePair");
     return;
   }
-  int i = in.indexOf('\t');
-  if (i == -1) {
-    setupString[0] = in;
-    return;
-  }
-  setupString[0] = in.substring(0, i);
-  setupString[1] = in.substring(i + 1);
+  *field = in.charAt(0);
+  *value = in.charAt(1);
 }
 
 /*
     Take string representation of player colour, return uint32_t colour representation
 */
-uint32_t decodeColour(String s) {
-  if       (s.equals("red")) {
+uint32_t decodeColour(char s) {
+  if       (s == 'r') {
     return red;
-  } else if (s.equals("blue")) {
+  } else if (s == 'b') {
     return blue;
-  } else if (s.equals("green")) {
+  } else if (s == 'g') {
     return green;
-  } else if (s.equals("cyan")) {
+  } else if (s == 'c') {
     return cyan;
-  } else if (s.equals("magenta")) {
+  } else if (s == 'm') {
     return magenta;
-  } else if (s.equals("yellow")) {
+  } else if (s == 'y') {
     return yellow;
   } else {
     return off;
@@ -964,12 +926,12 @@ uint32_t decodeColour(String s) {
 /*
     Take string rep of game mode, return int representation
 */
-int decodeGameMode(String s) {
-  if       (s.equals("single")) {
+int8_t decodeGameMode(char s) {
+  if       (s == 's') {
     return SINGLE_PLAYER;
-  } else if (s.equals("multi")) {
+  } else if (s == 'm') {
     return MULTIPLAYER;
-  } else if (s.equals("ai")) {
+  } else if (s == 'a') {
     return AI_VS_AI;
   } else {
     return UNINITIALIZED;
@@ -984,51 +946,51 @@ int decodeGameMode(String s) {
 String listenForInput() {
   String data = "ERROR";
   // Declare and wait for client
-  Adafruit_CC3000_ClientRef client = httpServer.available();
-  while (!client) {
-    client = httpServer.available();
-    delay(100);
-  }
-  // If client is connected... start processing its request
-  if (client) {
-    //can be removed later
-    Serial.println(F("Client connected."));
-    // Clear the incoming data buffer and point to the beginning of it
-    bufindex = 0;
-    memset(&buffer, 0, sizeof(buffer));
-    memset(&action, 0, sizeof(action));
-    memset(&path,   0, sizeof(path));
-
-    // Set a timeout for reading all the incoming data.
-    unsigned long endtime = millis() + TIMEOUT_MS;
-
-    // Read all the incoming data until it can be parsed or the timeout expires.
-    bool parsed = false;
-    parsed = parsingRequest(client, parsed, endtime); //function to parse request
-
-    // Handle the request if it was parsed.
-    if (parsed) {
+  bool clientFlag = false;
+  do {
+    Adafruit_CC3000_ClientRef client = httpServer.available();
+    // If client is connected... start processing its request
+    if (client) {
+      clientFlag = true;
       //can be removed later
-#if DEBUG
-      //Serial.println(F("Processing request"));
-      //Serial.print(F("Action: ")); Serial.println(action);
-#endif
-      data = processRequest(client, action); //function to process request
-    
-      // Wait a short period to make sure the response had time to send before
-      // the connection is closed (the CC3000 sends data asyncronously).
-      delay(100);
+      Serial.println(F("Client connected."));
+      // Clear the incoming data buffer and point to the beginning of it
+      bufindex = 0;
+      memset(&buffer, 0, sizeof(buffer));
+      memset(&action, 0, sizeof(action));
+      memset(&path,   0, sizeof(path));
 
-      // Close the connection when done.
-      client.close();
-      Serial.println(F("Client disconnected"));
+      // Set a timeout for reading all the incoming data.
+      unsigned long endtime = millis() + TIMEOUT_MS;
+
+      // Read all the incoming data until it can be parsed or the timeout expires.
+      bool parsed = false;
+      parsed = parsingRequest(client, parsed, endtime); //function to parse request
+
+      // Handle the request if it was parsed.
+      if (parsed) {
+        //can be removed later
+#if DEBUG
+        //Serial.println(F("Processing request"));
+        //Serial.print(F("Action: ")); Serial.println(action);
+#endif
+        data = processRequest(client, action); //function to process request
+
+        // Wait a short period to make sure the response had time to send before
+        // the connection is closed (the CC3000 sends data asyncronously).
+        delay(100);
+
+        // Close the connection when done.
+        client.close();
+        Serial.println(F("Client disconnected"));
+      }
     }
-  }
+  } while (!clientFlag);
   return data;
 }
 
 //returns a move from the server by parsing a number, -1 if not a valid move read
-int getMoveFromServer() {
-  return listenForInput().toInt();
+int8_t getMoveFromServer() {
+  return listenForInput().charAt(1) - '0';
 }
 
