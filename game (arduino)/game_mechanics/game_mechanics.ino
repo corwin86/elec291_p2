@@ -68,9 +68,7 @@ uint32_t victoryBlink;
 // ==== Constants ====
 
 /* ---- hardware dependent ---- */
-const int8_t MAX_BOARD_X = 8,
-          MAX_BOARD_Y = 8,
-          LED_BRIGHTNESS = 25;
+const uint8_t LED_BRIGHTNESS = 25;
 /* -- end hardware dependent -- */
 
 /* ---- game ids ---- */
@@ -79,16 +77,16 @@ const int8_t CONNECT_FOUR = 0;
 
 /* ---- game parameters ---- */
 const int8_t P1 = 1,
-          P2 = 2,          // tokens used on board
-          AI = 2,
-          EMPTY_CELL = 0;
+             P2 = 2,          // tokens used on board
+             AI = 2,
+             EMPTY_CELL = 0;
 const int8_t AI_VS_AI = 0,
-          SINGLE_PLAYER = 1,  //game modes
-          MULTIPLAYER = 2,
-          UNINITIALIZED = -1;
+             SINGLE_PLAYER = 1,  //game modes
+             MULTIPLAYER = 2,
+             UNINITIALIZED = -1;
 const int8_t X_DIM = 8,
-          Y_DIM = 8,
-          SEQ_LENGTH = 5;
+             Y_DIM = 8,
+             SEQ_LENGTH = 5;
 const int BAD_MOVE = -1000,
           GOOD_MOVE = 1000,
           IMPOSSIBLE_MOVE = -11111;
@@ -97,9 +95,9 @@ const int8_t TOKEN_DROP_SPEED = 35; // millis delay for token dropping
 
 /* ---- directions ---- */
 const int8_t UP = 1,
-          LEFT = 2,
-          UP_LEFT = 3,
-          DOWN_LEFT = 4;
+             LEFT = 2,
+             UP_LEFT = 3,
+             DOWN_LEFT = 4;
 /* -- end directions -- */
 
 // == End Constants ==
@@ -117,7 +115,7 @@ bool     gameOver,
 
 /* ---- gane parameters ---- */
 int8_t   difficulty = 2,         //AI recursion depth
-      game_mode = UNINITIALIZED;   //starts in 1p mode
+         game_mode = UNINITIALIZED;   //starts in 1p mode
 /* -- end gane parameters -- */
 
 /* ---- server variables ---- */
@@ -147,14 +145,14 @@ void setup() {
   }
 
   //attempt to connect to wifi network
-  Serial.print(F("\nAttempting to connect to ")); Serial.println(WLAN_SSID);
+  //Serial.print(F("\nAttempting to connect to ")); Serial.println(WLAN_SSID);
   if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
-    Serial.println(F("Failed!"));
+    //Serial.println(F("Failed!"));
     while (1);
   }
 
   //can be safely removed later
-  Serial.println(F("Connected!"));
+  //Serial.println(F("Connected!"));
   //Serial.println(F("Request DHCP"));
 
   while (!cc3000.checkDHCP())
@@ -170,18 +168,13 @@ void setup() {
   randomSeed(analogRead(4));
 
   //buffer for parsing
-  char appBuffer[128] = {0};
+  char appBuffer[2] = {0};
 
   //initialize LED array
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
 
-#if !DEBUG
-  Serial.println(F("start seq"));
-  startupLEDSequence();
-  Serial.println(F("end seq"));
-#endif
 }
 
 void loop() {
@@ -316,7 +309,6 @@ int8_t gameOver_connect4(int8_t **board) {
     !!!untested!!!
 */
 void connect4Cascade(int8_t **board) {
-  Serial.print(F("Cascade\n"));
   int8_t x, y, count;
 
   for (count = 0; count < Y_DIM; count++) {
@@ -402,7 +394,8 @@ int8_t winningPlayer_connect4(int8_t **board, int8_t flash) {
           case DOWN_LEFT:
             printCell(x + i, y - i, colour, 0); break;
           default:
-            Serial.print(F("ERROR: check line detecting logic: Win Data is ")); Serial.println(winData[2]); break;
+            break;
+            //Serial.print(F("ERROR: check line detecting logic: Win Data is ")); Serial.println(winData[2]); break;
         }
       }
       strip.show();
@@ -590,9 +583,7 @@ int8_t selectNextMove(int8_t *col_points) {
     } else if (col_points[i] == col_points[next_move]) {
       ties++;
     }
-    Serial.print(i); Serial.print(": "); Serial.println(col_points[i]);
   }
-  Serial.println();
 
   ties = random(0, ties + 1);
 
@@ -607,8 +598,6 @@ int8_t selectNextMove(int8_t *col_points) {
       i = 0;
     }
   }
-
-  Serial.print("AI: "); Serial.println(next_move);
 
   return next_move;
 }
@@ -679,68 +668,68 @@ void printCell(int8_t x, int8_t y, uint32_t color, int8_t show) {
 /*
     Displays a welcome/startup pattern on the LEDs
 */
-void startupLEDSequence() {
-  uint32_t s1 = blue;
-  uint32_t s2 = cyan;
-  uint32_t s3 = green;
-  uint32_t s4 = yellow;
-  uint32_t s;
-  int8_t i, j, k;
-  for (i = 0; i < 3 * 4; i++) {
-    for (j = 0; j < X_DIM; j++) {
-      for (k = 0; k < Y_DIM; k++) {
-        if ((j == 3 || j == 4) && (k == 3 || k == 4)) {
-          s = s1;
-        } else if (((j > 1 && j < X_DIM - 2) && (k == 2 || k == 5)) || ((k > 1 && k < Y_DIM - 2) && (j == 2 || j == 5))) {
-          s = s2;
-        } else if (((j > 0 && j < X_DIM - 1) && (k == 1 || k == 6)) || ((k > 0 && k < Y_DIM - 1) && (j == 1 || j == 6))) {
-          s = s3;
-        } else {
-          s = s4;
-        }
-        printCell(i, j, s, 1);
-      }
-    }
-    s = s1;
-    s1 = s2;
-    s2 = s3;
-    s3 = s4;
-    s4 = s;
-    delay(500);
-  }
-
-  for (i = 0; i < 64; i++) {
-    strip.setPixelColor(i + 3, yellow);
-    strip.setPixelColor(i + 2, green);
-    strip.setPixelColor(i + 1, cyan);
-    strip.setPixelColor(i    , blue);
-    delay(10);
-    strip.show();
-  }
-
-  for (i = 0; i < 64; i++) {
-    strip.setPixelColor(i + 3, yellow);
-    strip.setPixelColor(i + 2, green);
-    strip.setPixelColor(i + 1, cyan);
-    if ((i > 9 && i < 14) || i == 18 || (i > 25 && i < 29) || i == 37 || i == 45 || (i > 49 && i < 53)) {
-      strip.setPixelColor(i, blue);
-    } else {
-      strip.setPixelColor(i, off);
-    }
-
-    delay(10);
-    strip.show();
-  }
-
-  //!!! Wait for mode and colour inputs
-  //  delay(2000); //!!! delete
-
-
-  for (int8_t j = 0; j < X_DIM * Y_DIM; j++) {
-    strip.setPixelColor(j, off);
-    strip.show();
-  }
-}
+//void startupLEDSequence() {
+//  uint32_t s1 = blue;
+//  uint32_t s2 = cyan;
+//  uint32_t s3 = green;
+//  uint32_t s4 = yellow;
+//  uint32_t s;
+//  int8_t i, j, k;
+//  for (i = 0; i < 3 * 4; i++) {
+//    for (j = 0; j < X_DIM; j++) {
+//      for (k = 0; k < Y_DIM; k++) {
+//        if ((j == 3 || j == 4) && (k == 3 || k == 4)) {
+//          s = s1;
+//        } else if (((j > 1 && j < X_DIM - 2) && (k == 2 || k == 5)) || ((k > 1 && k < Y_DIM - 2) && (j == 2 || j == 5))) {
+//          s = s2;
+//        } else if (((j > 0 && j < X_DIM - 1) && (k == 1 || k == 6)) || ((k > 0 && k < Y_DIM - 1) && (j == 1 || j == 6))) {
+//          s = s3;
+//        } else {
+//          s = s4;
+//        }
+//        printCell(i, j, s, 1);
+//      }
+//    }
+//    s = s1;
+//    s1 = s2;
+//    s2 = s3;
+//    s3 = s4;
+//    s4 = s;
+//    delay(500);
+//  }
+//
+//  for (i = 0; i < 64; i++) {
+//    strip.setPixelColor(i + 3, yellow);
+//    strip.setPixelColor(i + 2, green);
+//    strip.setPixelColor(i + 1, cyan);
+//    strip.setPixelColor(i    , blue);
+//    delay(10);
+//    strip.show();
+//  }
+//
+//  for (i = 0; i < 64; i++) {
+//    strip.setPixelColor(i + 3, yellow);
+//    strip.setPixelColor(i + 2, green);
+//    strip.setPixelColor(i + 1, cyan);
+//    if ((i > 9 && i < 14) || i == 18 || (i > 25 && i < 29) || i == 37 || i == 45 || (i > 49 && i < 53)) {
+//      strip.setPixelColor(i, blue);
+//    } else {
+//      strip.setPixelColor(i, off);
+//    }
+//
+//    delay(10);
+//    strip.show();
+//  }
+//
+//  //!!! Wait for mode and colour inputs
+//  //  delay(2000); //!!! delete
+//
+//
+//  for (int8_t j = 0; j < X_DIM * Y_DIM; j++) {
+//    strip.setPixelColor(j, off);
+//    strip.show();
+//  }
+//}
 
 // Returns the colour of the player
 uint32_t getPlayerColour(int8_t player) {
@@ -777,7 +766,7 @@ String processRequest(Adafruit_CC3000_ClientRef client, char* action)
     Serial.println("responding to post request...");
     Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
     data = respondPost(client);
-    Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
+    //Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
     Serial.println("responded.");
   }
   else {
@@ -872,7 +861,6 @@ int8_t connect4Setup() {
   boolean start = false;
   while (!start) {
     parseFieldValuePair(listenForInput(), &field, &value);
-    Serial.print(field); Serial.print(" "); Serial.println(value);
     if       (field == 'm') {
       game_mode = decodeGameMode(value);
     } else if (field == '1') {
@@ -886,7 +874,6 @@ int8_t connect4Setup() {
     else continue;
   }
   Serial.println("end game setup");
-  Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
   return 1;
 }
 
@@ -895,7 +882,6 @@ int8_t connect4Setup() {
 */
 void parseFieldValuePair(String in, char *field, char *value) {
   if (in.equals("ERROR")) {
-    Serial.println("error in parseFieldValuePair");
     return;
   }
   *field = in.charAt(0);
