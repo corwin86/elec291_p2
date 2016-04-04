@@ -53,14 +53,17 @@ public class ChoosePlayerMode extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         switch ((v.getId())) {
             case R.id.buttonSinglePlayer:
+                v.getBackground().setAlpha(100);
                 PlayerModeSelected = "ms";
                 onPlayerClick(buttonSinglePlayer);
                 break;
             case R.id.buttonMultiPlayer:
+                v.getBackground().setAlpha(100);
                 PlayerModeSelected = "mm";
                 onPlayerClick(buttonMultiPlayer);
                 break;
             case R.id.ButtonAIPlayer:
+                v.getBackground().setAlpha(100);
                 PlayerModeSelected = "ma";
                 onPlayerClick(buttonAI);
                 break;

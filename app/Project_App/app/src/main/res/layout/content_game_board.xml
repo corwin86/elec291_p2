@@ -9,6 +9,8 @@
         android:layout_gravity="center"
         android:columnCount="2"
         android:orientation="horizontal"
+        android:verticalSpacing = "10dp"
+        android:horizontalSpacing = "10dp"
         android:id="@+id/gridLayout"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
@@ -56,7 +58,8 @@
         android:id="@+id/textView11"
         android:gravity="center"
         android:layout_below="@+id/buttonInstructions"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="22dp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
