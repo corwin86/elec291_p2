@@ -13,9 +13,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by rohini on 24/03/16.
  */
-public class GameInstructions extends AppCompatActivity implements View.OnClickListener{
+public class GameInstructions extends Activity implements View.OnClickListener{
     Button buttonDone;
-    TextView instructions;
     boolean start_pressed = false;
 
     @Override
@@ -35,8 +34,6 @@ public class GameInstructions extends AppCompatActivity implements View.OnClickL
         buttonDone = (Button) findViewById(R.id.buttonDone);
         buttonDone.setOnClickListener(this);
 
-        instructions = (TextView) findViewById(R.id.textView18);
-
 
         if(!start_pressed){
             buttonDone.setText("START");
@@ -53,15 +50,15 @@ public class GameInstructions extends AppCompatActivity implements View.OnClickL
                 if(!start_pressed){
                     WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
                     try{
-                        String start = "start";
+                        String start = "st";
                         String responseString = wifiConnection.doPOST(start, MainActivity.urlToConnection);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (ExecutionException e) {
                         e.printStackTrace();
-                        finish();
                     }
                     start_pressed = true;
+                    finish();
                 }
                 else{
                     finish();

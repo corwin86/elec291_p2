@@ -70,32 +70,32 @@ public class ChooseChipColor extends Activity implements View.OnClickListener{
         if(clicks == 0) {
             switch ((v.getId())) {
                 case R.id.buttonRed:
-                    Player1Color = "red";
+                    Player1Color = "r";
                     clicks = 1;
                     colorButtonClick(buttonRed);
                     break;
                 case R.id.buttonBlue:
-                    Player1Color = "blue";
+                    Player1Color = "b";
                     clicks = 1;
                     colorButtonClick(buttonBlue);
                     break;
                 case R.id.buttonGreen:
-                    Player1Color = "green";
+                    Player1Color = "g";
                     clicks = 1;
                     colorButtonClick(buttonGreen);
                     break;
                 case R.id.buttonCyan:
-                    Player1Color = "cyan";
+                    Player1Color = "c";
                     clicks = 1;
                     colorButtonClick(buttonCyan);
                     break;
                 case R.id.buttonYellow:
-                    Player1Color = "yellow";
+                    Player1Color = "y";
                     clicks = 1;
                     colorButtonClick(buttonYellow);
                     break;
                 case R.id.buttonMagenta:
-                    Player1Color = "magenta";
+                    Player1Color = "m";
                     clicks = 1;
                     colorButtonClick(buttonMagenta);
                     break;
@@ -105,32 +105,32 @@ public class ChooseChipColor extends Activity implements View.OnClickListener{
         else if(clicks == 1){
             switch((v.getId())){
                 case R.id.buttonRed:
-                    Player2Color = "red";
+                    Player2Color = "r";
                     clicks = 2;
                     onClickTwo(buttonRed);
                     break;
                 case R.id.buttonBlue:
-                    Player2Color = "blue";
+                    Player2Color = "b";
                     clicks = 2;
                     onClickTwo(buttonBlue);
                     break;
                 case R.id.buttonGreen:
-                    Player2Color = "green";
+                    Player2Color = "g";
                     clicks = 2;
                     onClickTwo(buttonGreen);
                     break;
                 case R.id.buttonCyan:
-                    Player2Color = "cyan";
+                    Player2Color = "c";
                     clicks = 2;
                     onClickTwo(buttonCyan);
                     break;
                 case R.id.buttonYellow:
-                    Player2Color = "yellow";
+                    Player2Color = "y";
                     clicks = 2;
                     onClickTwo(buttonYellow);
                     break;
                 case R.id.buttonMagenta:
-                    Player2Color = "magenta";
+                    Player2Color = "m";
                     clicks = 2;
                     onClickTwo(buttonMagenta);
                     break;
@@ -262,12 +262,12 @@ public class ChooseChipColor extends Activity implements View.OnClickListener{
     }
 
     private String player1colorPost(){
-        return "player1colour\t" + Player1Color;
+        return "1" + Player1Color;
 
     }
 
     private String player2colorPost(){
-        return "player2colour\t" + Player2Color;
+        return "2" + Player2Color;
 
     }
 

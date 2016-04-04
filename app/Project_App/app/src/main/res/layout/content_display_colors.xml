@@ -12,10 +12,9 @@
         android:text="Choose a Chip Color"
         android:textSize="24sp"
         android:id="@+id/textView2"
-        android:layout_marginTop="25dp"
+        android:textColor="#a69d7e"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:textColor="#a69d7e"/>
+        android:layout_centerHorizontal="true" />
 
 
     <Button

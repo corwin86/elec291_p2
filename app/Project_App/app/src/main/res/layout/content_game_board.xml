@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#ede7d7">
 
     <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
@@ -9,8 +10,9 @@
         android:columnCount="2"
         android:orientation="horizontal"
         android:id="@+id/gridLayout"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true">
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="61dp">
 
         <Button android:text="1"
             android:layout_width="130dp"
@@ -52,6 +54,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Player 1: Make a Move"
         android:id="@+id/textView11"
+        android:gravity="center"
         android:layout_below="@+id/buttonInstructions"
         android:layout_centerHorizontal="true" />
 
@@ -59,10 +62,11 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="How To Play"
+        android:text="   How To Play   "
         android:id="@+id/buttonInstructions"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:background="#ff5238" />
 
 </RelativeLayout>

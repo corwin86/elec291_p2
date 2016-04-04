@@ -2,4 +2,80 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity = "center"
+        android:columnCount="2"
+        android:rowCount="3"
+        android:id="@+id/gridLayout2"
+        android:layout_above="@+id/button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+
+
+        <Button
+            android:layout_width="192dp"
+            android:layout_height="134dp"
+            android:background="#db1e1e" />
+        <Button
+            android:layout_width="192dp"
+            android:layout_height="134dp"
+            android:background="#1e2bdb" />
+        <Button
+            android:layout_width="192dp"
+            android:layout_height="134dp"
+            android:background="#1edb50" />
+        <Button
+            android:layout_width="192dp"
+            android:layout_height="134dp"
+            android:background="#ed3bf4f4" />
+        <Button
+            android:layout_width="192dp"
+            android:layout_height="134dp"
+            android:background="#d8db1e" />
+        <Button
+            android:layout_width="196dp"
+            android:layout_height="134dp"
+            android:background="#db1ed8" />
+
+
+
+
+
+
+
+
+    </GridLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Choose a Chip Color"
+        android:id="@+id/textView19"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textColor="#fff"
+        android:gravity="center"
+        android:textSize="40dp"
+        android:background="#8cd1b9"
+        android:layout_above="@+id/gridLayout2" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NEXT"
+        android:id="@+id/button"
+        android:textSize="36dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:background="#ede7d7"
+        android:textColor="#a69d7e" />
 </RelativeLayout>
