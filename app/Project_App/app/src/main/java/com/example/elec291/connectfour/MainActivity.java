@@ -1,8 +1,12 @@
 package com.example.elec291.connectfour;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Activity;
@@ -11,6 +15,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.view.View;
 import android.widget.Toast;
@@ -66,6 +71,16 @@ public class MainActivity extends Activity{
 //        });
         //playButton.setBackgroundColor(Color.parseColor("#FFF1D5D5"));
         //playButton.setColorFilter( 0xffff0000, Mode.MULTIPLY )    }
+
+//        Paint paint = new Paint();
+//        paint.setColor(Color.parseColor("#000000"));
+//        Bitmap bg = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
+//        Canvas canvas = new Canvas(bg);
+//        canvas.drawCircle(150,400,100,paint);
+//        LinearLayout ll = (LinearLayout) findViewById(R.id.draw_area);
+//        ll.setBackgroundDrawable(new BitmapDrawable(bg));
+
+
 
     }
     private void playButtonClick(){
