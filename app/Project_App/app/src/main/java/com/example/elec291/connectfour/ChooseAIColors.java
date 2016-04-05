@@ -135,7 +135,7 @@ public class ChooseAIColors extends AppCompatActivity implements View.OnClickLis
                 case R.id.buttonNext:
                     finish();
                     SystemClock.sleep(500);
-                    //startActivity(new Intent("com.example.elec291.connect4.ConnectViaWifi"));
+
                     startActivity(new Intent(ChooseAIColors.this, GameBoard.class));
                     //startActivity(new Intent(ChooseChipColor.this, GameInstructions.class));
                     break;

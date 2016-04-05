@@ -84,10 +84,10 @@ public class ChoosePlayerMode extends Activity implements View.OnClickListener {
         }
         if (pressedButton == buttonSinglePlayer) {
             startActivity(new Intent(ChoosePlayerMode.this, DisplayColorsActivity.class));
-            //startActivity(new Intent(ChoosePlayerMode.this, ConnectViaWifi.class));
+
         } else if (pressedButton == buttonMultiPlayer) {
             startActivity(new Intent(ChoosePlayerMode.this, ChooseChipColor.class));
-            //startActivity(new Intent(ChoosePlayerMode.this, ConnectViaWifi.class));
+
         } else if (pressedButton == buttonAI) {
             startActivity(new Intent(ChoosePlayerMode.this, ChooseChipColor.class));
         }

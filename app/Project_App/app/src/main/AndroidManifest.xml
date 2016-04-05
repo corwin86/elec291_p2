@@ -71,11 +71,6 @@
 
             ></activity>
 
-        <activity android:name=".ConnectViaWifi"
-            android:theme="@style/AppTheme">
-
-        </activity>
-
         <activity android:name=".GameInstructions"
             android:theme="@style/AppTheme.customtheme">
 
