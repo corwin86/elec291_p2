@@ -68,9 +68,7 @@ uint32_t victoryBlink;
 // ==== Constants ====
 
 /* ---- hardware dependent ---- */
-const int8_t MAX_BOARD_X = 8,
-          MAX_BOARD_Y = 8,
-          LED_BRIGHTNESS = 25;
+const uint8_t LED_BRIGHTNESS = 25;
 /* -- end hardware dependent -- */
 
 /* ---- game ids ---- */
@@ -79,16 +77,16 @@ const int8_t CONNECT_FOUR = 0;
 
 /* ---- game parameters ---- */
 const int8_t P1 = 1,
-          P2 = 2,          // tokens used on board
-          AI = 2,
-          EMPTY_CELL = 0;
+             P2 = 2,          // tokens used on board
+             AI = 2,
+             EMPTY_CELL = 0;
 const int8_t AI_VS_AI = 0,
-          SINGLE_PLAYER = 1,  //game modes
-          MULTIPLAYER = 2,
-          UNINITIALIZED = -1;
+             SINGLE_PLAYER = 1,  //game modes
+             MULTIPLAYER = 2,
+             UNINITIALIZED = -1;
 const int8_t X_DIM = 8,
-          Y_DIM = 8,
-          SEQ_LENGTH = 5;
+             Y_DIM = 8,
+             SEQ_LENGTH = 4;
 const int BAD_MOVE = -1000,
           GOOD_MOVE = 1000,
           IMPOSSIBLE_MOVE = -11111;
@@ -97,9 +95,9 @@ const int8_t TOKEN_DROP_SPEED = 35; // millis delay for token dropping
 
 /* ---- directions ---- */
 const int8_t UP = 1,
-          LEFT = 2,
-          UP_LEFT = 3,
-          DOWN_LEFT = 4;
+             LEFT = 2,
+             UP_LEFT = 3,
+             DOWN_LEFT = 4;
 /* -- end directions -- */
 
 // == End Constants ==
@@ -117,7 +115,7 @@ bool     gameOver,
 
 /* ---- gane parameters ---- */
 int8_t   difficulty = 2,         //AI recursion depth
-      game_mode = UNINITIALIZED;   //starts in 1p mode
+         game_mode = UNINITIALIZED;   //starts in 1p mode
 /* -- end gane parameters -- */
 
 /* ---- server variables ---- */
@@ -147,14 +145,14 @@ void setup() {
   }
 
   //attempt to connect to wifi network
-  Serial.print(F("\nAttempting to connect to ")); Serial.println(WLAN_SSID);
+  //Serial.print(F("\nAttempting to connect to ")); Serial.println(WLAN_SSID);
   if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY)) {
-    Serial.println(F("Failed!"));
+    //Serial.println(F("Failed!"));
     while (1);
   }
 
   //can be safely removed later
-  Serial.println(F("Connected!"));
+  //Serial.println(F("Connected!"));
   //Serial.println(F("Request DHCP"));
 
   while (!cc3000.checkDHCP())
@@ -170,25 +168,24 @@ void setup() {
   randomSeed(analogRead(4));
 
   //buffer for parsing
-  char appBuffer[128] = {0};
+  char appBuffer[2] = {0};
 
   //initialize LED array
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
   strip.show();
 
-#if !DEBUG
-  Serial.println(F("start seq"));
-  startupLEDSequence();
-  Serial.println(F("end seq"));
-#endif
 }
 
+/*
+   Runs the game specified by gameID
+*/
 void loop() {
   int8_t gameId = 0;
   runGame(gameId);
 }
 
+//gameID's were added for future support of other games, but there was no time to implement them.
 int8_t runGame(int8_t gameId) {
   switch (gameId) {
     case CONNECT_FOUR : {
@@ -202,10 +199,20 @@ int8_t runGame(int8_t gameId) {
   }
 }
 
+/*
+   Includes overarching game logic for Connect 4:
+   - takes input from the app to initialize (mode, p1 colour, p2 colour), then
+   - while the game isn't over (no wins or stalemates), takes moves from each player, alternating
+     (either a player through the app or an AI)
+   - if one player has a line of 4 or 5 (or any predetermined sequence length), flash the winning line,
+     drop out the bottom of the board, and start the game over
+
+   Returns: 1 when game finished
+*/
 int8_t playConnectFour() {
   gameOver = false;
   connect4Setup();
-  // Create board
+  // Create 64x64 board
   int8_t **board = createBoard();
   // initialize board as empty (no tokens until users start dropping)
   int8_t x, y;
@@ -226,32 +233,21 @@ int8_t playConnectFour() {
     // use serial for debug
     if (game_mode == SINGLE_PLAYER) {
       if (cur_player == P1) {
-        //          while (!Serial.available()); //wait for serial data before parsing
-        //          col = Serial.parseInt();
-        //          Serial.println(col);
-        //          // clamp inputs to valid range
-        //          col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
         col = getMoveFromServer();
         if (col == -1)
           continue; //if connection error, try turn again
       }
       else
-        col = random() % 8; //aiNextMove(board, AI, P1);
+        col = aiNextMove(board, AI, P1);
     }
     else if (game_mode == MULTIPLAYER) {
-      //        while (!Serial.available()); //wait for serial data before parsing
-      //        col = Serial.parseInt();
-      //        Serial.println(col);
-      //        // clamp inputs to valid range
-      //        col = col < 0 ? 0 : col >= X_DIM ? X_DIM - 1 : col;
       col = getMoveFromServer();
     }
     else {      //AI mode
       int8_t other_player = cur_player == P1 ? P2 : P1;
-      col = random() % 8; //aiNextMove(board, cur_player, other_player);
+      col = aiNextMove(board, cur_player, other_player);
     }
     validMove = dropToken_connect4(board, col, cur_player, 1);
-    // } while (!validMove);
 
     printBoard(board);
 
@@ -260,11 +256,9 @@ int8_t playConnectFour() {
       turns++;
       gameOver = gameOver_connect4(board);
     }
-
   }
   //-- end gameplay --
 
-  //!!! perhaps delay this call for user to confirm end game
   connect4Cascade(board); //GUI feature indicates game end, ***CLEARS BOARD***
 
   // free malloc'd memory
@@ -274,51 +268,53 @@ int8_t playConnectFour() {
 }
 
 /*
-    Place a player token on board in column x !!!untested
+    Places a player token in a column on the board
+
+    Param: col - the column to place the token in
+    Param: token - the token to place (P1 or P2)
+    Param: animated - 1 to show the animation on the board, 0 to not print to the board
+    Modifies: board - the internal board state
+    Returns: 1 if token successfully dropped, 0 if invalid move
 */
 int8_t dropToken_connect4(int8_t **board, int8_t col, int8_t token, int8_t animated) {
   int8_t y = -1;
   while (board[y + 1][col] == EMPTY_CELL && y + 1 < Y_DIM) {
     y++;
   }
-
   if (y == -1) { //no empty cells in column col
     return 0;
   }
-
   if (animated) {
     uint32_t colour = getPlayerColour(token);
-
     int8_t i = -2;
     while (++i < y) {
-      delay(TOKEN_DROP_SPEED);
       printCell(col, i, off, 0);
       printCell(col, i + 1, colour, 0);
       strip.show();
+      delay(TOKEN_DROP_SPEED);
     }
   }
-
   board[y][col] = token; //place token
-
   return 1; //successfully dropped token
 }
 
 /*
-    Return true if a player has won, or a draw is reached (board is full)
+    Checks the board if the game is over
+
+    Param: board - the internal board state
+    Returns: true if a player has won, or a draw is reached, false if otherwise
 */
 int8_t gameOver_connect4(int8_t **board) {
   return winningPlayer_connect4(board, 1) > 0 || boardFull();
 }
 
 /*
-    Graphical sequence replicating pulling bottom out of connect 4 board
-    Modifies board: replaces all user tokens with EMPTY_CELL
-    !!!untested!!!
+    Graphical sequence replicating pulling bottom out of connect 4 board.
+
+    Modifies: board - replaces all user tokens with EMPTY_CELL
 */
 void connect4Cascade(int8_t **board) {
-  Serial.print(F("Cascade\n"));
   int8_t x, y, count;
-
   for (count = 0; count < Y_DIM; count++) {
     for (y = Y_DIM - 1; y >= count; y--) {
       for (x = 0; x < X_DIM; x++) {
@@ -329,22 +325,22 @@ void connect4Cascade(int8_t **board) {
         }
       }
     }
-
     printBoard(board);
     delay(TOKEN_DROP_SPEED);
   }
 }
 
 /*
-    Return player ID of winning player, 0 if none
+    Checks the board if one player has won.
 
-    Modifies board: if winning player found, flashes winning
-      tiles to webwork green 3 times
+    Param: board - the internal board state
+    Param: flash - if 1, the winning tiles flash to a colour not currently belonging
+      to either player 3 times, if 0 there is no animation
+    Returns: player ID of winning player, 0 if none
 */
 int8_t winningPlayer_connect4(int8_t **board, int8_t flash) {
   int8_t winData[4] = {0};
   int8_t flashes = 3 * 2;
-
   detectDiagLine(P1, SEQ_LENGTH, board, winData);
   if (winData[0] == -1) {
     detectHorizLine(P1, SEQ_LENGTH, board, winData);
@@ -402,25 +398,27 @@ int8_t winningPlayer_connect4(int8_t **board, int8_t flash) {
           case DOWN_LEFT:
             printCell(x + i, y - i, colour, 0); break;
           default:
-            Serial.print(F("ERROR: check line detecting logic: Win Data is ")); Serial.println(winData[2]); break;
+            break;
         }
       }
       strip.show();
       delay(500);
     }
   }
-
   return winData[3];
 }
 
 /*
-   Detects if there is a vertical sequence of one player's tokens of length len.
-   If one is found, it returns the coordinates of the first token, as well as the direction
-   of the sequence, in the form:
+  NEXT 3 FUNCTIONS:
+  Detects if there is a vertical, horizontal, or diagonal sequence of one player's tokens of length len.
 
-   -> returnArray[] = {x, y, dir, player}
-
-   If no such sequence is found, returns NULL
+  Param: board - the internal board state
+  Param: len - the length of the sequence to look for
+  Param: player - the players tokens to check
+  Modifies: coordAndDir - if a line is found, changes the fields to the coordinates of the first token,
+    the direction of the sequence, and the winning player, in the form:
+    -> coordAndDir[] = {x, y, dir, player}
+    If no such sequence is found, sets all fields of coordAndDir to -1
 */
 void detectVertLine(int8_t player, int8_t len, int8_t** board, int8_t *coordAndDir) {
   int8_t x, y, count;
@@ -439,16 +437,6 @@ void detectVertLine(int8_t player, int8_t len, int8_t** board, int8_t *coordAndD
   }
   coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
 }
-
-/*
-   Detects if there is a horizontal sequence of one player's tokens of length len.
-   If one is found, it returns the coordinates of the first token, as well as the direction
-   of the sequence, in the form:
-
-   -> returnArray[] = {x, y, dir, player}
-
-   If no such sequence is found, returns NULL
-*/
 void detectHorizLine(int8_t player, int8_t len, int8_t** board, int8_t *coordAndDir) {
   int8_t x, y, count;
 
@@ -467,26 +455,14 @@ void detectHorizLine(int8_t player, int8_t len, int8_t** board, int8_t *coordAnd
   }
   coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
 }
-
-/*
-   Detects if there is a diagonal sequence of one player's tokens of length len.
-   If one is found, it returns the coordinates of the first token, as well as the direction
-   of the sequence, in the form:
-
-   -> returnArray[] = {y, x, dir, player}
-
-   If no such sequence is found, returns NULL
-*/
 void detectDiagLine(int8_t player, int8_t len, int8_t** board, int8_t *coordAndDir) {
   int8_t x, y, count;
-
   for (y = 0; y <= Y_DIM - len; y++) {                          //iterate through all of bottom left corner of grid
     for (x = 0; x <= X_DIM - len; x++) {
       for (count = 0; count < len; count++) {                   //count that you have a sequence of length len
         if (board[y + count][x + count] != player)
           break;     //you're not on the right track, try a different sequence
       }
-
       if (count == len) {
         //we found a sequence of length len, so we return coords/direction
         coordAndDir[0] = x; coordAndDir[1] = y; coordAndDir[2] = UP_LEFT; coordAndDir[3] = player;
@@ -510,77 +486,87 @@ void detectDiagLine(int8_t player, int8_t len, int8_t** board, int8_t *coordAndD
   coordAndDir[0] = -1; coordAndDir[1] = -1; coordAndDir[2] = -1; coordAndDir[3] = -1;
 }
 
-// Returns 0 if board contains 1+ empty cells
+/*
+   Checks if the board is full
+
+   Returns: 1 if the board is full, 0 if not
+*/
 int8_t boardFull() {
+  //if 64 turns have passed, the board is full
   return turns >= X_DIM * Y_DIM;
 }
 
 /*
-    Example of call to aiRecursiveSearch
+    Determines the next move for AI by calling a recursive search algorithm
+
+    Param: board - the internal board state
+    Param: ai_token - the number representing the ai token on the board (P1 or P2)
+    Param: player_token - the number representing the player token on the board (P1 or P2)
+    Returns: the AI's next move
 */
 int8_t aiNextMove(int8_t **board, int8_t ai_token, int8_t player_token) {
-  int8_t col_points[X_DIM] = {0};
+  int col_points[X_DIM] = {0};
   aiRecursiveSearch(board, 0, col_points, ai_token, player_token);
   return selectNextMove(col_points);
 }
 
 /*
-    Searches through possible moves recursively by checking a number of
-    moves in the future. !!!!!!!!!!!!!!!!! 1st attempt !!!!!!!!!!!!!!!!!
+    Searches through possible moves recursively by checking for wins a number of moves in the future (brute force style)
 
-    level - how many turns in advance the function is checking
-    board - the board
-
+    Param: level - the current depth of the algorithm (how many moves in advance it is currently checking)
+    Param: board - the internal board state
+    Param: ai_token - the number representing the ai token on the board (P1 or P2)
+    Param: player_token - the number representing the player token on the board (P1 or P2)
     Modifies: col_points - the current number of points for each column, changes through recursive calls
 */
-void aiRecursiveSearch(int8_t **board, int8_t level, int8_t *col_points, int8_t ai_token, int8_t player_token) {
+void aiRecursiveSearch(int8_t **board, int8_t level, int *col_points, int8_t ai_token, int8_t player_token) {
   level++;
   int8_t ai_col, p_col;
-
-  //note: num points assigned equal to 1000/level.
-  //ex. if it can win 3 moves in advance but can lose in 2 moves, assign 333 - 500 = -167 points.
-
+  //note: num points assigned to a column is equal to 1000/level for a future win, -1000/level for a future loss.
   for (ai_col = 0; ai_col < X_DIM; ai_col++) {
     if (board[0][ai_col] != EMPTY_CELL) {
-      //Serial.print("IMP: ");Serial.print(ai_col);Serial.print(" level ");Serial.println(level);
       if (level == 1) {
         col_points[ai_col] = IMPOSSIBLE_MOVE;
       }
       continue;
     }
-    dropToken_connect4(board, ai_col, ai_token, 0);
+    dropToken_connect4(board, ai_col, ai_token, 0); //simulate dropping an ai token (no animation)
 
     if (winningPlayer_connect4(board, 0) == ai_token) {
       col_points[ai_col] += GOOD_MOVE / level;        //future win with this move
-
     } else {
       for (p_col = 0; p_col < X_DIM; p_col++) {
         if (board[0][p_col] != EMPTY_CELL) {
           continue;
         }
         int8_t p_break = 0;
-        dropToken_connect4(board, p_col, player_token, 0);
+        dropToken_connect4(board, p_col, player_token, 0); //simulate dropping a player token (no animation)
 
         if (winningPlayer_connect4(board, 0) == player_token) {
-          col_points[ai_col] += BAD_MOVE / (level + 1); //future loss with this move, but one level deeper than ai move !!!!!!!could be problematic, overlap with next level!!!!!!
-          p_break = 1;                                  //!!!!!still necessary with recursive search????????
-        } else if (level + 1 <= difficulty) {                     //decrement level and call again, otherwise start popping tokens and returning
+          col_points[ai_col] += BAD_MOVE / ((double) level + 0.5); //future loss with this move
+          p_break = 1;
+        } else if (level + 1 <= difficulty) {  //decrement level and call again, otherwise start popping tokens and returning
           aiRecursiveSearch(board, level, col_points, ai_token, player_token);
         }
-        popToken(board, p_col); //remove board modification
+        popToken(board, p_col); //remove temporary board modifications
 
         if (p_break) {
           break;
         }
       }
     }
-    popToken(board, ai_col); //remove board modifications
+    popToken(board, ai_col); //remove temporary board modifications
   }
   level--;
 }
 
+/*
+   Selects the next move for the ai depending on points for each column
 
-int8_t selectNextMove(int8_t *col_points) {
+   Param: col_points[] - an array containing the number of points per column
+   Returns: the column for the AI's next move
+*/
+int8_t selectNextMove(int *col_points) {
   int8_t i;
   int8_t next_move = 0, ties = 0;
   for (i = 0; i < X_DIM; i++) { //!!! start at 0
@@ -590,9 +576,7 @@ int8_t selectNextMove(int8_t *col_points) {
     } else if (col_points[i] == col_points[next_move]) {
       ties++;
     }
-    Serial.print(i); Serial.print(": "); Serial.println(col_points[i]);
   }
-  Serial.println();
 
   ties = random(0, ties + 1);
 
@@ -608,8 +592,6 @@ int8_t selectNextMove(int8_t *col_points) {
     }
   }
 
-  Serial.print("AI: "); Serial.println(next_move);
-
   return next_move;
 }
 
@@ -624,6 +606,8 @@ void popToken(int8_t **board, int8_t col) {
 
 /*
     Allocate a x_dim by y_dim board to be used in a game
+
+    Returns: a pointer to the board
 */
 int8_t **createBoard() {
   int8_t **board = (int8_t **)malloc(Y_DIM * sizeof(int8_t *));
@@ -631,12 +615,13 @@ int8_t **createBoard() {
   for (y = 0; y < Y_DIM; y++) {
     board[y] = (int8_t *)malloc(X_DIM * sizeof(int8_t));
   }
-
   return board;
 }
 
 /*
     Free an x_dim by (irrelevant) board's allocated memory
+
+    Param: board - the structure to be freed
 */
 void freeBoard(int8_t **board) {
   int8_t y;
@@ -647,26 +632,27 @@ void freeBoard(int8_t **board) {
 }
 
 /*
-    Output current state of a board
+    Output current state of a board to LED array
+
+    Param: board - the internal board state
 */
 void printBoard(int8_t **board) {
-  //!!! to be changed to print to LEDs
-  //    uses serial for dev
   int8_t x, y;
   for (y = 0; y < Y_DIM; y++) {
     for (x = 0; x < X_DIM; x++) {
-      //Serial.print(board[y][x]); Serial.print("\t");
       printCell(x, y, getPlayerColour(board[y][x]), 0);
     }
-    //Serial.println();
   }
-  //Serial.println();
-
   strip.show();
 }
 
 /*
-   given a row,column and color light up specified led
+   Write to a specific LED.
+
+   Param: x - the x coordinate of the light
+   Param: y - the y coordinate of the light
+   Param: colour - the colour to change the light to
+   Param: show - if 1, turns on the LED
 */
 void printCell(int8_t x, int8_t y, uint32_t color, int8_t show) {
   int8_t led = X_DIM * y + x;
@@ -679,84 +665,102 @@ void printCell(int8_t x, int8_t y, uint32_t color, int8_t show) {
 /*
     Displays a welcome/startup pattern on the LEDs
 */
-void startupLEDSequence() {
-  uint32_t s1 = blue;
-  uint32_t s2 = cyan;
-  uint32_t s3 = green;
-  uint32_t s4 = yellow;
-  uint32_t s;
-  int8_t i, j, k;
-  for (i = 0; i < 3 * 4; i++) {
-    for (j = 0; j < X_DIM; j++) {
-      for (k = 0; k < Y_DIM; k++) {
-        if ((j == 3 || j == 4) && (k == 3 || k == 4)) {
-          s = s1;
-        } else if (((j > 1 && j < X_DIM - 2) && (k == 2 || k == 5)) || ((k > 1 && k < Y_DIM - 2) && (j == 2 || j == 5))) {
-          s = s2;
-        } else if (((j > 0 && j < X_DIM - 1) && (k == 1 || k == 6)) || ((k > 0 && k < Y_DIM - 1) && (j == 1 || j == 6))) {
-          s = s3;
-        } else {
-          s = s4;
-        }
-        printCell(i, j, s, 1);
-      }
-    }
-    s = s1;
-    s1 = s2;
-    s2 = s3;
-    s3 = s4;
-    s4 = s;
-    delay(500);
-  }
+//void startupLEDSequence() {
+//  uint32_t s1 = blue;
+//  uint32_t s2 = cyan;
+//  uint32_t s3 = green;
+//  uint32_t s4 = yellow;
+//  uint32_t s;
+//  int8_t i, j, k;
+//  for (i = 0; i < 3 * 4; i++) {
+//    for (j = 0; j < X_DIM; j++) {
+//      for (k = 0; k < Y_DIM; k++) {
+//        if ((j == 3 || j == 4) && (k == 3 || k == 4)) {
+//          s = s1;
+//        } else if (((j > 1 && j < X_DIM - 2) && (k == 2 || k == 5)) || ((k > 1 && k < Y_DIM - 2) && (j == 2 || j == 5))) {
+//          s = s2;
+//        } else if (((j > 0 && j < X_DIM - 1) && (k == 1 || k == 6)) || ((k > 0 && k < Y_DIM - 1) && (j == 1 || j == 6))) {
+//          s = s3;
+//        } else {
+//          s = s4;
+//        }
+//        printCell(i, j, s, 1);
+//      }
+//    }
+//    s = s1;
+//    s1 = s2;
+//    s2 = s3;
+//    s3 = s4;
+//    s4 = s;
+//    delay(500);
+//  }
+//
+//  for (i = 0; i < 64; i++) {
+//    strip.setPixelColor(i + 3, yellow);
+//    strip.setPixelColor(i + 2, green);
+//    strip.setPixelColor(i + 1, cyan);
+//    strip.setPixelColor(i    , blue);
+//    delay(10);
+//    strip.show();
+//  }
+//
+//  for (i = 0; i < 64; i++) {
+//    strip.setPixelColor(i + 3, yellow);
+//    strip.setPixelColor(i + 2, green);
+//    strip.setPixelColor(i + 1, cyan);
+//    if ((i > 9 && i < 14) || i == 18 || (i > 25 && i < 29) || i == 37 || i == 45 || (i > 49 && i < 53)) {
+//      strip.setPixelColor(i, blue);
+//    } else {
+//      strip.setPixelColor(i, off);
+//    }
+//
+//    delay(10);
+//    strip.show();
+//  }
+//
+//  //!!! Wait for mode and colour inputs
+//  //  delay(2000); //!!! delete
+//
+//
+//  for (int8_t j = 0; j < X_DIM * Y_DIM; j++) {
+//    strip.setPixelColor(j, off);
+//    strip.show();
+//  }
+//}
 
-  for (i = 0; i < 64; i++) {
-    strip.setPixelColor(i + 3, yellow);
-    strip.setPixelColor(i + 2, green);
-    strip.setPixelColor(i + 1, cyan);
-    strip.setPixelColor(i    , blue);
-    delay(10);
-    strip.show();
-  }
+/*
+    Finds the colour of a player.
 
-  for (i = 0; i < 64; i++) {
-    strip.setPixelColor(i + 3, yellow);
-    strip.setPixelColor(i + 2, green);
-    strip.setPixelColor(i + 1, cyan);
-    if ((i > 9 && i < 14) || i == 18 || (i > 25 && i < 29) || i == 37 || i == 45 || (i > 49 && i < 53)) {
-      strip.setPixelColor(i, blue);
-    } else {
-      strip.setPixelColor(i, off);
-    }
-
-    delay(10);
-    strip.show();
-  }
-
-  //!!! Wait for mode and colour inputs
-  //  delay(2000); //!!! delete
-
-
-  for (int8_t j = 0; j < X_DIM * Y_DIM; j++) {
-    strip.setPixelColor(j, off);
-    strip.show();
-  }
-}
-
-// Returns the colour of the player
+    Param: player - the player (P1 or P2) to find the colour for
+    Returns: the colour of that player
+*/
 uint32_t getPlayerColour(int8_t player) {
   uint32_t p = player == P1 ? p1_colour : player == P2 ? p2_colour : off;
   return p;
 }
 
-//calculates the position of an LED in the matrix
+/*
+   Calculates the position of an LED in the strip.
+
+   Param: x - the x coordinate of the LED
+   Param: y - the y coordinate of the LED
+   Returns: the position of the LED in the 64 light strip
+*/
 int8_t calculateLedPosition(int8_t x, int8_t y) {
-  int8_t led = 8 * y + x;
-  return led;
+  return 8 * y + x;
 }
 
 //================ SERVER FUNCTIONS ================= //
 
-//Parses request by calling sub function parseRequest, puts parsed request data into respective fields
+
+/*
+   Parses a server request.
+
+   Param: client - the client
+   Param: parsed - whether the request has been parsed
+   Param: endtime - the maximum time to wait
+   Returns: 1 if the request was parsed successfully
+*/
 bool parsingRequest(Adafruit_CC3000_ClientRef client, bool parsed, unsigned long endtime)
 {
   while (!parsed && (millis() < endtime) && (bufindex < BUFFER_SIZE)) {
@@ -768,7 +772,13 @@ bool parsingRequest(Adafruit_CC3000_ClientRef client, bool parsed, unsigned long
   return parsed;
 }
 
-//Once the request is parsed, determine which type of request and perfrom action accordingly
+/*
+   Once the request is parsed, determine which type of request and perfrom action accordingly
+
+   Param: client - the client
+   Modifies: action - the type of action requested by the client
+   Returns: a post read from the client, "ERROR" if no post read
+*/
 String processRequest(Adafruit_CC3000_ClientRef client, char* action)
 {
   String data;
@@ -777,7 +787,7 @@ String processRequest(Adafruit_CC3000_ClientRef client, char* action)
     Serial.println("responding to post request...");
     Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
     data = respondPost(client);
-    Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
+    //Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
     Serial.println("responded.");
   }
   else {
@@ -790,6 +800,12 @@ String processRequest(Adafruit_CC3000_ClientRef client, char* action)
   return data;
 }
 
+/*
+   Sends protocol messages back to the client using protocols and returns the client's post
+
+   Param: client - the client
+   Returns: the string read from the client
+*/
 String respondPost(Adafruit_CC3000_ClientRef client) {
   //Read data from post request body and store info into fields
   String data = "";
@@ -822,7 +838,7 @@ String respondPost(Adafruit_CC3000_ClientRef client) {
 }
 
 /*
-  Return true if the buffer contains an HTTP request.  Also returns the request
+  Returns true if the buffer contains an HTTP request.  Also returns the request
   path and action strings if the request was parsed.  This does not attempt to
   parse any HTTP headers because there really isn't enough memory to process
   them all.
@@ -844,7 +860,13 @@ bool parseRequest(uint8_t* buf, int bufSize, char* action, char* path) {
   return false;
 }
 
-// Parse the action and path from the first line of an HTTP request.
+/*
+    Parses the action and path from the first line of an HTTP request.
+
+    Modifies: line - the line to parse
+    Modifies: action - the action recieved
+    Modifies: path - the path to the next word
+*/
 void parseFirstLine(char* line, char* action, char* path) {
   // Parse first word up to whitespace as action.
   char* lineaction = strtok(line, " ");
@@ -863,7 +885,7 @@ void parseFirstLine(char* line, char* action, char* path) {
 /*
     Sets up game parameters from app input
 
-    returns 1 if successfully initialized, or 0 if connection error
+    Returns: 1 if successfully initialized, or 0 if connection error
 */
 int8_t connect4Setup() {
   char value;
@@ -872,7 +894,6 @@ int8_t connect4Setup() {
   boolean start = false;
   while (!start) {
     parseFieldValuePair(listenForInput(), &field, &value);
-    Serial.print(field); Serial.print(" "); Serial.println(value);
     if       (field == 'm') {
       game_mode = decodeGameMode(value);
     } else if (field == '1') {
@@ -886,16 +907,18 @@ int8_t connect4Setup() {
     else continue;
   }
   Serial.println("end game setup");
-  Serial.print("Free RAM: "); Serial.println(getFreeRam(), DEC);
   return 1;
 }
 
 /*
-    Takes string in, parses into a Field-Value pair into setupString array
+    Takes string in, parses into a Field-Value pair into two characters
+
+    Param: in - the input string
+    Modifies: field - the field in the string (e.g. mode, colour, etc)
+    Modifies: value - the value in the string (e.g. single player, red, etc)
 */
 void parseFieldValuePair(String in, char *field, char *value) {
   if (in.equals("ERROR")) {
-    Serial.println("error in parseFieldValuePair");
     return;
   }
   *field = in.charAt(0);
@@ -903,20 +926,23 @@ void parseFieldValuePair(String in, char *field, char *value) {
 }
 
 /*
-    Take string representation of player colour, return uint32_t colour representation
+    Take char representation of player colour, return colour representation
+
+    Param: c - the character to read
+    Returns: the colour representation, off if wrong character passed
 */
-uint32_t decodeColour(char s) {
-  if       (s == 'r') {
+uint32_t decodeColour(char c) {
+  if       (c == 'r') {
     return red;
-  } else if (s == 'b') {
+  } else if (c == 'b') {
     return blue;
-  } else if (s == 'g') {
+  } else if (c == 'g') {
     return green;
-  } else if (s == 'c') {
+  } else if (c == 'c') {
     return cyan;
-  } else if (s == 'm') {
+  } else if (c == 'm') {
     return magenta;
-  } else if (s == 'y') {
+  } else if (c == 'y') {
     return yellow;
   } else {
     return off;
@@ -924,14 +950,17 @@ uint32_t decodeColour(char s) {
 }
 
 /*
-    Take string rep of game mode, return int representation
+    Take char representation of game mode, return int representation
+
+    Param: c - the character to read
+    Returns: the int representation, UNITITIALIZED if wrong character passed
 */
-int8_t decodeGameMode(char s) {
-  if       (s == 's') {
+int8_t decodeGameMode(char c) {
+  if       (c == 's') {
     return SINGLE_PLAYER;
-  } else if (s == 'm') {
+  } else if (c == 'm') {
     return MULTIPLAYER;
-  } else if (s == 'a') {
+  } else if (c == 'a') {
     return AI_VS_AI;
   } else {
     return UNINITIALIZED;
@@ -939,9 +968,9 @@ int8_t decodeGameMode(char s) {
 }
 
 /*
-    Listens for server input from app and returns input read from app.
+    Listens and waits for server input from app and returns input read from app.
 
-    returns empty string if not connected or other error occurred
+    Returns: a string read from the server, "ERROR" if no string read
 */
 String listenForInput() {
   String data = "ERROR";
@@ -989,7 +1018,11 @@ String listenForInput() {
   return data;
 }
 
-//returns a move from the server by parsing a number, -1 if not a valid move read
+/*
+   Reads a move from the server by parsing a number
+
+   Returns: the next move (column) from a player on the server, -1 if no valid move read
+*/
 int8_t getMoveFromServer() {
   return listenForInput().charAt(1) - '0';
 }
