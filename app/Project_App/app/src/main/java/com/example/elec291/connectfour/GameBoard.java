@@ -23,6 +23,7 @@ public class GameBoard extends Activity implements View.OnClickListener{
     String move;
     static boolean start_has_been_pressed = false;
     int player = 1; //1 = player 1. 2 = player2
+    String lastResponse = "3";
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -90,15 +91,28 @@ public class GameBoard extends Activity implements View.OnClickListener{
         try {
             String playerResponse = wifiConnection.doPOST(move, MainActivity.urlToConnection).trim();
 
-            if(playerResponse.equals("1")){
-                player = 1;
-                currentPlayer.setText("Player 1: Make a Move");
+            if(!lastResponse.equals(playerResponse)) {
+                player = player == 1 ? 2 : 1;
+                if(player == 1) {
+                    currentPlayer.setText("Player 1: Make a Move");
+                } else {
+                    currentPlayer.setText("Player 2: Make a Move");
+                }
             }
-            else if (playerResponse.equals("2")){
-                player = 2;
-                currentPlayer.setText("Player 2: Make a Move");
-            }
-            System.out.println(playerResponse);
+
+            System.out.println(lastResponse);
+            lastResponse = playerResponse;
+            System.out.println(lastResponse);
+
+//            if(playerResponse.equals("1")){
+//                player = 1;
+//                currentPlayer.setText("Player 1: Make a Move");
+//            }
+//            else if (playerResponse.equals("2")){
+//                player = 2;
+//                currentPlayer.setText("Player 2: Make a Move");
+//            }
+//            System.out.println(playerResponse);
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
