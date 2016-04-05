@@ -195,7 +195,7 @@ public class ChooseChipColor extends Activity implements View.OnClickListener{
             e.printStackTrace();
         }
         //Change the text to tell user to choose a different color
-        ((TextView) findViewById(R.id.textView2)).setText("Second Color");
+        ((TextView) findViewById(R.id.textView2)).setText("Choose A Second Color");
         //MainActivity.player1Color = pressedButton.getBackground();
         setTitle("Choose a Chip Color for Player 2");
         //((TextView) findViewById(R.id.textView2)).setText("Choose Chip Color for CPU");
@@ -213,6 +213,7 @@ public class ChooseChipColor extends Activity implements View.OnClickListener{
             case R.id.buttonYellow:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
                 textView16 = (TextView) findViewById(R.id.textView16);
+                textView16.setVisibility(View.VISIBLE);
                 //((TextView) findViewById(R.id.textView7)).setText("Second Player");
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
