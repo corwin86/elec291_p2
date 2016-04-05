@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class GameInstructions extends Activity implements View.OnClickListener{
     Button buttonDone;
-    boolean start_pressed = false;
+    //boolean start_pressed = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,36 +35,29 @@ public class GameInstructions extends Activity implements View.OnClickListener{
         buttonDone.setOnClickListener(this);
 
 
-        if(!start_pressed){
-            buttonDone.setText("START");
-        }
-        else{
-            buttonDone.setText("DONE");
-        }
+//        if(!GameBoard.start_has_been_pressed){
+//            buttonDone.setText("START");
+//        }
+//        else{
+//            buttonDone.setText("DONE");
+//        }
     }
 
     @Override
     public void onClick(View v){
-        switch((v.getId())){
-            case R.id.buttonDone:
-                if(!start_pressed){
-                    WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
-                    try{
-                        String start = "st";
-                        String responseString = wifiConnection.doPOST(start, MainActivity.urlToConnection);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                    start_pressed = true;
-                    finish();
-                }
-                else{
-                    finish();
-                }
-                break;
+
+        WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
+        try{
+            String start = "st";
+            String responseString = wifiConnection.doPOST(start, MainActivity.urlToConnection);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
+        GameBoard.start_has_been_pressed = true;
+        finish();
+
     }
 }
 

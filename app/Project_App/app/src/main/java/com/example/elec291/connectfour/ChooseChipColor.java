@@ -158,31 +158,37 @@ public class ChooseChipColor extends Activity implements View.OnClickListener{
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
                 textView3 = (TextView) findViewById(R.id.textView3);
                 textView3.setVisibility(View.VISIBLE);
+                buttonRed.setEnabled(false);
                 break;
             case R.id.buttonBlue:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
                 textView5 = (TextView) findViewById(R.id.textView5);
                 textView5.setVisibility(View.VISIBLE);
+                buttonBlue.setEnabled(false);
                 break;
             case R.id.buttonGreen:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
                 textView8 = (TextView) findViewById(R.id.textView8);
                 textView8.setVisibility(View.VISIBLE);
+                buttonGreen.setEnabled(false);
                 break;
             case R.id.buttonMagenta:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
                 textView6 = (TextView) findViewById(R.id.textView6);
                 textView6.setVisibility(View.VISIBLE);
+                buttonMagenta.setEnabled(false);
                 break;
             case R.id.buttonCyan:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
                 textView4 = (TextView) findViewById(R.id.textView4);
                 textView4.setVisibility(View.VISIBLE);
+                buttonCyan.setEnabled(false);
                 break;
             case R.id.buttonYellow:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
                 textView7 = (TextView) findViewById(R.id.textView7);
                 textView7.setVisibility(View.VISIBLE);
+                buttonYellow.setEnabled(false);
                 break;
         }
         WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
@@ -195,7 +201,7 @@ public class ChooseChipColor extends Activity implements View.OnClickListener{
             e.printStackTrace();
         }
         //Change the text to tell user to choose a different color
-        ((TextView) findViewById(R.id.textView2)).setText("Second Color");
+        ((TextView) findViewById(R.id.textView2)).setText("Choose A Second Color");
         //MainActivity.player1Color = pressedButton.getBackground();
         setTitle("Choose a Chip Color for Player 2");
         //((TextView) findViewById(R.id.textView2)).setText("Choose Chip Color for CPU");
@@ -213,6 +219,7 @@ public class ChooseChipColor extends Activity implements View.OnClickListener{
             case R.id.buttonYellow:
                 pressedButton.setBackgroundColor(Color.parseColor("#FF888888"));
                 textView16 = (TextView) findViewById(R.id.textView16);
+                textView16.setVisibility(View.VISIBLE);
                 //((TextView) findViewById(R.id.textView7)).setText("Second Player");
                 buttonNext.setVisibility(View.VISIBLE);
                 break;
