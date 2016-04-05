@@ -68,7 +68,7 @@ uint32_t victoryBlink;
 // ==== Constants ====
 
 /* ---- hardware dependent ---- */
-const uint8_t LED_BRIGHTNESS = 150;
+const uint8_t LED_BRIGHTNESS = 25;
 /* -- end hardware dependent -- */
 
 /* ---- game ids ---- */
