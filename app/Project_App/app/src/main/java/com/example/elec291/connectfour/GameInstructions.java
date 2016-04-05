@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class GameInstructions extends Activity implements View.OnClickListener{
     Button buttonDone;
-    boolean start_pressed = false;
+    //boolean start_pressed = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,7 +35,7 @@ public class GameInstructions extends Activity implements View.OnClickListener{
         buttonDone.setOnClickListener(this);
 
 
-        if(!start_pressed){
+        if(!GameBoard.start_has_been_pressed){
             buttonDone.setText("START");
         }
         else{
@@ -47,7 +47,7 @@ public class GameInstructions extends Activity implements View.OnClickListener{
     public void onClick(View v){
         switch((v.getId())){
             case R.id.buttonDone:
-                if(!start_pressed){
+                if(!GameBoard.start_has_been_pressed){
                     WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
                     try{
                         String start = "st";
@@ -57,7 +57,7 @@ public class GameInstructions extends Activity implements View.OnClickListener{
                     } catch (ExecutionException e) {
                         e.printStackTrace();
                     }
-                    start_pressed = true;
+                    GameBoard.start_has_been_pressed = true;
                     finish();
                 }
                 else{

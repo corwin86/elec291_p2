@@ -21,6 +21,7 @@ public class GameBoard extends Activity implements View.OnClickListener{
     Button instructions, Column1, Column2, Column3, Column4, Column5, Column6, Column7, Column8;
     TextView currentPlayer;
     String move;
+    static boolean start_has_been_pressed = false;
     int player = 1; //1 = player 1. 2 = player2
 
     @Override
