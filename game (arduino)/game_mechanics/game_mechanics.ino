@@ -68,7 +68,7 @@ uint32_t victoryBlink;
 // ==== Constants ====
 
 /* ---- hardware dependent ---- */
-const uint8_t LED_BRIGHTNESS = 25;
+const uint8_t LED_BRIGHTNESS = 7;
 /* -- end hardware dependent -- */
 
 /* ---- game ids ---- */
@@ -86,7 +86,7 @@ const int8_t AI_VS_AI = 0,
              UNINITIALIZED = -1;
 const int8_t X_DIM = 8,
              Y_DIM = 8,
-             SEQ_LENGTH = 4;
+             SEQ_LENGTH = 5;
 const int BAD_MOVE = -1000,
           GOOD_MOVE = 1000,
           IMPOSSIBLE_MOVE = -11111;
@@ -108,7 +108,7 @@ const int8_t UP = 1,
 /* ---- player info ---- */
 uint32_t p1_colour = off,
          p2_colour = off;
-int8_t      turns;
+int8_t   turns;
 bool     gameOver,
          validMove;
 /* -- end player info -- */
