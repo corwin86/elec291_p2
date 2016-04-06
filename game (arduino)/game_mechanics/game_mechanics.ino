@@ -1,3 +1,5 @@
+// This code was written using this link as a reference: https://github.com/adafruit/Adafruit_CC3000_Library/blob/master/examples/HTTPServer/HTTPServer.ino
+
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_CC3000.h>
 #include <SPI.h>
