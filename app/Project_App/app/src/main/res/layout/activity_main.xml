@@ -31,14 +31,6 @@
 
 
 
-
-    <!--<TextView-->
-        <!--android:background="@drawable/circular_shape"-->
-        <!--android:gravity="center_vertical|center_horizontal"-->
-        <!--android:textColor="@android:color/white"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent" />-->
-
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -166,7 +158,6 @@
         android:layout_marginRight="20dp"/>
 
 
-    <!--android:background="@drawable/circular_button"/>-->
 </RelativeLayout>
 
 

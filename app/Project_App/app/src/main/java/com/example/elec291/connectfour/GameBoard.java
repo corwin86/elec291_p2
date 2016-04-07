@@ -3,14 +3,9 @@ package com.example.elec291.connectfour;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import java.lang.Integer;
-
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -22,7 +17,6 @@ public class GameBoard extends Activity implements View.OnClickListener{
     TextView currentPlayer;
     String move;
     static boolean start_has_been_pressed = false;
-    int player = 1; //1 = player 1. 2 = player2
     String lastResponse = "3";
 
     @Override
@@ -53,9 +47,11 @@ public class GameBoard extends Activity implements View.OnClickListener{
         Column7.setOnClickListener(this);
         Column8.setOnClickListener(this);
 
+        //Start the game instructions activity so that it starts up first
         startActivity(new Intent(GameBoard.this, GameInstructions.class));
     }
 
+    //Output string based on what button is pressed
     @Override
     public void onClick(View v){
         WifiConnection wifiConnection = new WifiConnection(getApplicationContext());
@@ -89,8 +85,11 @@ public class GameBoard extends Activity implements View.OnClickListener{
                 break;
         }
         try {
+
+            //Send move to the server so it can be displayed on the LEDs
             String playerResponse = wifiConnection.doPOST(move, MainActivity.urlToConnection).trim();
 
+            //Keep track of whose turn it is so that text can be displayed on app
             if(!lastResponse.equals(playerResponse)) {
                 player = player == 1 ? 2 : 1;
                 if(player == 1) {
@@ -104,29 +103,11 @@ public class GameBoard extends Activity implements View.OnClickListener{
             lastResponse = playerResponse;
             System.out.println(lastResponse);
 
-//            if(playerResponse.equals("1")){
-//                player = 1;
-//                currentPlayer.setText("Player 1: Make a Move");
-//            }
-//            else if (playerResponse.equals("2")){
-//                player = 2;
-//                currentPlayer.setText("Player 2: Make a Move");
-//            }
-//            System.out.println(playerResponse);
+
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
-//
 }
-//@Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event){
-//        if(keyCode == KeyEvent.KEYCODE_BACK){
-//            startActivity(new Intent(GameBoard.this, QuitOrResume.class));
-//            return true;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }

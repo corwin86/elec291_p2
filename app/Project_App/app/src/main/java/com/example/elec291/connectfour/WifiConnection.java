@@ -1,34 +1,20 @@
 package com.example.elec291.connectfour;
 
-import android.content.AsyncQueryHandler;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -60,7 +46,6 @@ public class WifiConnection extends AppCompatActivity {
             String response = task.get();
             return response;
 
-            //String s = new DownloadWebpageTask().execute(urlString).get();
         }
         else{
             System.out.println("no network connection available");
@@ -82,7 +67,6 @@ public class WifiConnection extends AppCompatActivity {
             do {
                 try {
                     timedOut = false;
-                    //return downloadUrl(urls[0]);
                     response =  Upload(urls[0]);
                 } catch (IOException e) {
                     return "unable to retrieve webpage";
@@ -119,8 +103,6 @@ public class WifiConnection extends AppCompatActivity {
             connection.connect();
             System.out.println("Checkpoint 4");
             System.out.println(connection.getResponseCode());
-            //int response = connection.getResponseCode();
-            //System.out.println(response);
             System.out.println("Checkpoint 5");
             is = connection.getInputStream();
             System.out.println("Checkpoint 6");
@@ -144,7 +126,6 @@ public class WifiConnection extends AppCompatActivity {
     }
 
     private String Upload(String myurl) throws IOException, TimeoutException {
-        //OutputStream os = null;
         DataOutputStream os = null;
         BufferedReader reader=  null;
         int len = 500;
@@ -162,26 +143,16 @@ public class WifiConnection extends AppCompatActivity {
             System.out.println("Checkpoint2");
             connection.connect();
             System.out.println("Checkpoint3");
-            //int response = connection.getResponseCode();
-            //System.out.println(connection.getResponseCode());
             System.out.println("Checkpoint4");
-            //System.out.println(response);
-            //os = connection.getOutputStream();
             System.out.println("Checkpoint getOutputStream");
-            //os = connection.getOutputStream();
             os = new DataOutputStream(connection.getOutputStream());
             System.out.println("Instantiate");
-            //os.writeBytes("First post");
-            //os.write("First post".getBytes());
-            //os.writeBytes("First post");
             os.writeBytes(stringToBePosted);
-            //os.write(5);
             System.out.println("Instantiate");
             os.flush();
             System.out.println("flush");
             os.close();
             System.out.println(connection.getResponseCode());
-            // writeIt(os);
             System.out.println("close");
 
 
@@ -198,7 +169,6 @@ public class WifiConnection extends AppCompatActivity {
 
             text = sb.toString();
             System.out.println("Checkpoint8");
-            //return "post worked";
             return text;
         }
         finally {

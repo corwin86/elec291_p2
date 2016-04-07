@@ -2,27 +2,31 @@ package com.example.elec291.connectfour;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-
 import java.util.concurrent.ExecutionException;
 
 /**
  * Created by rohini on 24/03/16.
  */
+
 public class GameInstructions extends Activity implements View.OnClickListener{
     Button buttonDone;
-    //boolean start_pressed = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        //Empty Window
         super.onCreate(savedInstanceState);
+
+        //Load XML File
         setContentView(R.layout.content_game_instructions);
+
+        //Change title of action bar
         setTitle("How to Play");
 
+        //Change the size of the view to create a pop-up window
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
@@ -31,18 +35,13 @@ public class GameInstructions extends Activity implements View.OnClickListener{
 
         getWindow().setLayout((int) (width * 0.8), (int) (height * 0.8));
 
+        //initializing the Done Button
         buttonDone = (Button) findViewById(R.id.buttonDone);
         buttonDone.setOnClickListener(this);
 
-
-//        if(!GameBoard.start_has_been_pressed){
-//            buttonDone.setText("START");
-//        }
-//        else{
-//            buttonDone.setText("DONE");
-//        }
     }
 
+    //When done is pressed, close activity and go to game board. Send start signal to the server
     @Override
     public void onClick(View v){
 
