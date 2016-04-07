@@ -32,18 +32,8 @@
         <activity
             android:name=".DisplayColorsActivity"
             android:theme="@style/AppTheme.customtheme">
-            <!--android:label="@string/title_activity_display_colors"-->
-            <!--android:parentActivityName=".ChoosePlayerMode"-->
 
-            <!--<meta-data-->
-                <!--android:name="android.support.PARENT_ACTIVITY"-->
-                <!--android:value="com.example.elec291.connectfour.ChoosePlayerMode" />-->
-
-            <!--<intent-filter>-->
-                <!--<action android:name="com.example.elec291.connect4.DisplayColorsActivity" />-->
-
-                <!--<category android:name="android.intent.category.DEFAULT" />-->
-            <!--</intent-filter>-->
+          
         </activity>
 
         <activity
